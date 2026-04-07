@@ -1,0 +1,96 @@
+services:
+
+  # == Gateway ================================================
+  gateway:
+    image: nginx:1.27-alpine
+    ports:
+      - "8080:80"
+      - "8443:443"
+    volumes:
+      - ./infra/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./infra/nginx/certs:/etc/nginx/certs:ro
+      - ./app/frontend/public:/var/www/frontend/public:ro
+    depends_on:
+      - auth
+      - media
+      - post
+      - notification
+    networks:
+      - camagru
+
+  # == Auth Service ===========================================
+  auth:
+    build:
+      context: ./app/services/auth
+      dockerfile: Dockerfile
+    volumes:
+      - ./app/services/auth:/var/www/html
+      - auth-data:/var/www/html/data
+    environment:
+      - SERVICE_NAME=auth
+      - JWT_SECRET=change_me_in_production
+    networks:
+      - camagru
+
+  # == Media Service ==========================================
+  media:
+    build:
+      context: ./app/services/media
+      dockerfile: Dockerfile
+    volumes:
+      - ./app/services/media:/var/www/html
+      - media-data:/var/www/html/data
+      - media-uploads:/var/www/html/uploads
+    environment:
+      - SERVICE_NAME=media
+    networks:
+      - camagru
+
+  # == Post Service ===========================================
+  post:
+    build:
+      context: ./app/services/post
+      dockerfile: Dockerfile
+    volumes:
+      - ./app/services/post:/var/www/html
+      - post-data:/var/www/html/data
+    environment:
+      - SERVICE_NAME=post
+    networks:
+      - camagru
+
+  # == Notification Service ===================================
+  notification:
+    build:
+      context: ./app/services/notification
+      dockerfile: Dockerfile
+    volumes:
+      - ./app/services/notification:/var/www/html
+      - notif-data:/var/www/html/data
+    environment:
+      - SERVICE_NAME=notification
+      - SMTP_HOST=mailhog
+      - SMTP_PORT=1025
+    networks:
+      - camagru
+
+  # == Dev mail catcher (remplace un vrai SMTP en dev) =======
+  mailhog:
+    image: mailhog/mailhog:latest
+    ports:
+      - "8025:8025"
+    networks:
+      - camagru
+
+# == Volumes (une micro-DB SQLite par service) ================
+volumes:
+  auth-data:
+  media-data:
+  media-uploads:
+  post-data:
+  notif-data:
+
+# == Network interne ==========================================
+networks:
+  camagru:
+    driver: bridge
