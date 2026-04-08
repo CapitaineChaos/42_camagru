@@ -11,7 +11,7 @@ SERVICES    := $(shell $(COMPOSE) config --services 2>/dev/null)
 TARGETS	 	:= stop start down up restart logs rebuild
 SVC_TARGETS := $(foreach s,$(SERVICES), stop-$s start-$s down-$s up-$s restart-$s logs-$s rebuild-$s)
 
-.PHONY: all up down build logs ps clean re fclean certs frontend frontend-dev $(SVC_TARGETS)
+.PHONY: all up down build logs ps clean re fclean certs frontend frontend-dev git-fix $(SVC_TARGETS)
 
 all: up
 
@@ -75,6 +75,10 @@ list:
 	@echo $(SERVICES) | tr ' ' '\n' | sed 's/^/  - /'
 	@echo "Per-service targets:"
 	@echo $(TARGETS) | tr ' ' '\n' | sed 's/^/  - /'
+
+# --- Git SSH identity fix (auto-detects from remote + ~/.ssh/config) ---
+git-fix:
+	@bash scripts/git-fix-remote.sh
 
 re: fclean build
 
