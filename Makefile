@@ -64,6 +64,8 @@ clean:
 	@$(COMPOSE) down -v --rmi local
 
 fclean: clean
+	@echo "[fclean] suppression des certificats..."
+	rm -f infra/nginx/certs/selfsigned.crt infra/nginx/certs/selfsigned.key
 	@echo "[fclean] suppression du cache builder..."
 	docker builder prune -af
 	@echo "[fclean] suppression système..."
