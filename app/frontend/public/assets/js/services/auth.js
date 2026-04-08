@@ -1,3 +1,5 @@
+import { api } from './api.js';
+
 const TOKEN_KEY = 'camagru_token';
 
 export function getToken() {
@@ -21,24 +23,17 @@ export function logout() {
 }
 
 export async function login(username, password) {
-    const res = await fetch('/api/auth/login', {
+    const data = await api('/api/auth/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Erreur de connexion');
     setToken(data.token);
     return data;
 }
 
 export async function register(username, email, password) {
-    const res = await fetch('/api/auth/register', {
+    return api('/api/auth/register', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, email, password }),
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || "Erreur d'inscription");
-    return data;
 }

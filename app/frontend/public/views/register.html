@@ -2,16 +2,16 @@
     <h2>Inscription</h2>
     <form id="register-form">
         <label for="reg-username">Nom d'utilisateur</label>
-        <input id="reg-username" name="username" type="text" required autocomplete="username">
+        <input minlength="3" id="reg-username" name="username" type="text" required autocomplete="username">
 
         <label for="reg-email">Email</label>
         <input id="reg-email" name="email" type="email" required autocomplete="email">
 
         <label for="reg-password">Mot de passe</label>
-        <input id="reg-password" name="password" type="password" required autocomplete="new-password">
+        <input minlength="8" id="reg-password" name="password" type="password" required autocomplete="new-password">
 
         <label for="reg-password2">Confirmer le mot de passe</label>
-        <input id="reg-password2" name="password2" type="password" required autocomplete="new-password">
+        <input minlength="8" id="reg-password2" name="password2" type="password" required autocomplete="new-password">
 
         <button type="submit">S'inscrire</button>
     </form>

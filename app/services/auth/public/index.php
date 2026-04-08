@@ -11,11 +11,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-$uri = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
+require_once __DIR__ . '/../src/AuthController.php';
+
+$uri    = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
+$method = $_SERVER['REQUEST_METHOD'];
 
 // Health check
 if ($uri === 'health') {
     echo json_encode(['service' => 'auth', 'status' => 'ok']);
+    exit;
+}
+
+// Routes
+if ($method === 'POST' && $uri === 'register') {
+    AuthController::register();
+    exit;
+}
+
+if ($method === 'POST' && $uri === 'login') {
+    AuthController::login();
+    exit;
+}
+
+if ($method === 'GET' && $uri === 'me') {
+    AuthController::me();
+    exit;
+}
+
+if ($method === 'POST' && $uri === 'forgot') {
+    AuthController::forgot();
+    exit;
+}
+
+if ($method === 'POST' && $uri === 'reset') {
+    AuthController::reset();
+    exit;
+}
+
+if ($method === 'GET' && $uri === 'verify') {
+    AuthController::verify();
     exit;
 }
 

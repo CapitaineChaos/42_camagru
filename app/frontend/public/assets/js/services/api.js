@@ -1,18 +1,46 @@
 import { getToken, removeToken } from './auth.js';
 
+const SERVICE_NAMES = {
+    '/api/auth/':         'identification',
+    '/api/media/':        'média',
+    '/api/post/':         'publication',
+    '/api/notification/': 'notification',
+};
+
+function serviceName(path) {
+    for (const [prefix, name] of Object.entries(SERVICE_NAMES)) {
+        if (path.startsWith(prefix)) return name;
+    }
+    return 'serveur';
+}
+
 export async function api(path, options = {}) {
     const token = getToken();
     const headers = { 'Content-Type': 'application/json', ...options.headers };
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
-    const res = await fetch(path, { ...options, headers });
+    let res;
+    try {
+        res = await fetch(path, { ...options, headers });
+    } catch {
+        throw new Error(`Serveur ${serviceName(path)} inaccessible.`);
+    }
 
-    // Token expired / invalid — force logout
-    if (res.status === 401) {
+    if (res.status === 502 || res.status === 503) {
+        throw new Error(`Serveur ${serviceName(path)} inaccessible.`);
+    }
+
+    if (res.status === 401 && token && !path.startsWith('/api/auth/login') && !path.startsWith('/api/auth/register')) {
         removeToken();
         location.hash = '#/login';
         throw new Error('Session expirée');
     }
 
-    return res;
+    const data = await res.json().catch(() => null);
+
+    if (!res.ok) {
+        throw new Error(data?.error || `Erreur ${res.status}`);
+    }
+
+    return data;
 }

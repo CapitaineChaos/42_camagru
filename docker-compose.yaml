@@ -41,6 +41,7 @@ services:
       - ./app/services/media:/var/www/html
       - media-data:/var/www/html/data
       - media-uploads:/var/www/html/uploads
+    env_file: ./secrets/.env
     environment:
       - SERVICE_NAME=media
     networks:
@@ -54,6 +55,7 @@ services:
     volumes:
       - ./app/services/post:/var/www/html
       - post-data:/var/www/html/data
+    env_file: ./secrets/.env
     environment:
       - SERVICE_NAME=post
     networks:
