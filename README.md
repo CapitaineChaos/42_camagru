@@ -1,3 +1,30 @@
+## Dev mode
+
+### 1st time
+```bash
+make frontend-install
+```
+
+### During work
+```bash
+make dev
+```
+Then just edit scss files, watcher will automatically compile them to uncompressed style.css and will provide a style.css.map for helping to debug.
+
+
+### Once ready to deliver
+```bash
+make dev
+```
+This will build the definitive and compressed style.css with no map
+
+## Deploy mode
+```bash
+make
+```
+
+## General informations
+
 ### Frontend
 - UI
 - Login / register
