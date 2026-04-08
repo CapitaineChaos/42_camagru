@@ -14,11 +14,11 @@ Then just edit scss files, watcher will automatically compile them to uncompress
 
 ### Once ready to deliver
 ```bash
-make dev
+make frontend
 ```
 This will build the definitive and compressed style.css with no map
 
-## Deploy mode
+## Deploy mode and prod
 ```bash
 make
 ```

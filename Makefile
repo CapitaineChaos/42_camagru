@@ -79,6 +79,10 @@ list:
 	@echo "Per-service targets:"
 	@echo $(TARGETS) | tr ' ' '\n' | sed 's/^/  - /'
 
+test:
+	@echo "[test] requête vers https://localhost:8443/"
+	@curl -skS -I https://localhost:8443/
+	
 # --- Git SSH identity fix (auto-detects from remote + ~/.ssh/config) ---
 git-fix:
 	@bash scripts/git-fix-remote.sh

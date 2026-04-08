@@ -26,9 +26,9 @@ services:
     volumes:
       - ./app/services/auth:/var/www/html
       - auth-data:/var/www/html/data
+    env_file: ./secrets/.env
     environment:
       - SERVICE_NAME=auth
-      - JWT_SECRET=change_me_in_production
     networks:
       - camagru
 
@@ -67,10 +67,9 @@ services:
     volumes:
       - ./app/services/notification:/var/www/html
       - notif-data:/var/www/html/data
+    env_file: ./secrets/.env
     environment:
       - SERVICE_NAME=notification
-      - SMTP_HOST=mailhog
-      - SMTP_PORT=1025
     networks:
       - camagru
 
