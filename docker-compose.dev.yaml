@@ -1,0 +1,5 @@
+# Dev overrides - loaded on top of docker-compose.yaml by `make dev`
+services:
+  gateway:
+    volumes:
+      - ./infra/nginx/dev-nocache.conf:/etc/nginx/extra.d/nocache.conf:ro

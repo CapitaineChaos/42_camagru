@@ -7,6 +7,7 @@ USER_UID := $(shell id -u)
 USER_GID := $(shell id -g)
 
 COMPOSE     = USER_UID=$(USER_UID) USER_GID=$(USER_GID) docker compose -f ./docker-compose.yaml -p camagru
+COMPOSE_DEV = $(COMPOSE) -f ./docker-compose.dev.yaml
 SERVICES    := $(shell $(COMPOSE) config --services 2>/dev/null)
 TARGETS	 	:= stop start down up restart logs rebuild
 SVC_TARGETS := $(foreach s,$(SERVICES), stop-$s start-$s down-$s up-$s restart-$s logs-$s rebuild-$s)
@@ -36,8 +37,8 @@ up: certs
 	@$(COMPOSE) up -d
 
 dev: certs frontend-dev
-	@$(COMPOSE) up -d
-	@echo "[dev] running - scss watch active"
+	@$(COMPOSE_DEV) up -d
+	@echo "[dev] running - scss watch + no-cache active"
 
 down:
 	@$(COMPOSE) down
