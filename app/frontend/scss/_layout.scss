@@ -1,0 +1,19 @@
+// ============================================================
+// Layout — Squelette structurel des pages
+// ============================================================
+@use 'variables' as *;
+
+header {
+  background: $color-white;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid $color-border;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+main {
+  max-width: $max-width;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}

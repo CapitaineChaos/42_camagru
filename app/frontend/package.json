@@ -1,0 +1,12 @@
+{
+  "name": "camagru-frontend",
+  "private": true,
+  "scripts": {
+    "build":     "sass scss/style.scss public/assets/css/style.css --style=compressed --no-source-map",
+    "dev":       "sass scss/style.scss public/assets/css/style.css --watch --source-map",
+    "lint:scss": "sass --no-source-map --style=expanded scss/style.scss /dev/null"
+  },
+  "devDependencies": {
+    "sass": "^1.77.0"
+  }
+}

@@ -1,0 +1,7 @@
+# Ne pas envoyer dans le contexte Docker
+node_modules/
+scss/
+Makefile
+package.json
+package-lock.json
+.gitignore
