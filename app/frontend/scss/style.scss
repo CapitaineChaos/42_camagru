@@ -1,14 +1,13 @@
 // ============================================================
-// Camagru — Point d'entrée SCSS
+// Camagru - SCSS entry point
+// Order: variables (tokens) > base (reset) > layout (structure)
+//      > components (shared) > pages
 // ============================================================
-// Ordre d'import : variables > base > layout > components > pages
 
+@use 'variables';
 @use 'base';
 @use 'layout';
-
-// À mesure que le projet grossit, ajouter ici :
-// @use 'components/buttons';
-// @use 'components/forms';
-// @use 'components/cards';
-// @use 'pages/home';
-// @use 'pages/gallery';
+@use 'components';
+@use 'theme-toggle';
+@use 'feed';
+@use 'profile';

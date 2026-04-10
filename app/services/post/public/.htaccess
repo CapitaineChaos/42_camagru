@@ -1,4 +1,6 @@
 RewriteEngine On
+# Passe le header Authorization à PHP (Apache le stripe sinon)
+RewriteRule ^ - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php [QSA,L]

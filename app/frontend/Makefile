@@ -1,5 +1,5 @@
 # ============================================================
-# Frontend — Build toolchain
+# Frontend - Build toolchain
 # ============================================================
 .PHONY: install build dev clean
 

@@ -1,9 +1,9 @@
 import { getToken, removeToken } from './auth.js';
 
 const SERVICE_NAMES = {
-    '/api/auth/':         'identification',
-    '/api/media/':        'média',
-    '/api/post/':         'publication',
+    '/api/auth/':         'auth',
+    '/api/media/':        'media',
+    '/api/post/':         'post',
     '/api/notification/': 'notification',
 };
 
@@ -11,7 +11,7 @@ function serviceName(path) {
     for (const [prefix, name] of Object.entries(SERVICE_NAMES)) {
         if (path.startsWith(prefix)) return name;
     }
-    return 'serveur';
+    return 'server';
 }
 
 export async function api(path, options = {}) {
@@ -23,17 +23,17 @@ export async function api(path, options = {}) {
     try {
         res = await fetch(path, { ...options, headers });
     } catch {
-        throw new Error(`Serveur ${serviceName(path)} inaccessible.`);
+        throw new Error(`${serviceName(path)} service unavailable.`);
     }
 
     if (res.status === 502 || res.status === 503) {
-        throw new Error(`Serveur ${serviceName(path)} inaccessible.`);
+        throw new Error(`${serviceName(path)} service unavailable.`);
     }
 
     if (res.status === 401 && token && !path.startsWith('/api/auth/login') && !path.startsWith('/api/auth/register')) {
         removeToken();
         location.hash = '#/login';
-        throw new Error('Session expirée');
+        throw new Error('Session expired');
     }
 
     const data = await res.json().catch(() => null);

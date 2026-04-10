@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================
-# git-fix-remote.sh — Auto-fix the git remote to use the
+# git-fix-remote.sh - Auto-fix the git remote to use the
 #                     correct SSH Host from ~/.ssh/config.
 #
 # HOW IT WORKS:

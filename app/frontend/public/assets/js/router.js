@@ -1,5 +1,6 @@
 import { isLoggedIn, removeToken } from './services/auth.js';
 import { api } from './services/api.js';
+import { initTheme } from './services/theme.js';
 
 const routes = {
     'login':    { view: 'login',    auth: false },
@@ -25,8 +26,8 @@ async function checkToken() {
         // success: token is valid, nothing to do
     } catch (err) {
         // If api() already removed the token (401 path), nothing to do.
-        // If auth is just down (502), keep the token — can't verify but don't wipe it.
-        if (err.message === 'Session expirée') return;
+        // If auth is just down (502), keep the token - can't verify but don't wipe it.
+        if (err.message === 'Session expired') return;
         // Other errors (network, 503): silently ignore
     }
 }
@@ -34,21 +35,21 @@ async function checkToken() {
 function updateNav() {
     if (isLoggedIn()) {
         nav.innerHTML = `
-            <a href="#/feed">Galerie</a>
-            <a href="#/editor">Créer</a>
-            <a href="#/profile">Profil</a>
-            <a href="#/logout">Déconnexion</a>`;
+            <a href="#/feed">Gallery</a>
+            <a href="#/editor">Create</a>
+            <a href="#/profile">Profile</a>
+            <a href="#/logout">Sign out</a>`;
     } else {
         nav.innerHTML = `
-            <a href="#/feed">Galerie</a>
-            <a href="#/login">Connexion</a>
-            <a href="#/register">Inscription</a>`;
+            <a href="#/feed">Gallery</a>
+            <a href="#/login">Sign in</a>
+            <a href="#/register">Sign up</a>`;
     }
 }
 
 async function loadView(name) {
-    const resp = await fetch(`/views/${name}.html`);
-    if (!resp.ok) return '<p>Page introuvable.</p>';
+    const resp = await fetch(`/views/${name}.html`, { cache: 'no-cache' });
+    if (!resp.ok) return '<p>Page not found.</p>';
     return resp.text();
 }
 
@@ -57,7 +58,7 @@ async function mountView(name) {
         const mod = await import(`./views/${name}.js`);
         if (mod.mount) mod.mount(app);
     } catch {
-        // No JS module for this view — that's fine
+        // No JS module for this view - that's fine
     }
 }
 
@@ -75,11 +76,11 @@ async function navigate() {
 
     const route = routes[hash];
     if (!route) {
-        app.innerHTML = '<p>Page introuvable.</p>';
+        app.innerHTML = '<p>Page not found.</p>';
         return;
     }
 
-    // Protected route — redirect to login
+    // Protected route - redirect to login
     if (route.auth && !isLoggedIn()) {
         location.hash = '#/login';
         return;
@@ -92,6 +93,7 @@ async function navigate() {
 
 window.addEventListener('hashchange', navigate);
 document.addEventListener('DOMContentLoaded', async () => {
+    initTheme();
     await checkToken();
     navigate();
 });

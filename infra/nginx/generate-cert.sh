@@ -5,7 +5,7 @@ CERT_DIR="$(dirname "$0")/certs"
 mkdir -p "$CERT_DIR"
 
 if [ -f "$CERT_DIR/selfsigned.crt" ] && [ -f "$CERT_DIR/selfsigned.key" ]; then
-    echo "Certificates already exist in $CERT_DIR — skipping generation."
+    echo "Certificates already exist in $CERT_DIR - skipping generation."
     exit 0
 fi
 

@@ -14,7 +14,7 @@ export function mount(container) {
         const password2 = form.password2.value;
 
         if (password !== password2) {
-            error.textContent = 'Les mots de passe ne correspondent pas.';
+            error.textContent = 'Passwords do not match.';
             return;
         }
 

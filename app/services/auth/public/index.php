@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+header('Access-Control-Allow-Methods: GET, POST, PATCH, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -11,47 +11,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-require_once __DIR__ . '/../src/AuthController.php';
-
 $uri    = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
 $method = $_SERVER['REQUEST_METHOD'];
 
-// Health check
 if ($uri === 'health') {
     echo json_encode(['service' => 'auth', 'status' => 'ok']);
     exit;
 }
 
-// Routes
 if ($method === 'POST' && $uri === 'register') {
-    AuthController::register();
+    require_once __DIR__ . '/../src/RegisterController.php';
+    RegisterController::handle();
     exit;
 }
 
 if ($method === 'POST' && $uri === 'login') {
-    AuthController::login();
+    require_once __DIR__ . '/../src/LoginController.php';
+    LoginController::handle();
     exit;
 }
 
 if ($method === 'GET' && $uri === 'me') {
-    AuthController::me();
+    require_once __DIR__ . '/../src/ProfileController.php';
+    ProfileController::get();
+    exit;
+}
+
+if ($method === 'PATCH' && $uri === 'me') {
+    require_once __DIR__ . '/../src/ProfileController.php';
+    ProfileController::update();
     exit;
 }
 
 if ($method === 'POST' && $uri === 'forgot') {
-    AuthController::forgot();
+    require_once __DIR__ . '/../src/PasswordController.php';
+    PasswordController::forgot();
     exit;
 }
 
 if ($method === 'POST' && $uri === 'reset') {
-    AuthController::reset();
+    require_once __DIR__ . '/../src/PasswordController.php';
+    PasswordController::reset();
     exit;
 }
 
 if ($method === 'GET' && $uri === 'verify') {
-    AuthController::verify();
+    require_once __DIR__ . '/../src/VerifyController.php';
+    VerifyController::handle();
     exit;
 }
 
 http_response_code(404);
 echo json_encode(['error' => 'Not found']);
+

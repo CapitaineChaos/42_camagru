@@ -1,11 +1,13 @@
 <section class="auth-form">
-    <h2>Mot de passe oublié</h2>
+    <h2>Forgot password</h2>
     <form id="forgot-form">
-        <label for="forgot-email">Adresse email</label>
-        <input id="forgot-email" name="email" type="email" required autocomplete="email">
-        <button type="submit">Envoyer le lien</button>
+        <div class="form-group">
+            <label for="forgot-email">Email address</label>
+            <input id="forgot-email" name="email" type="email" required autocomplete="email">
+        </div>
+        <button type="submit" class="btn btn--primary">Send reset link</button>
     </form>
     <p class="form-error"  id="forgot-error"></p>
     <p class="form-success" id="forgot-success"></p>
-    <p><a href="#/login">Retour à la connexion</a></p>
+    <p><a href="#/login">Back to sign in</a></p>
 </section>

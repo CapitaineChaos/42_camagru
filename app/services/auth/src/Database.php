@@ -41,12 +41,17 @@ class Database
         ");
         self::$pdo->exec("
             CREATE TABLE IF NOT EXISTS email_verifications (
-                id         INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id    INTEGER NOT NULL,
-                token      TEXT    NOT NULL UNIQUE,
-                expires_at TEXT    NOT NULL,
+                id            INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id       INTEGER NOT NULL,
+                token         TEXT    NOT NULL UNIQUE,
+                expires_at    TEXT    NOT NULL,
+                pending_email TEXT,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             )
         ");
+        // Migration: add pending_email on existing databases
+        try {
+            self::$pdo->exec('ALTER TABLE email_verifications ADD COLUMN pending_email TEXT');
+        } catch (\Exception) { /* colonne déjà présente */ }
     }
 }

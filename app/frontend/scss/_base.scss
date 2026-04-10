@@ -1,5 +1,5 @@
 // ============================================================
-// Base — Reset & éléments HTML bruts
+// Base - Reset & raw HTML elements
 // ============================================================
 @use 'variables' as *;
 
@@ -11,8 +11,32 @@
   padding: 0;
 }
 
+html {
+  transition: $transition-theme;
+}
+
 body {
   font-family: $font-stack;
-  background: $color-bg;
-  color: $color-text;
+  background: var(--color-bg);
+  color: var(--color-text);
+  min-height: 100vh;
+  transition: $transition-theme;
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+footer {
+  text-align: center;
+  padding: 1.5rem;
+  margin-top: 3rem;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  border-top: 1px solid var(--color-border);
 }

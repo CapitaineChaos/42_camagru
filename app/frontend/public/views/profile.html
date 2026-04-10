@@ -1,4 +1,49 @@
 <section class="profile">
-    <h2>Mon profil</h2>
-    <p>Paramètres à venir...</p>
+    <h2 class="profile__title">My Profile</h2>
+
+    <div class="profile__sections">
+
+        <!-- Info -->
+        <div class="profile__card">
+            <h3 class="profile__card-title">Information</h3>
+            <form id="form-info" class="profile__form" novalidate>
+                <div class="form-group">
+                    <label for="p-username">Username</label>
+                    <input id="p-username" name="username" type="text"
+                           minlength="3" maxlength="30" autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="p-email">Email</label>
+                    <input id="p-email" name="email" type="email" autocomplete="email">
+                </div>
+                <p class="form-hint" id="info-hint"></p>
+                <button type="submit" class="btn btn--primary">Save</button>
+            </form>
+        </div>
+
+        <!-- Password -->
+        <div class="profile__card">
+            <h3 class="profile__card-title">Change password</h3>
+            <form id="form-password" class="profile__form" novalidate>
+                <div class="form-group">
+                    <label for="p-current">Current password</label>
+                    <input id="p-current" name="current_password" type="password"
+                           autocomplete="current-password">
+                </div>
+                <div class="form-group">
+                    <label for="p-new">New password</label>
+                    <input id="p-new" name="new_password" type="password"
+                           minlength="8" autocomplete="new-password">
+                </div>
+                <div class="form-group">
+                    <label for="p-new2">Confirm new password</label>
+                    <input id="p-new2" name="new_password2" type="password"
+                           minlength="8" autocomplete="new-password">
+                </div>
+                <p class="form-hint" id="pass-hint"></p>
+                <button type="submit" class="btn btn--primary">Update</button>
+            </form>
+        </div>
+
+    </div>
 </section>

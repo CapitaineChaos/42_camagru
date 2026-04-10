@@ -6,24 +6,37 @@ class Mailer
     public static function sendReset(string $to, string $token): void
     {
         $link = 'https://localhost:8443/#/reset?token=' . rawurlencode($token);
-        $body = "Bonjour,\r\n\r\n"
-              . "Vous avez demandé la réinitialisation de votre mot de passe.\r\n\r\n"
-              . "Cliquez sur ce lien (valable 5 minutes) :\r\n"
+        $body = "Hello,\r\n\r\n"
+              . "You requested a password reset.\r\n\r\n"
+              . "Click this link (valid for 5 minutes):\r\n"
               . $link . "\r\n\r\n"
-              . "Si vous n'êtes pas à l'origine de cette demande, ignorez ce mail.\r\n";
+              . "If you did not request this, ignore this email.\r\n";
 
-        self::smtp($to, 'Réinitialisation de votre mot de passe – Camagru', $body);
+        self::smtp($to, 'Reset your password – Camagru', $body);
     }
 
     public static function sendVerification(string $to, string $token): void
     {
         $link = 'https://localhost:8443/#/verify?token=' . rawurlencode($token);
-        $body = "Bonjour,\r\n\r\n"
-              . "Bienvenue sur Camagru ! Confirmez votre adresse email en cliquant sur ce lien (valable 24h) :\r\n"
+        $body = "Hello,\r\n\r\n"
+              . "Welcome to Camagru! Confirm your email address by clicking this link (valid for 24h):\r\n"
               . $link . "\r\n\r\n"
-              . "Si vous n'avez pas créé de compte, ignorez ce mail.\r\n";
+              . "If you did not create an account, ignore this email.\r\n";
 
-        self::smtp($to, 'Confirmez votre adresse email – Camagru', $body);
+        self::smtp($to, 'Confirm your email address – Camagru', $body);
+    }
+
+    public static function sendEmailChange(string $to, string $token): void
+    {
+        $link = 'https://localhost:8443/#/verify?token=' . rawurlencode($token);
+        $body = "Hello,\r\n\r\n"
+              . "You requested an email address change on Camagru.\r\n\r\n"
+              . "Confirm your new address by clicking this link (valid for 24h):\r\n"
+              . $link . "\r\n\r\n"
+              . "Until you confirm this link, you can continue to log in with your old address.\r\n\r\n"
+              . "If you did not request this change, ignore this email — your account is not affected.\r\n";
+
+        self::smtp($to, 'Confirm your new email address – Camagru', $body);
     }
 
     private static function smtp(string $to, string $subject, string $body): void

@@ -10,7 +10,7 @@ export function mount(container) {
     const token  = params.get('token') ?? '';
 
     if (!token) {
-        error.textContent = 'Lien invalide ou manquant.';
+        error.textContent = 'Invalid or missing link.';
         form.style.display = 'none';
         return;
     }
@@ -24,7 +24,7 @@ export function mount(container) {
         const password2 = form.password2.value;
 
         if (password !== password2) {
-            error.textContent = 'Les mots de passe ne correspondent pas.';
+            error.textContent = 'Passwords do not match.';
             return;
         }
 

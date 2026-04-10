@@ -1,15 +1,57 @@
 // ============================================================
-// Variables — Design tokens du projet
+// Variables - SCSS constants + CSS tokens per theme
 // ============================================================
 
-// --- Typography ---
-$font-stack: system-ui, -apple-system, sans-serif;
+// --- SCSS constants (compile-time, no colors) ---
+$font-stack : 'Inter', system-ui, -apple-system, sans-serif;
+$max-width  : 1000px;
+$radius     : 8px;
+$radius-lg  : 14px;
 
-// --- Colors ---
-$color-text:    #fff;
-$color-white:   #fff;
-$color-bg:      #f5f5f5;
-$color-border:  #ddd;
+$transition-theme : background 0.25s ease, color 0.25s ease,
+                    border-color 0.25s ease, box-shadow 0.25s ease;
 
-// --- Layout ---
-$max-width:     960px;
+// ============================================================
+// LIGHT theme - neon violet/cyan on ivory background
+// ============================================================
+:root,
+[data-theme="light"] {
+  --color-bg:           #f0f0ff;
+  --color-bg-card:      #ffffff;
+  --color-bg-input:     #f8f8ff;
+  --color-text:         #1a1a2e;
+  --color-text-muted:   #7060b0;
+  --color-border:       #cccce8;
+  --color-accent:       #7c3aed;
+  --color-accent-alt:   #06b6d4;
+  --color-accent-glow:  rgba(124, 58, 237, 0.18);
+  --color-header-bg:    rgba(240, 240, 255, 0.94);
+  --color-error:        #dc2626;
+  --color-success:      #059669;
+  --color-warn:         #d97706;
+  --shadow-card:        0 2px 14px rgba(124, 58, 237, 0.09);
+  --shadow-card-hover:  0 6px 28px rgba(124, 58, 237, 0.22);
+  --shadow-focus:       0 0 0 3px rgba(124, 58, 237, 0.25);
+}
+
+// ============================================================
+// DARK theme - neon cyan/magenta on night background
+// ============================================================
+[data-theme="dark"] {
+  --color-bg:           #0c0c1d;
+  --color-bg-card:      #13132b;
+  --color-bg-input:     #09091a;
+  --color-text:         #e2e0ff;
+  --color-text-muted:   #9090c8;
+  --color-border:       #28285a;
+  --color-accent:       #00f5ff;
+  --color-accent-alt:   #ff2cf1;
+  --color-accent-glow:  rgba(0, 245, 255, 0.22);
+  --color-header-bg:    rgba(10, 10, 26, 0.96);
+  --color-error:        #f87171;
+  --color-success:      #34d399;
+  --color-warn:         #fbbf24;
+  --shadow-card:        0 2px 14px rgba(0, 245, 255, 0.05);
+  --shadow-card-hover:  0 0 28px rgba(0, 245, 255, 0.18);
+  --shadow-focus:       0 0 0 3px rgba(0, 245, 255, 0.28);
+}
