@@ -13,6 +13,7 @@ export function mount(container) {
 
         try {
             await login(username, password);
+            console.log('Just logged in, redirecting to feed...');
             location.hash = '#/feed';
         } catch (err) {
             error.textContent = err.message;

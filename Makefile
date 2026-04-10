@@ -9,7 +9,7 @@ USER_GID := $(shell id -g)
 COMPOSE     = USER_UID=$(USER_UID) USER_GID=$(USER_GID) docker compose -f ./docker-compose.yaml -p camagru
 COMPOSE_DEV = $(COMPOSE) -f ./docker-compose.dev.yaml
 SERVICES    := $(shell $(COMPOSE) config --services 2>/dev/null)
-TARGETS	 	:= stop start down up restart logs rebuild
+TARGETS	 	:= stop start down up restart logs rebuild history
 SVC_TARGETS := $(foreach s,$(SERVICES), stop-$s start-$s down-$s up-$s restart-$s logs-$s rebuild-$s)
 
 .PHONY: all up down build logs ps clean re fclean certs frontend frontend-dev git-fix seed $(SVC_TARGETS)
@@ -64,14 +64,21 @@ ps:
 clean:
 	@$(COMPOSE) down -v --rmi local
 
-fclean: clean
-	@echo "[fclean] suppression des certificats..."
+fclean:
+	@echo "[fclean] stopping and removing all containers..."
+	-docker stop $$(docker ps -aq) 2>/dev/null || true
+	-docker rm -f $$(docker ps -aq) 2>/dev/null || true
+	@echo "[fclean] removing all images..."
+	-docker rmi -f $$(docker images -aq) 2>/dev/null || true
+	@echo "[fclean] removing all volumes..."
+	-docker volume rm $$(docker volume ls -q) 2>/dev/null || true
+	@echo "[fclean] removing all custom networks..."
+	-docker network rm $$(docker network ls --filter type=custom -q) 2>/dev/null || true
+	@echo "[fclean] pruning builder cache..."
+	-docker builder prune -af 2>/dev/null || true
+	@echo "[fclean] removing certificates..."
 	rm -f infra/nginx/certs/selfsigned.crt infra/nginx/certs/selfsigned.key
-	@echo "[fclean] suppression du cache builder..."
-	docker builder prune -af
-	@echo "[fclean] suppression système..."
-	docker system prune -af --volumes
-	@echo "[fclean] terminé"
+	@echo "[fclean] done"
 
 list:
 	@echo "Available targets:"
@@ -81,7 +88,7 @@ list:
 
 test:
 	@echo "[test] requête vers https://localhost:8443/"
-	@curl -skS -I https://localhost:8443/
+	@curl -skS -I https://localhost:8443/ || true
 	
 # --- Git SSH identity fix (auto-detects from remote + ~/.ssh/config) ---
 git-fix:
@@ -102,3 +109,4 @@ $(foreach s,$(SERVICES),$(eval up-$s:      ; @$(COMPOSE) up -d $s))
 $(foreach s,$(SERVICES),$(eval restart-$s: ; @$(COMPOSE) restart $s))
 $(foreach s,$(SERVICES),$(eval logs-$s:    ; @$(COMPOSE) logs -f --tail=50 $s))
 $(foreach s,$(SERVICES),$(eval rebuild-$s: ; @$(COMPOSE) up -d --build $s))
+$(foreach s,$(SERVICES),$(eval history-$s: ; @docker image history $$(docker inspect $$($(COMPOSE) ps -q $s 2>/dev/null | head -1) --format "{{.Image}}" 2>/dev/null) --format "{{.CreatedAt}}: {{.CreatedBy}}"))

@@ -63,6 +63,7 @@ async function mountView(name) {
 }
 
 async function navigate() {
+    console.log('Navigating to', location.hash);
     const full = location.hash.slice(2) || 'feed';
     const [hash] = full.split('?'); // ignore query params for route matching
 
@@ -92,6 +93,8 @@ async function navigate() {
 }
 
 window.addEventListener('hashchange', navigate);
+
+// On initial load, check token validity and navigate to the correct page
 document.addEventListener('DOMContentLoaded', async () => {
     initTheme();
     await checkToken();

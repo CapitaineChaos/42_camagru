@@ -1,7 +1,8 @@
 services:
 
-  # == Gateway ================================================
+  # Oxxxxxxx[======= Gateway ==================================================>
   gateway:
+    container_name: camagru-gateway
     image: nginx:1.27-alpine
     ports:
       - "8080:80"
@@ -18,8 +19,9 @@ services:
     networks:
       - camagru
 
-  # == Auth Service ===========================================
+  # Oxxxxxxx[======= Auth Service =============================================>
   auth:
+    container_name: camagru-auth
     build:
       context: ./app/services/auth
       dockerfile: Dockerfile
@@ -32,8 +34,9 @@ services:
     networks:
       - camagru
 
-  # == Media Service ==========================================
+  # Oxxxxxxx[======= Media Service ============================================>
   media:
+    container_name: camagru-media
     build:
       context: ./app/services/media
       dockerfile: Dockerfile
@@ -47,8 +50,9 @@ services:
     networks:
       - camagru
 
-  # == Post Service ===========================================
+  # Oxxxxxxx[======= Post Service =============================================>
   post:
+    container_name: camagru-post
     build:
       context: ./app/services/post
       dockerfile: Dockerfile
@@ -61,8 +65,9 @@ services:
     networks:
       - camagru
 
-  # == Notification Service ===================================
+  # Oxxxxxxx[======= Notification Service =====================================>
   notification:
+    container_name: camagru-notification
     build:
       context: ./app/services/notification
       dockerfile: Dockerfile
@@ -75,15 +80,17 @@ services:
     networks:
       - camagru
 
-  # == Dev mail catcher (remplace un vrai SMTP en dev) =======
+  # Oxxxxxxx[======= Mail Catcher =============================================>
   mailhog:
-    image: mailhog/mailhog:latest
+    container_name: camagru-mailhog
+    image: docker.io/mailhog/mailhog:latest
+    platform: linux/amd64
     ports:
       - "8025:8025"
     networks:
       - camagru
 
-# == Volumes (une micro-DB SQLite par service) ================
+# Oxxxxxxx[======= Volumes (1 micro db par service) ===========================>
 volumes:
   auth-data:
   media-data:
@@ -91,7 +98,7 @@ volumes:
   post-data:
   notif-data:
 
-# == Network interne ==========================================
+# Oxxxxxxx[======= Network interne ============================================>
 networks:
   camagru:
     driver: bridge
