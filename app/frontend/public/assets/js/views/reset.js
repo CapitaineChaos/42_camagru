@@ -5,8 +5,8 @@ export function mount(container) {
     const error   = container.querySelector('#reset-error');
     const success = container.querySelector('#reset-success');
 
-    // Parse token from hash: #/reset?token=xxx
-    const params = new URLSearchParams(location.hash.split('?')[1] ?? '');
+    // Parse token from query string: /reset?token=xxx
+    const params = new URLSearchParams(location.search);
     const token  = params.get('token') ?? '';
 
     if (!token) {
@@ -35,7 +35,7 @@ export function mount(container) {
             });
             success.textContent = data.message;
             form.style.display = 'none';
-            setTimeout(() => { location.hash = '#/login'; }, 2000);
+            setTimeout(() => { history.pushState(null, '', '/login'); window.dispatchEvent(new PopStateEvent('popstate')); }, 2000);
         } catch (err) {
             error.textContent = err.message;
         }

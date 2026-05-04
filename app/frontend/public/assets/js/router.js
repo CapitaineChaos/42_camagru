@@ -35,15 +35,15 @@ async function checkToken() {
 function updateNav() {
     if (isLoggedIn()) {
         nav.innerHTML = `
-            <a href="#/feed">Gallery</a>
-            <a href="#/editor">Create</a>
-            <a href="#/profile">Profile</a>
-            <a href="#/logout">Sign out</a>`;
+            <a href="/feed">Gallery</a>
+            <a href="/editor">Create</a>
+            <a href="/profile">Profile</a>
+            <a href="/logout">Sign out</a>`;
     } else {
         nav.innerHTML = `
-            <a href="#/feed">Gallery</a>
-            <a href="#/login">Sign in</a>
-            <a href="#/register">Sign up</a>`;
+            <a href="/feed">Gallery</a>
+            <a href="/login">Sign in</a>
+            <a href="/register">Sign up</a>`;
     }
 }
 
@@ -62,20 +62,25 @@ async function mountView(name) {
     }
 }
 
-async function navigate() {
-    console.log('Navigating to', location.hash);
-    const full = location.hash.slice(2) || 'feed';
-    const [hash] = full.split('?'); // ignore query params for route matching
+export function navigate(path) {
+    const target = path ?? location.pathname;
+    const [pathname, search] = target.split('?');
+    const name = pathname.replace(/^\//, '') || 'feed';
+
+    if (path && path !== location.pathname + (location.search || '')) {
+        history.pushState(null, '', path);
+    }
 
     // Logout is a special action, not a view
-    if (hash === 'logout') {
-        const { logout } = await import('./services/auth.js');
-        logout();
-        location.hash = '#/login';
+    if (name === 'logout') {
+        import('./services/auth.js').then(({ logout }) => {
+            logout();
+            navigate('/login');
+        });
         return;
     }
 
-    const route = routes[hash];
+    const route = routes[name];
     if (!route) {
         app.innerHTML = '<p>Page not found.</p>';
         return;
@@ -83,20 +88,47 @@ async function navigate() {
 
     // Protected route - redirect to login
     if (route.auth && !isLoggedIn()) {
-        location.hash = '#/login';
+        navigate('/login');
         return;
     }
 
-    app.innerHTML = await loadView(route.view);
-    updateNav();
-    await mountView(route.view);
+    Promise.resolve()
+        .then(() => loadView(route.view))
+        .then(html => {
+            app.innerHTML = html;
+            updateNav();
+            return mountView(route.view);
+        });
 }
 
-window.addEventListener('hashchange', navigate);
+// Intercept <a href="/..."> clicks for client-side navigation (skip /api/ and external links)
+document.addEventListener('click', e => {
+    const a = e.target.closest('a');
+    if (!a) return;
+    const href = a.getAttribute('href');
+    if (!href || !href.startsWith('/') || href.startsWith('//') || href.startsWith('/api/')) return;
+    e.preventDefault();
+    navigate(href);
+});
+
+window.addEventListener('popstate', () => navigate());
 
 // On initial load, check token validity and navigate to the correct page
 document.addEventListener('DOMContentLoaded', async () => {
     initTheme();
+
+    // Handle OAuth callback: backend redirects here with ?token=JWT
+    const params = new URLSearchParams(location.search);
+    const oauthToken = params.get('token');
+    if (oauthToken) {
+        const { setToken } = await import('./services/auth.js');
+        setToken(oauthToken);
+        history.replaceState(null, '', '/feed');
+        await checkToken();
+        navigate();
+        return;
+    }
+
     await checkToken();
     navigate();
 });

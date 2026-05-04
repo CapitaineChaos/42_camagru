@@ -53,5 +53,11 @@ class Database
         try {
             self::$pdo->exec('ALTER TABLE email_verifications ADD COLUMN pending_email TEXT');
         } catch (\Exception) { /* colonne déjà présente */ }
+
+        // Migration: add ft_id for 42 OAuth users
+        try {
+            self::$pdo->exec('ALTER TABLE users ADD COLUMN ft_id INTEGER');
+            self::$pdo->exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_ft_id ON users (ft_id) WHERE ft_id IS NOT NULL');
+        } catch (\Exception) { /* colonne déjà présente */ }
     }
 }

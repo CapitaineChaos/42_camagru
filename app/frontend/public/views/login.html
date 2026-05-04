@@ -1,5 +1,9 @@
 <section class="auth-form">
     <h2>Sign In</h2>
+    <a href="/api/auth/oauth/start" class="btn btn--42">
+        Login with <img src="/assets/42_logo.svg" width="20" height="14" alt="" aria-hidden="true">
+    </a>
+    <div class="auth-divider"><span>or</span></div>
     <form id="login-form">
         <div class="form-group">
             <label for="login-username">Username</label>
@@ -12,6 +16,6 @@
         <button type="submit" class="btn btn--primary">Sign In</button>
     </form>
     <p class="form-error" id="login-error"></p>
-    <p>No account yet? <a href="#/register">Sign Up</a></p>
-    <p><a href="#/forgot">Forgot your password?</a></p>
+    <p>No account yet? <a href="/register">Sign Up</a></p>
+    <p><a href="/forgot">Forgot your password?</a></p>
 </section>

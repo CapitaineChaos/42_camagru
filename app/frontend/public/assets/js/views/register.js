@@ -20,7 +20,7 @@ export function mount(container) {
 
         try {
             await register(username, email, password);
-            location.hash = '#/login';
+            history.pushState(null, '', '/login'); window.dispatchEvent(new PopStateEvent('popstate'));
         } catch (err) {
             error.textContent = err.message;
         }

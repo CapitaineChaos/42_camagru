@@ -32,7 +32,7 @@ export async function api(path, options = {}) {
 
     if (res.status === 401 && token && !path.startsWith('/api/auth/login') && !path.startsWith('/api/auth/register')) {
         removeToken();
-        location.hash = '#/login';
+        history.pushState(null, '', '/login'); window.dispatchEvent(new PopStateEvent('popstate'));
         throw new Error('Session expired');
     }
 

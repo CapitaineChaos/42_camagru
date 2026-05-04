@@ -61,6 +61,18 @@ if ($method === 'GET' && $uri === 'verify') {
     exit;
 }
 
+if ($method === 'GET' && $uri === 'oauth/start') {
+    require_once __DIR__ . '/../src/OAuthController.php';
+    OAuthController::start();
+    exit;
+}
+
+if ($method === 'GET' && $uri === 'oauth/callback') {
+    require_once __DIR__ . '/../src/OAuthController.php';
+    OAuthController::callback();
+    exit;
+}
+
 http_response_code(404);
 echo json_encode(['error' => 'Not found']);
 
