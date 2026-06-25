@@ -1,5 +1,0 @@
-# Oxxxxxxx[======= Dev overrides ==============================================>
-services:
-  gateway:
-    volumes:
-      - ./infra/nginx/dev-nocache.conf:/etc/nginx/extra.d/nocache.conf:ro
