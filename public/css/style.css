@@ -1,0 +1,161 @@
+/* Camagru ; styles globaux */
+
+*,*::before,*:after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* https://icodink.com/blog/astuces-tutos/css/creer-hamburger-menu-css/ */
+
+.hamburger {
+    display: none;
+}
+
+@media screen and (max-width: 768px) {
+    
+    .hamburger+label {
+        cursor: pointer;
+        width: 60px;
+        height: 60px;
+        display:flex;
+        align-items:center;
+        justify-content: center;
+        position: fixed;
+        top:1rem;
+        left:1rem;
+        z-index:2;
+        background:#ffffff;
+        border-radius: 9999px;
+        box-shadow:0 0 5px rgba(0, 0, 0, 0.4)
+    }
+            
+    .hamburger+label span {
+        background: #6753ea;
+        width: 40px;
+        height: 5px;
+        position: relative;
+    }
+            
+    .hamburger+label span::before, 
+    .hamburger+label span::after {
+        position: absolute;
+        background: #6753ea;
+        width: inherit;
+        height: inherit;
+        content: "";
+    }
+        
+    .hamburger+label span::before {
+        top: -10px;
+    }
+
+    .hamburger+label span::after {
+        top: 10px;
+    }
+        
+    .hamburger:checked+label span {
+        background: transparent;
+    }
+        
+    .hamburger:checked+label span::after,
+    .hamburger:checked+label span::before {
+        top: 0;
+    }
+        
+    .hamburger:checked+label span::before {
+        transform: rotate(45deg);
+    }
+        
+    .hamburger:checked+label span::after {
+        transform: rotate(-45deg);
+    }
+
+
+
+    nav {
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: min(50%,300px);
+        background: rgba(0, 0, 0, 0.8);
+        transform: translateX(-100%);
+        will-change: transform;
+    }
+
+    nav ul {
+        list-style-type: none;
+        padding-left:0;	
+        margin-top: 6rem;
+    }
+        
+    nav ul li {
+        margin: 1rem;
+    }
+
+    nav a {
+        font-size: 1.25rem;
+        color: white;
+        opacity: 0;
+        visibility: hidden;
+    }
+        
+    .hamburger:checked+label~ nav{ 
+        transform: unset;
+        z-index: 1;	
+    }
+        
+
+
+    .hamburger:checked+label~ nav a {
+        visibility: visible;
+        opacity: 1;
+    }
+
+        
+    .hamburger:focus-visible~label,
+    nav a:focus-visible,
+    nav a:focus {
+        outline: 2px solid #6753ea;
+        outline-offset: 4px;
+    }
+        
+    .hamburger:not(:focus-visible)~label,nav a:not(:focus):focus-visible{
+        outline: none;
+    }	
+        
+    .hamburger:not(:focus-visible):focus~label{
+        box-shadow: 0 0 0 4px hsl(248, 78%, 58%)
+    }
+        
+    @media (prefers-reduced-motion: no-preference) {
+        .hamburger+label span {
+            transition: background 10ms 300ms;
+        }
+        .hamburger+label span::before, 
+        .hamburger+label span::after {
+            transition: top 300ms 350ms, transform 300ms 50ms;
+        }
+        .hamburger:checked+label span::after,
+        .hamburger:checked+label span::before {
+            transition: top 300ms 50ms, transform 300ms 350ms;
+        }	
+            
+        .hamburger:focus-visible~label,nav a:focus-visible,
+        nav a:focus {
+            transition: outline-offset .25s ease;
+        }
+            
+        nav {
+            transition: transform 0.5s;
+        }
+        nav a {
+            transition: visibility 500ms,opacity 500ms 300ms;
+        }
+    }
+
+    main {
+        margin-top: 5rem;
+    }
+}

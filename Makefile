@@ -2,11 +2,11 @@ SRC     := $(CURDIR)
 TMP     := /tmp/42_camagru
 COMPOSE := docker compose -p camagru
 
-.PHONY: up down re logs ps psql shell clean fclean
+# Dossiers de code bind-montés dans les conteneurs (= ce qu'il faut resync à chaud)
+CODE    := app public config database
 
-# Le home 42 est sur NFS : les bind-mounts cassent en podman rootless.
-# Donc on copie TOUT le projet sur un disque local (/tmp) et on lance depuis là.
-# `make up` écrase la copie /tmp à chaque fois (= prend en compte tes modifs).
+.PHONY: up down re logs ps psql shell clean fclean sync watch
+
 up:
 	rm -rf $(TMP)
 	mkdir -p $(TMP)
@@ -19,21 +19,29 @@ down:
 
 re: down up
 
+sync:
+	rsync -a --delete $(addprefix $(SRC)/,$(CODE)) $(TMP)/
+	@echo "[sync] code resynchronisé -> $(TMP)"
+
+watch:
+	@echo "[watch] surveillance de $(CODE). Ctrl-C pour arrêter."
+	@while inotifywait -r -q -e modify,create,delete,move $(addprefix $(SRC)/,$(CODE)); do \
+		rsync -a --delete $(addprefix $(SRC)/,$(CODE)) $(TMP)/ ; \
+		echo "[watch] sync $$(date +%H:%M:%S)" ; \
+	done
+
 logs:
 	$(COMPOSE) logs -f
 
 ps:
 	$(COMPOSE) ps
 
-# Client psql sur la base
 psql:
 	$(COMPOSE) exec db psql -U camagru -d camagru
 
-# Shell dans le container web
 shell:
 	$(COMPOSE) exec web bash
 
-# Stoppe + supprime le volume de la base (reset des données)
 clean:
 	$(COMPOSE) down -v
 
@@ -46,7 +54,6 @@ php_access:
 suppr_logs:
 	$(COMPOSE) exec -T web sh -c 'rm -f /var/log/apache2/*.log'
 
-# Nuke total : containers + volumes + images du projet + la copie /tmp
 fclean:
 	-$(COMPOSE) down -v --rmi all
 	rm -rf $(TMP)

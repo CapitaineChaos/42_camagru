@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS users (
     email       VARCHAR(255) UNIQUE NOT NULL,
     password    VARCHAR(255) NOT NULL,
     verified    BOOLEAN      NOT NULL DEFAULT FALSE,
+    verification_token VARCHAR(64),
     created_at  TIMESTAMPTZ  NOT NULL DEFAULT now()
 );
 

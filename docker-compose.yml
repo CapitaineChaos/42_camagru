@@ -12,11 +12,10 @@ services:
     env_file: .env
     depends_on:
       - db
+      - mailhog
 
   db:
-    build:
-      context: .
-      dockerfile: docker/db/Dockerfile
+    image: docker.io/library/postgres:16-alpine
     container_name: camagru-db
     environment:
       POSTGRES_DB: ${DB_NAME}
@@ -24,8 +23,16 @@ services:
       POSTGRES_PASSWORD: ${DB_PASS}
     volumes:
       - db-data:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
     ports:
       - "5432:5432"
+
+  mailhog:
+    image: docker.io/mailhog/mailhog:latest
+    container_name: camagru-mailhog
+    ports:
+      - "1025:1025"   # SMTP app
+      - "8025:8025"   # Interface web : http://localhost:8025
 
 volumes:
   db-data:

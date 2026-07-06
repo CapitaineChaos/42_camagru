@@ -26,19 +26,37 @@ final class User extends Model
         return $stmt->fetch() ?: null;
     }
 
-    public function create(string $username, string $email, string $passwordHash): int
+    public function create(string $username, string $email, string $passwordHash, string $token): int
     {
         $stmt = $this->db->prepare(
-            'INSERT INTO users (username, email, password)
-             VALUES (:username, :email, :password)
+            'INSERT INTO users (username, email, password, verification_token)
+             VALUES (:username, :email, :password, :token)
              RETURNING id'
         );
         $stmt->execute([
             'username' => $username,
             'email'    => $email,
             'password' => $passwordHash,
+            'token'    => $token,
         ]);
 
         return (int) $stmt->fetchColumn();
+    }
+
+    /** @return array<string, mixed>|null */
+    public function findByToken(string $token): ?array
+    {
+        $stmt = $this->db->prepare('SELECT * FROM users WHERE verification_token = :token');
+        $stmt->execute(['token' => $token]);
+
+        return $stmt->fetch() ?: null;
+    }
+
+    public function markVerified(int $id): void
+    {
+        $stmt = $this->db->prepare(
+            'UPDATE users SET verified = TRUE, verification_token = NULL WHERE id = :id'
+        );
+        $stmt->execute(['id' => $id]);
     }
 }

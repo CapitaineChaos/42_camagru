@@ -1,9 +1,14 @@
 <?php
 /** @var string[] $errors */
 /** @var array<string, string> $old */
+/** @var string $notice */
 ?>
 
 <h1>Connexion</h1>
+
+<?php if (!empty($notice)): ?>
+    <p style="color:green"><?= htmlspecialchars($notice) ?></p>
+<?php endif; ?>
 
 <?php foreach ($errors ?? [] as $error): ?>
     <p style="color:red"><?= htmlspecialchars($error) ?></p>

@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Core\Mailer;
 use App\Models\User;
+use Throwable;
 
 final class AuthController extends Controller
 {
@@ -45,8 +47,48 @@ final class AuthController extends Controller
             return;
         }
 
-        $users->create($username, $email, password_hash($password, PASSWORD_DEFAULT));
-        $this->redirect('/login');
+        $token = bin2hex(random_bytes(32));
+        $users->create($username, $email, password_hash($password, PASSWORD_DEFAULT), $token);
+
+        $link = APP_URL . '/verify?token=' . $token;
+        try {
+            Mailer::send(
+                $email,
+                'Confirmez votre inscription à Camagru',
+                'Bonjour ' . htmlspecialchars($username) . ',<br><br>'
+                . 'Cliquez sur ce lien pour activer votre compte&nbsp;:<br>'
+                . '<a href="' . $link . '">' . $link . '</a>'
+            );
+        } catch (Throwable $e) {
+            error_log('Envoi email de confirmation échoué : ' . $e->getMessage());
+        }
+
+        $this->view('auth/login', [
+            'title'  => 'Connexion',
+            'notice' => 'Compte créé. Un email de confirmation vous a été envoyé : '
+                . 'cliquez sur le lien pour activer votre compte.',
+        ]);
+    }
+
+    public function verify(): void
+    {
+        $token = (string) ($_GET['token'] ?? '');
+        $users = new User();
+        $user  = $token !== '' ? $users->findByToken($token) : null;
+
+        if ($user === null) {
+            $this->view('auth/login', [
+                'title'  => 'Connexion',
+                'errors' => ['Lien de confirmation invalide ou déjà utilisé.'],
+            ]);
+            return;
+        }
+
+        $users->markVerified((int) $user['id']);
+        $this->view('auth/login', [
+            'title'  => 'Connexion',
+            'notice' => 'Votre compte est activé. Vous pouvez maintenant vous connecter.',
+        ]);
     }
 
     public function showLogin(): void
@@ -65,6 +107,16 @@ final class AuthController extends Controller
             $this->view('auth/login', [
                 'title'  => 'Connexion',
                 'errors' => ['Identifiants invalides.'],
+                'old'    => ['email' => $email],
+            ]);
+            return;
+        }
+
+        // PDO_pgsql peut renvoyer le booléen sous forme 't'/'f' : on normalise
+        if (!in_array($user['verified'], [true, 't', '1', 1], true)) {
+            $this->view('auth/login', [
+                'title'  => 'Connexion',
+                'errors' => ['Compte non vérifié. Consultez votre email pour l\'activer.'],
                 'old'    => ['email' => $email],
             ]);
             return;
