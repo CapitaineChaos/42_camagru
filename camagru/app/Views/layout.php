@@ -17,16 +17,15 @@
         <nav>
             <ul>
                 <li><a href="/">Camagru</a></li>
-                <li><a href="/gallery">Gallery</a></li>
-                
+                <li><a href="/gallery">Gallery</a></li>        
             <?php if (!empty($_SESSION['user'])): ?>
-                <!-- <span><?= htmlspecialchars($_SESSION['user']['username']) ?></span>
-                <form action="/logout" method="post" style="display:inline">
-                    <button type="submit">Déconnexion</button>
-                </form> -->
+                <li><a href="/friends">Amis</a></li>
                 <li><a href="/preferences">Préférences</a></li>
                 <li><a href="/profile">Profile</a></li>
                 <li><a href="/logout">Déconnexion</a></li>
+                <?php if (!empty($_SESSION['user']['is_admin'])): ?>
+                    <li><a href="/admin">Admin</a></li>
+                <?php endif; ?>
             <?php else: ?>
                 <li><a href="/login">Connexion</a></li>
                 <li><a href="/register">Inscription</a></li>
@@ -37,5 +36,8 @@
     <main>
         <?= $content ?>
     </main>
+    <footer>
+        <p>&copy; <?= date('Y') ?> Camagru. Tous droits réservés.</p>
+    </footer>
 </body>
 </html>

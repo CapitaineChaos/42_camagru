@@ -8,6 +8,15 @@ use App\Core\Model;
 
 final class User extends Model
 {
+
+    public function isAdmin(int $userId): bool
+    {
+        $stmt = $this->db->prepare('SELECT 1 FROM admins WHERE user_id = :id');
+        $stmt->execute(['id' => $userId]);
+
+        return $stmt->fetchColumn() !== false;
+    }
+    
     /** @return array<string, mixed>|null */
     public function findByEmail(string $email): ?array
     {

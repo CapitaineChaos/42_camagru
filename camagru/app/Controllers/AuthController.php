@@ -123,9 +123,11 @@ final class AuthController extends Controller
         }
 
         session_regenerate_id(true);
+        $userId = (int) $user['id'];
         $_SESSION['user'] = [
-            'id'       => (int) $user['id'],
+            'id'       => $userId,
             'username' => $user['username'],
+            'is_admin' => (new User())->isAdmin($userId),
         ];
         $this->redirect('/');
     }
@@ -134,6 +136,6 @@ final class AuthController extends Controller
     {
         $_SESSION = [];
         session_destroy();
-        $this->redirect('/');
+        $this->view('auth/logout', ['title' => 'Déconnexion']);
     }
 }

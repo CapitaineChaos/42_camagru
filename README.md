@@ -58,8 +58,8 @@ autorisé : routes HTTP, JSON, sessions/JWT, hash mot de passe, upload, accès S
 
 
 ## Bonuses
-- Notifications modification
-- live edit picture from cam
-- Theme White/Dark
+- Avatar upload / change / from cam
+- live edit picture from cam preview
+- Friends
 - User account delete and data anonymization
-- Effects photos (Noir et blanc, old TV..., filters)
+- Admin panel
