@@ -46,12 +46,12 @@ CREATE TABLE IF NOT EXISTS likes (
 );
 
 -- Admin : login admin@aaa.com / password 123
-INSERT INTO users (username, email, password, modele, verified)
-VALUES ('admin', 'admin@aaa.com', '$2y$12$nddWL9YzNldOv8jK7H96YeAIW8zARa5gQr2Yj6oTPODHc3XTLrWZa', TRUE, TRUE)
+INSERT INTO users (username, email, password, avatar, modele, verified)
+VALUES ('admin', 'admin@aaa.com', '$2y$12$nddWL9YzNldOv8jK7H96YeAIW8zARa5gQr2Yj6oTPODHc3XTLrWZa', 'generique.png', TRUE, TRUE)
 ON CONFLICT (email) DO NOTHING;
 
-INSERT INTO users (username, email, password, modele, verified)
-VALUES ('aaa', 'aaa@aaa.com', '$2y$12$R7Q02juSA8cbyQB92NBdiumeddFfNUuUx0L8PcLvM0XiQphBs1ygW', TRUE, TRUE)
+INSERT INTO users (username, email, password, avatar, modele, verified)
+VALUES ('aaa', 'aaa@aaa.com', '$2y$12$R7Q02juSA8cbyQB92NBdiumeddFfNUuUx0L8PcLvM0XiQphBs1ygW', 'generique.png', TRUE, TRUE)
 ON CONFLICT (email) DO NOTHING;
 
 INSERT INTO admins (user_id)

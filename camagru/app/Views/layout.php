@@ -32,6 +32,10 @@
             <?php endif; ?>
             </ul>
         </nav>
+        <?php if (!empty($currentUser) && !empty($currentUserAvatarUrl)): ?>
+            <img src="<?= htmlspecialchars($currentUserAvatarUrl) ?>" alt="Avatar de <?= htmlspecialchars($currentUser['username']) ?>" class="avatar">
+            <p>Connecté en tant que <?= htmlspecialchars($currentUser['username']) ?></p>
+        <?php endif; ?>
     </header>
     <main>
         <?= $content ?>

@@ -65,8 +65,8 @@ final class AuthController extends Controller
 
         $this->view('auth/login', [
             'title'  => 'Connexion',
-            'notice' => 'Compte créé. Un email de confirmation vous a été envoyé : '
-                . 'cliquez sur le lien pour activer votre compte.',
+            'notice' => 'Compte créé. Un email de confirmation vous a été envoyé : 
+                cliquez sur le lien pour activer votre compte.',
         ]);
     }
 

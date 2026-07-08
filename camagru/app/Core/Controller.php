@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace App\Core;
 
+use App\Services\LayoutDataProvider;
+
 abstract class Controller
 {
     /** @param array<string, mixed> $data */
     protected function view(string $view, array $data = []): void
     {
+        $data += (new LayoutDataProvider())->fromSession($_SESSION);
+
         extract($data, EXTR_SKIP);
 
         ob_start();

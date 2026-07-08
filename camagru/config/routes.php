@@ -10,6 +10,7 @@ use App\Controllers\UserController;
 use App\Controllers\FriendsController;
 use App\Controllers\GalleryController;
 use App\Controllers\AdminController;
+use App\Controllers\AvatarController;
 
 return static function (Router $router): void {
     $router->get('/', [HomeController::class, 'index']);
@@ -24,6 +25,8 @@ return static function (Router $router): void {
 
     $router->get('/logout', [AuthController::class, 'logout']);
     $router->post('/logout', [AuthController::class, 'logout']);
+
+    $router->get('/avatar', [AvatarController::class, 'show']);
 
     $router->get('/preferences', [PrefsController::class, 'prefs']);
     $router->post('/preferences', [PrefsController::class, 'updatePrefs']);
@@ -41,6 +44,7 @@ return static function (Router $router): void {
     $router->post('/admin', [AdminController::class, 'admin']);
 
     $router->requireAuth('GET', '/preferences');
+    $router->requireAuth('GET', '/avatar');
     $router->requireAuth('POST', '/preferences');
     $router->requireAuth('GET', '/profile');
     $router->requireAuth('POST', '/profile');

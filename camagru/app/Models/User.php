@@ -16,7 +16,7 @@ final class User extends Model
 
         return $stmt->fetchColumn() !== false;
     }
-    
+
     /** @return array<string, mixed>|null */
     public function findByEmail(string $email): ?array
     {

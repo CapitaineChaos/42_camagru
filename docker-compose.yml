@@ -9,6 +9,7 @@ services:
       - ./camagru/app:/var/www/html/app
       - ./camagru/config:/var/www/html/config
       - ./camagru/database:/var/www/html/database
+      - ./camagru/storage:/var/www/html/storage
     env_file: .env
     depends_on:
       - db
