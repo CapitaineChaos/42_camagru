@@ -5,10 +5,10 @@ services:
     ports:
       - "8080:80"
     volumes:
-      - ./public:/var/www/html/public
-      - ./app:/var/www/html/app
-      - ./config:/var/www/html/config
-      - ./database:/var/www/html/database
+      - ./camagru/public:/var/www/html/public
+      - ./camagru/app:/var/www/html/app
+      - ./camagru/config:/var/www/html/config
+      - ./camagru/database:/var/www/html/database
     env_file: .env
     depends_on:
       - db
@@ -23,7 +23,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASS}
     volumes:
       - db-data:/var/lib/postgresql/data
-      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+      - ./camagru/database/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
     ports:
       - "5432:5432"
 
