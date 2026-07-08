@@ -5,14 +5,17 @@ COMPOSE := docker compose -p camagru
 # Dossiers de code bind-montés dans les conteneurs (= ce qu'il faut resync à chaud)
 CODE    := app public config database
 
-.PHONY: up down re logs ps psql shell clean fclean sync watch
+.PHONY: up down re logs ps psql shell clean fclean sync watch dev
 
 up:
 	rm -rf $(TMP)
 	mkdir -p $(TMP)
 	tar -C $(SRC) --exclude=.git --exclude=node_modules -cf - . | tar -C $(TMP) -xf -
 	cd $(TMP) && $(COMPOSE) up -d --build
-	@echo "[up] lancé depuis $(TMP) -> http://localhost:8080/"
+	@echo "[up] conteneurs démarrés depuis $(TMP)"
+	@echo "  Camagru -> http://localhost:8080/"
+	@echo "  MailHog -> http://localhost:8025/"
+	@echo "  Dev     -> lance 'make watch' dans un autre terminal pour sync les changements"
 
 down:
 	$(COMPOSE) down
@@ -29,6 +32,8 @@ watch:
 		rsync -a --delete $(addprefix $(SRC)/,$(CODE)) $(TMP)/ ; \
 		echo "[watch] sync $$(date +%H:%M:%S)" ; \
 	done
+
+dev: up watch
 
 logs:
 	$(COMPOSE) logs -f
