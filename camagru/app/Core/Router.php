@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Core;
 
+use App\Controllers\ErrorController;
+
 final class Router
 {
     /** @var array<string, array<string, array{0: class-string, 1: string}>> */
@@ -51,13 +53,18 @@ final class Router
     {
         $normalizedPath = $this->normalize($path);
 
+        // Toute requête POST doit présenter un jeton CSRF valide.
+        if ($httpMethod === 'POST' && !Csrf::check($_POST['csrf_token'] ?? null)) {
+            (new ErrorController())->forbidden('Jeton de sécurité invalide ou expiré. Rechargez la page et réessayez.');
+            return;
+        }
+
         if (!empty($this->protectedRoutes[$httpMethod][$normalizedPath]) && empty($_SESSION['user'])) {
             header('Location: /login');
             exit;
         }
         if (!empty($this->adminRoutes[$httpMethod][$normalizedPath]) && empty($_SESSION['user']['is_admin'])) {
-            http_response_code(403);
-            echo '403 Forbidden';
+            (new ErrorController())->forbidden();
             return;
         }
 
@@ -65,8 +72,7 @@ final class Router
         $action = $this->routes[$httpMethod][$normalizedPath] ?? null;
 
         if ($action === null) {
-            http_response_code(404);
-            echo '404 Not Found';
+            (new ErrorController())->notFound();
             return;
         }
 

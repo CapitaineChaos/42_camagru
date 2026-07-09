@@ -22,7 +22,12 @@
                 <li><a href="/friends">Amis</a></li>
                 <li><a href="/preferences">Préférences</a></li>
                 <li><a href="/profile">Profile</a></li>
-                <li><a href="/logout">Déconnexion</a></li>
+                <li>
+                    <form action="/logout" method="post" class="logout-form">
+                        <?= \App\Core\Csrf::field() ?>
+                        <a href="/logout" onclick="event.preventDefault(); this.closest('form').submit();">Déconnexion</a>
+                    </form>
+                </li>
                 <?php if (!empty($_SESSION['user']['is_admin'])): ?>
                     <li><a href="/admin">Admin</a></li>
                 <?php endif; ?>

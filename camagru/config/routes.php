@@ -23,7 +23,6 @@ return static function (Router $router): void {
 
     $router->get('/verify', [AuthController::class, 'verify']);
 
-    $router->get('/logout', [AuthController::class, 'logout']);
     $router->post('/logout', [AuthController::class, 'logout']);
 
     $router->get('/avatar', [AvatarController::class, 'show']);

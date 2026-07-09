@@ -15,6 +15,7 @@
 <?php endforeach; ?>
 
 <form action="/login" method="post">
+    <?= \App\Core\Csrf::field() ?>
     <p>
         <label>Email
             <input type="email" name="email" value="<?= htmlspecialchars($old['email'] ?? '') ?>" required>

@@ -10,6 +10,7 @@
 <?php endforeach; ?>
 
 <form action="/register" method="post">
+    <?= \App\Core\Csrf::field() ?>
     <p>
         <label>Pseudo
             <input type="text" name="username" value="<?= htmlspecialchars($old['username'] ?? '') ?>" required>
