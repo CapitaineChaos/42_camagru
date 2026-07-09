@@ -8,10 +8,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= htmlspecialchars($title ?? 'Camagru') ?></title>
+    <link rel="stylesheet" href="/css/global.css">
+    <link rel="stylesheet" href="/css/main.css">
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
     <header>
+        <div class="logo"><a href="/"><img src="/images/camagru.png" alt="Logo Camagru"></a></div>
+
         <input type="checkbox" id="burger" class="hamburger">
         <label for="burger"><span></span></label>
         <nav>

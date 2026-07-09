@@ -1,10 +1,5 @@
 /* Camagru ; styles globaux */
 
-*,*::before,*:after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
 
 /* https://icodink.com/blog/astuces-tutos/css/creer-hamburger-menu-css/ */
 
