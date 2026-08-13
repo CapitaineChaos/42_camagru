@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS users (
     modele      BOOLEAN      NOT NULL DEFAULT TRUE,
     verified    BOOLEAN      NOT NULL DEFAULT FALSE,
     verification_token VARCHAR(64),
+    verification_expires_at TIMESTAMPTZ,
     created_at  TIMESTAMPTZ  NOT NULL DEFAULT now()
 );
 
@@ -14,7 +15,19 @@ CREATE TABLE IF NOT EXISTS users (
 -- ALTER TABLE users ADD COLUMN IF NOT EXISTS modele BOOLEAN NOT NULL DEFAULT TRUE;
 -- ALTER TABLE users ADD COLUMN IF NOT EXISTS verified BOOLEAN NOT NULL DEFAULT FALSE;
 -- ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_token VARCHAR(64);
+-- ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_expires_at TIMESTAMPTZ;
 -- ALTER TABLE users ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT now();
+
+CREATE TABLE IF NOT EXISTS password_resets (
+    id          SERIAL PRIMARY KEY,
+    user_id     INTEGER      NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token_hash  CHAR(64)     NOT NULL UNIQUE,
+    expires_at  TIMESTAMPTZ  NOT NULL,
+    used_at     TIMESTAMPTZ,
+    created_at  TIMESTAMPTZ  NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS password_resets_user_idx ON password_resets (user_id);
 
 CREATE TABLE IF NOT EXISTS admins (
     id          SERIAL PRIMARY KEY,

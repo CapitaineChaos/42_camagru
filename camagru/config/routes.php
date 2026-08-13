@@ -9,6 +9,8 @@ use App\Controllers\PrefsController;
 use App\Controllers\UserController;
 use App\Controllers\FriendsController;
 use App\Controllers\GalleryController;
+use App\Controllers\PasswordController;
+use App\Controllers\PhotoboothController;
 use App\Controllers\AdminController;
 use App\Controllers\AvatarController;
 
@@ -23,6 +25,12 @@ return static function (Router $router): void {
 
     $router->get('/verify', [AuthController::class, 'verify']);
 
+    $router->get('/forgot-password', [PasswordController::class, 'showForgot']);
+    $router->post('/forgot-password', [PasswordController::class, 'sendReset']);
+
+    $router->get('/reset-password', [PasswordController::class, 'showReset']);
+    $router->post('/reset-password', [PasswordController::class, 'reset']);
+
     $router->post('/logout', [AuthController::class, 'logout']);
 
     $router->get('/avatar', [AvatarController::class, 'show']);
@@ -32,6 +40,9 @@ return static function (Router $router): void {
 
     $router->get('/gallery', [GalleryController::class, 'gallery']);
     $router->post('/gallery', [GalleryController::class, 'gallery']);
+
+    $router->get('/photobooth', [PhotoboothController::class, 'photobooth']);
+    $router->post('/photobooth', [PhotoboothController::class, 'photobooth']);
 
     $router->get('/profile', [UserController::class, 'profile']);
     $router->post('/profile', [UserController::class, 'profile']);
@@ -45,6 +56,8 @@ return static function (Router $router): void {
     $router->requireAuth('GET', '/preferences');
     $router->requireAuth('GET', '/avatar');
     $router->requireAuth('POST', '/preferences');
+    $router->requireAuth('GET', '/photobooth');
+    $router->requireAuth('POST', '/photobooth');
     $router->requireAuth('GET', '/profile');
     $router->requireAuth('POST', '/profile');
     $router->requireAuth('GET', '/friends');

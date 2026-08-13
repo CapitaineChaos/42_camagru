@@ -10,6 +10,6 @@ final class HomeController extends Controller
 {
     public function index(): void
     {
-        $this->view('home', ['title' => 'Accueil']);
+        $this->view('home', ['title' => 'Home']);
     }
 }

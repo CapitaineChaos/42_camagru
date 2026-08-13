@@ -1,13 +1,11 @@
-// Décors des lettrages — enseigne de l'accueil comme titres de page : ils partent hors de
-// la fenêtre et n'y reviennent pas. L'animation est portée par une classe et non par :hover,
-// sinon l'élément quitte le curseur dès qu'il bouge et s'interrompt à mi-course.
+// class-driven, not :hover: on :hover the element leaves the cursor and stops midway
 document.querySelectorAll('.decor-anim').forEach((decor) => {
     const lettrage = decor.closest('svg');
     if (!lettrage) {
         return;
     }
 
-    // les transformations d'un décor s'expriment dans le repère du viewBox, pas en pixels écran
+    // transforms are in viewBox units, not screen pixels
     const unitesParPixel = () =>
         lettrage.viewBox.baseVal.width / lettrage.getBoundingClientRect().width;
 
@@ -38,7 +36,7 @@ document.querySelectorAll('.decor-anim').forEach((decor) => {
     decor.addEventListener('pointerover', jouer);
     decor.addEventListener('pointerdown', jouer);
 
-    // hors champ : retiré du rendu, sinon il continue d'allonger la zone défilable
+    // off-screen nodes keep stretching the scroll area
     decor.addEventListener('animationend', () => {
         decor.style.display = 'none';
     });

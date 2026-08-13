@@ -53,9 +53,8 @@ final class Router
     {
         $normalizedPath = $this->normalize($path);
 
-        // Toute requête POST doit présenter un jeton CSRF valide.
         if ($httpMethod === 'POST' && !Csrf::check($_POST['csrf_token'] ?? null)) {
-            (new ErrorController())->forbidden('Jeton de sécurité invalide ou expiré. Rechargez la page et réessayez.');
+            (new ErrorController())->forbidden('Security token invalid or expired. Reload the page and try again.');
             return;
         }
 

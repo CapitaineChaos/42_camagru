@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
-"""Indexe la planche de glyphes : un groupe nommé et mesuré par glyphe.
+"""Index the glyph sheet: one named, measured group per glyph.
 
-À passer une fois après chaque retouche de planche.svg. Chaque glyphe est enveloppé
-dans <g id="glyphe-…" data-char data-boite data-ancre> ; le compositeur (lettrage.py)
-n'a plus alors ni mesure ni tri à faire. Le rendu de la planche est inchangé : seuls des
-groupes et des attributs sans effet graphique sont ajoutés.
+Run after every edit of planche.svg. Each glyph is wrapped in
+<g id="glyphe-..." data-char data-boite data-ancre>; the rendering is unchanged.
 
-Découpage : un path noir ouvre un glyphe, les reflets blancs qui suivent lui appartiennent.
-Les corps dessinés à part (point du i, accents) sont rendus à leur glyphe par recouvrement
-horizontal. L'ordre de lecture de chaque section donne le caractère.
+Splitting: a black path opens a glyph, the white highlights that follow belong to it.
+Bodies drawn apart (dot of the i, accents) are matched by horizontal overlap.
+Reading order of a section gives the character.
 """
 
 import re
@@ -28,11 +26,11 @@ ALPHABETS = {
     'chiffres': '0123456789',
 }
 
-INTERLIGNE = 100    # écart vertical au-delà duquel deux glyphes changent de rangée
+INTERLIGNE = 100    # vertical gap beyond which two glyphs belong to different rows
 
 
 def mesurer(source):
-    """bbox de chaque path, numérotées dans l'ordre du fichier."""
+    """bbox of every path, numbered in file order."""
     compteur = iter(range(1, 10 ** 6))
     numerote = re.sub(r'<path', lambda m: '<path id="m%d"' % next(compteur), source)
     with tempfile.NamedTemporaryFile('w', suffix='.svg', encoding='utf-8', delete=False) as f:
@@ -51,10 +49,10 @@ def mesurer(source):
 
 
 def decouper(bloc, boites, depart):
-    """Glyphes d'une section : corps réunis, reflets rendus à leur lettre, bbox.
+    """Glyphs of a section: bodies merged, highlights attached, bbox.
 
-    Tout est rattaché géométriquement : l'ordre des paths dans le fichier ne suit pas
-    toujours l'ordre de lecture (un reflet du Ÿ suit le corps du Ö).
+    Matching is geometric: path order does not follow reading order (a highlight of the
+    Ÿ comes after the body of the Ö).
     """
     formes, reflets, rang = [], [], depart
     for m in re.finditer(r'<path.*?/>', bloc, re.S):
@@ -65,8 +63,8 @@ def decouper(bloc, boites, depart):
     if not formes:
         return [], rang
 
-    # un diacritique (accent, tréma, cédille, point du i) est bien plus petit que sa lettre ;
-    # la médiane ne sert à rien ici, une section d'accents en compte plus que de lettres
+    # a diacritic is far smaller than its letter; the median fails here, a section of
+    # accents holds more diacritics than letters
     seuil = 0.5 * max(f['bb'][3] for f in formes)
     corps = [f for f in formes if f['bb'][3] >= seuil]
 
@@ -76,7 +74,7 @@ def decouper(bloc, boites, depart):
             glyphe['paths'] += detail['paths']
             glyphe['bb'] = union(glyphe['bb'], detail['bb'])
 
-    for reflet in reflets:                    # peints après les corps : ajoutés en fin de liste
+    for reflet in reflets:                    # painted after the bodies, so appended last
         glyphe = plus_proche(reflet['bb'], corps)
         glyphe['paths'] += reflet['paths']
     return corps, rang
@@ -87,7 +85,7 @@ def centre(boite):
 
 
 def plus_proche(boite, corps, chevauchement=False):
-    """Le glyphe auquel revient une forme : celui qui la contient, sinon le plus proche."""
+    """Glyph a shape belongs to: the one containing it, else the nearest."""
     x, y = centre(boite)
     dedans = [c for c in corps if c['bb'][0] <= x <= c['bb'][0] + c['bb'][2]
               and c['bb'][1] <= y <= c['bb'][1] + c['bb'][3]]
@@ -103,7 +101,7 @@ def plus_proche(boite, corps, chevauchement=False):
 
 
 def cadre_de(bloc):
-    """Transformations portées par les groupes de la section, avant ses paths."""
+    """Transforms carried by the groups of the section, ahead of its paths."""
     entete = bloc[:bloc.index('<path')]
     return ' '.join(re.findall(r'transform="([^"]*)"', entete))
 
@@ -114,7 +112,7 @@ def union(a, b):
 
 
 def rangees(glyphes):
-    """Regroupe par ligne et pose l'ancre : milieu de la boîte, sur la ligne de base."""
+    """Group by row and set the anchor: middle of the box, on the baseline."""
     glyphes.sort(key=lambda g: g['bb'][1])
     lignes = [[glyphes[0]]]
     for g in glyphes[1:]:
@@ -127,7 +125,7 @@ def rangees(glyphes):
     for ligne in lignes:
         ligne.sort(key=lambda g: g['bb'][0])
         bas = sorted(g['bb'][1] + g['bb'][3] for g in ligne)
-        base = bas[len(bas) // 2]           # les jambages ne doivent pas tirer la ligne de base
+        base = bas[len(bas) // 2]           # descenders must not drag the baseline down
         for g in ligne:
             g['ancre'] = (g['bb'][0] + g['bb'][2] / 2, base)
             ordonnes.append(g)
@@ -149,7 +147,7 @@ def indexer():
         bloc = source[debut:fin]
         glyphes, rang = decouper(bloc, boites, rang)
         if nom not in ALPHABETS:
-            # une section décorative ne contient qu'un motif : tous ses paths lui reviennent
+            # an ornament section holds a single motif: every path of it belongs there
             paths = re.findall(r'<path.*?/>', bloc, re.S)
             if not paths:
                 continue
@@ -169,15 +167,14 @@ def indexer():
 
         glyphes = rangees(glyphes)
         if len(glyphes) != len(ALPHABETS[nom]):
-            sys.exit('%s : %d glyphes pour %d caractères attendus'
+            sys.exit('%s: %d glyphs for %d expected characters'
                      % (nom, len(glyphes), len(ALPHABETS[nom])))
 
-        # boîte et ancre sont en coordonnées du document, les paths en coordonnées locales :
-        # data-cadre porte la transformation qui relie les deux
+        # box and anchor are in document coordinates, paths in local ones:
+        # data-cadre carries the transform tying them together
         cadre = cadre_de(bloc)
 
-        # le contenu de la section est réécrit d'un bloc : les paths d'un même glyphe
-        # sont dispersés dans le fichier d'origine (point du i, accents)
+        # rewritten in one block: the paths of a glyph lie scattered in the source
         morceaux.append(source[curseur:debut + bloc.index('<path')])
         for caractere, glyphe in zip(ALPHABETS[nom], glyphes):
             morceaux.append(
@@ -193,16 +190,16 @@ def indexer():
     resultat = ''.join(morceaux)
 
     if resultat.count('<path') != source.count('<path'):
-        sys.exit('perte de paths : %d au lieu de %d'
+        sys.exit('lost paths: %d instead of %d'
                  % (resultat.count('<path'), source.count('<path')))
 
     PLANCHE.write_text(resultat, encoding='utf-8')
-    print('%s : %d glyphes indexés (%d paths)' % (PLANCHE.relative_to(RACINE),
+    print('%s: %d glyphs indexed (%d paths)' % (PLANCHE.relative_to(RACINE),
                                                  resultat.count('<g id="glyphe-'), total))
 
 
 def identifiant(caractere):
-    """Identifiant d'un glyphe : lisible et sans accent dans l'attribut id."""
+    """Glyph identifier: readable and free of accents inside the id attribute."""
     accents = {'À': 'A-grave', 'Â': 'A-circonflexe', 'Ä': 'A-trema', 'Æ': 'AE', 'Ç': 'C-cedille',
                'É': 'E-aigu', 'È': 'E-grave', 'Ê': 'E-circonflexe', 'Ë': 'E-trema',
                'Î': 'I-circonflexe', 'Ï': 'I-trema', 'Ô': 'O-circonflexe', 'Ö': 'O-trema',

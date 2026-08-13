@@ -42,7 +42,6 @@ body::after {
     }
 }
 
-/* palier large : colonne 1200 */
 @media (min-width: 1258.8px) and (max-width: 2099.98px) {
     body {
         width: 1200px;

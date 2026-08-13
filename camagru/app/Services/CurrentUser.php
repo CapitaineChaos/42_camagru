@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Core\Settings;
 use App\Models\User;
 
 final class CurrentUser
@@ -43,7 +44,7 @@ final class CurrentUser
     {
         $avatar = basename((string) ($user['avatar'] ?? ''));
 
-        return $avatar !== '' ? $avatar : 'generique.png';
+        return $avatar !== '' ? $avatar : (string) Settings::get('avatars.default', 'generique.png');
     }
 
     /** @param array<string, mixed> $user */

@@ -6,21 +6,19 @@
 <section class="bloc bloc-etroit">
     <?php require BASE_PATH . '/app/Views/partials/messages.php'; ?>
 
-    <form class="formulaire" method="post" action="/login">
+    <p class="note">The link stays valid for
+        <?= htmlspecialchars((string) round((int) \App\Core\Settings::get('auth.password_reset_ttl', 86400) / 3600)) ?> hours.</p>
+
+    <form class="formulaire" method="post" action="/forgot-password">
         <?= \App\Core\Csrf::field() ?>
         <p class="champ">
             <label for="email">Email</label>
             <input type="email" id="email" name="email" value="<?= htmlspecialchars($old['email'] ?? '') ?>" autocomplete="email" required>
         </p>
-        <p class="champ">
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" autocomplete="current-password" required>
-        </p>
-        <p class="actions"><button type="submit">Log in</button></p>
+        <p class="actions"><button type="submit">Send the link</button></p>
     </form>
 
     <p class="liens-annexes">
-        <a href="/forgot-password">Forgot your password?</a>
-        <a href="/register">Create an account</a>
+        <a href="/login">Back to login</a>
     </p>
 </section>

@@ -1,11 +1,11 @@
-.enseigne svg,
+.logo svg,
 .titre-page svg {
     display: block;
     width: 100%;
     height: auto;
 }
 
-.enseigne {
+.logo {
     width: min(580px, 100%);
     margin: 0 auto 1.5rem;
 }
@@ -15,7 +15,7 @@
     margin: 0 auto 1.5rem;
 }
 
-.menu-enseigne ul {
+.menu-accueil ul {
     list-style: none;
     display: flex;
     flex-wrap: wrap;
@@ -25,20 +25,20 @@
     padding: 0;
 }
 
-.menu-enseigne a {
+.menu-accueil a {
     display: block;
     padding: .2rem;
 }
 
-.menu-enseigne a picture,
-.menu-enseigne a img {
+.menu-accueil a picture,
+.menu-accueil a img {
     display: block;
     max-width: 100%;
     height: auto;
 }
 
-.menu-enseigne a:hover img,
-.menu-enseigne a:focus-visible img {
+.menu-accueil a:hover img,
+.menu-accueil a:focus-visible img {
     transform: rotate(-2.5deg) scale(1.07);
 }
 
@@ -68,6 +68,6 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-    .menu-enseigne a img { transition: transform .18s ease; }
+    .menu-accueil a img { transition: transform .18s ease; }
     .menu-lateral a img  { transition: transform .16s ease; }
 }

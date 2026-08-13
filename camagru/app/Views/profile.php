@@ -1,13 +1,13 @@
 <?php
 ?>
 <section class="bloc bloc-identite">
-    <h2>Compte</h2>
+    <h2>Account</h2>
     <div class="identite">
         <span class="avatar avatar-vide"></span>
         <dl class="fiche">
-            <dt>Pseudo</dt><dd></dd>
-            <dt>Adresse e-mail</dt><dd></dd>
-            <dt>Inscription</dt><dd></dd>
+            <dt>Username</dt><dd></dd>
+            <dt>Email address</dt><dd></dd>
+            <dt>Member since</dt><dd></dd>
         </dl>
     </div>
 </section>

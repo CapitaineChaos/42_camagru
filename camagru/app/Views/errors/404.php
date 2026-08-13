@@ -1,5 +1,5 @@
 <section class="error-page">
-    <p class="error-titre">Page introuvable</p>
-    <p>La page demandée n'existe pas ou a été déplacée.</p>
-    <a class="error-home" href="/">Retour à l'accueil</a>
+    <p class="error-titre">Page not found</p>
+    <p>The requested page does not exist or has moved.</p>
+    <a class="error-home" href="/">Back to home</a>
 </section>

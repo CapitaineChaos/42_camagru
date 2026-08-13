@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
-"""Compose un mot en lettrage à partir de la planche de glyphes.
+"""Set a word in lettering from the glyph sheet.
 
-La planche porte ses propres mesures : chaque glyphe et chaque motif y est un groupe
-<g id="glyphe-…" | "decor-…" data-boite data-ancre data-cadre> posé par planche_index.py.
-Il ne reste donc ici que la mise en page : les lettres sont enfilées sur un cercle (ou sur
-une ligne quand l'ouverture est nulle), leur ancre — milieu de la boîte, sur la ligne de
-base — amenée sur le tracé. C'est la construction de logo.svg, issu de la même planche.
+Glyphs and ornaments come measured by planche_index.py: data-boite, data-ancre, data-cadre.
+Letters are threaded on a circle, or on a line when the opening is 0; anchor = middle of
+the box, on the baseline. logo.svg comes from the same sheet.
 
-    ./scripts/lettrage.py Gallery -a 24 --decor    # angle négatif : arc creux
-    ./scripts/lettrage.py Gallery -a 0             # droit, sans décor
+    ./scripts/lettrage.py Gallery -a 24 --decor    # negative angle = hollow arc
+    ./scripts/lettrage.py Gallery -a 0             # straight, no ornament
     ./scripts/lettrage.py --menu --titres --accueil
 """
 
@@ -25,45 +23,46 @@ ELEMENTS = RACINE / 'camagru/public/images/elements'
 
 LISERE = ('fill:#ffffff;stroke:#ffffff;stroke-width:42.66;'
           'stroke-linejoin:round;stroke-linecap:round')
-INTERLETTRE = 4.0      # jeu entre deux lettres, en unités de la planche
-ESPACE = 150.0         # avance d'un blanc de mot
+INTERLETTRE = 4.0      # gap between two letters, in sheet units
+ESPACE = 150.0         # advance of a word space
 
-# Semis du logo, relevé sur Camagru : motif, position le long du mot (en fraction de la
-# demi-ouverture), hauteur au-dessus de la ligne de base (en hauteur de capitale),
-# échelle et inclinaison. Les deux moustaches sont posées à part, sur la ligne médiane.
+# ornament, position (fraction of half opening), height above baseline (cap height),
+# scale, tilt
 SEMIS = [
     ('fleur2', -1.03,  1.36, 0.315, -14),
     ('coeur',   0.23,  1.24, 0.272,  14),
     ('fleur1',  0.94, -0.02, 0.234,  10),
     ('fleur3', -0.84, -0.22, 0.214,  -6),
 ]
-MOUSTACHE = 0.5        # échelle des deux éclats latéraux
-DEGAGEMENT = 120.0     # jeu entre la dernière lettre et l'éclat, en unités de la planche
+MOUSTACHE = 0.5        # scale of the two side bursts
+DEGAGEMENT = 120.0     # gap between the last letter and the burst, in sheet units
 
-# mot, fichier, ouverture de l'arc en degrés (négatif = arc creux)
+# word, file, arc opening in degrees (negative = hollow arc)
 MENU = [
-    ('Home', 'home', 0), ('Gallery', 'gallery', 0), ('Friends', 'friends', 0),
-    ('Preferences', 'preferences', 0), ('Profile', 'profile', 0), ('Admin', 'admin', 0),
-    ('Login', 'login', 0), ('Sign up', 'signup', 0), ('Logout', 'logout', 0),
+    ('Home', 'home', 0), ('Gallery', 'gallery', 0), ('Photobooth', 'photobooth', 0),
+    ('Friends', 'friends', 0), ('Preferences', 'preferences', 0), ('Profile', 'profile', 0),
+    ('Admin', 'admin', 0), ('Login', 'login', 0), ('Sign up', 'signup', 0),
+    ('Logout', 'logout', 0),
 ]
-TITRES = [                 # même ouverture que l'enseigne : les titres ont sa forme
-    ('Gallery', 'gallery'), ('Friends', 'friends'), ('Preferences', 'preferences'),
-    ('Profile', 'profile'), ('Admin', 'admin'), ('Login', 'login'),
-    ('Sign up', 'signup'), ('403', '403'), ('404', '404'),   # logout ne rend pas de page
+TITRES = [                 # same opening as the logo: titles take its shape
+    ('Gallery', 'gallery'), ('Photobooth', 'photobooth'), ('Friends', 'friends'),
+    ('Preferences', 'preferences'), ('Profile', 'profile'), ('Admin', 'admin'),
+    ('Login', 'login'), ('Sign up', 'signup'),
+    ('Lost password', 'lost-password'), ('New password', 'new-password'),
+    ('403', '403'), ('404', '404'),   # logout renders no page
 ]
 OUVERTURE_TITRE = 29.87
 
-# Liens de l'accueil : ni droits comme le menu, ni décorés comme les titres. Chacun sa
-# courbure, creuse ou bombée, pour que la page d'accueil ne ressemble à aucune autre.
+# one curve each: < 0 hollow, > 0 bulged
 ACCUEIL = [
-    ('Gallery', 'gallery', 24), ('Friends', 'friends', -16), ('Preferences', 'preferences', 13),
-    ('Profile', 'profile', -22), ('Admin', 'admin', 18), ('Login', 'login', 20),
-    ('Sign up', 'signup', -14), ('Logout', 'logout', 15),
+    ('Gallery', 'gallery', 24), ('Photobooth', 'photobooth', 14), ('Friends', 'friends', -16),
+    ('Preferences', 'preferences', 13), ('Profile', 'profile', -22), ('Admin', 'admin', 18),
+    ('Login', 'login', 20), ('Sign up', 'signup', -14), ('Logout', 'logout', 15),
 ]
 
 
 def planche():
-    """{caractère: glyphe}, {nom: motif} lus dans la planche indexée."""
+    """{character: glyph}, {name: ornament} read from the indexed sheet."""
     source = PLANCHE.read_text(encoding='utf-8')
     motif = (r'<g id="(?:glyphe|decor)-[^"]*" data-(char|decor)="(.+?)" data-boite="([^"]*)"'
              r' data-ancre="([^"]*)" data-cadre="([^"]*)">\n(.*?)\n</g><!-- (?:glyphe|decor) -->')
@@ -77,7 +76,7 @@ def planche():
             'paths': re.findall(r'<path.*?/>', paths, re.S),
         }
     if not glyphes:
-        raise SystemExit('planche non indexée : passer scripts/planche_index.py')
+        raise SystemExit('sheet not indexed: run scripts/planche_index.py')
     return glyphes, decors
 
 
@@ -87,7 +86,7 @@ def groupe(pose, cadre, paths, tete=''):
 
 
 def composer(mot, ouverture, glyphes, decors=None):
-    """SVG du mot : arc d'ouverture |ouverture| degrés, ou ligne droite si elle est nulle."""
+    """SVG of the word: arc of |ouverture| degrees, or a straight line when it is zero."""
     lettres = [glyphes[c] if c != ' ' else None for c in mot]
     avances = [ESPACE if None in (g, d) else (g['boite'][2] + d['boite'][2]) / 2 + INTERLETTRE
                for g, d in zip(lettres, lettres[1:])]
@@ -102,7 +101,7 @@ def composer(mot, ouverture, glyphes, decors=None):
     rayon = longueur / math.radians(abs(ouverture)) if ouverture else 0.0
 
     def pose(distance):
-        """Place l'ancre sur le tracé, la lettre tournée de la tangente."""
+        """Put the anchor on the path, the letter turned by the tangent."""
         if not rayon:
             return 'translate(%.4f,0)' % distance
         angle = math.degrees(distance / rayon)
@@ -134,14 +133,14 @@ def composer(mot, ouverture, glyphes, decors=None):
 
 
 def famille(motif):
-    """Classe d'animation d'un motif : les décors d'un même genre réagissent ensemble."""
+    """Animation class: one per kind of ornament."""
     if motif in ('gauche', 'droite'):
         return 'moustache moustache-' + motif
     return 'fleur' if motif.startswith('fleur') else motif
 
 
 def semer(mot, longueur, rayon, creux, glyphes, decors):
-    """Éclats latéraux sur la ligne médiane du corps, puis fleurs et cœur autour du mot."""
+    """Side bursts on the midline of the body, then flowers and heart around the word."""
     capitale = max(glyphes[c]['boite'][3] for c in mot if c.isupper()) if any(
         c.isupper() for c in mot) else glyphes[mot[0]]['boite'][3]
     corps_x = min(glyphes[c]['boite'][3] for c in mot if c.islower()) if any(
@@ -150,10 +149,10 @@ def semer(mot, longueur, rayon, creux, glyphes, decors):
     sens = -1 if creux else 1
 
     def poser(motif, distance, hauteur, echelle, inclinaison, tangente=False):
-        """distance : le long du tracé ; hauteur : au-dessus de la ligne de base.
+        """distance: along the path; hauteur: above the baseline.
 
-        La classe d'animation va sur une enveloppe sans transformation : le CSS lui pose
-        transform-box: fill-box, qui déplacerait la pose si elle était sur le même groupe.
+        The animation class goes on a wrapper without transform: CSS sets it
+        transform-box: fill-box, which would shift the placement in a shared group.
         """
         r = rayon + hauteur
         angle = math.degrees(distance / r)
@@ -176,7 +175,7 @@ def semer(mot, longueur, rayon, creux, glyphes, decors):
 
 
 def ajuster(svg, echelle, marge=8.0):
-    """Recadre le viewBox sur le dessin et fixe la taille en pixels."""
+    """Crop the viewBox to the drawing and set the pixel size."""
     with tempfile.NamedTemporaryFile('w', suffix='.svg', encoding='utf-8', delete=False) as f:
         f.write(svg)
         chemin = f.name
@@ -206,14 +205,14 @@ def main():
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('mot', nargs='?')
     parser.add_argument('-a', '--angle', type=float, default=20,
-                        help="ouverture de l'arc en degrés ; 0 pour un mot droit")
+                        help="arc opening in degrees; 0 for a straight word")
     parser.add_argument('-e', '--echelle', type=float, default=5.5,
-                        help='unités de la planche par pixel')
-    parser.add_argument('-o', '--out', help='fichier produit, relatif à images/elements')
-    parser.add_argument('--decor', action='store_true', help='moustaches, fleurs et cœur')
-    parser.add_argument('--menu', action='store_true', help='entrées du menu, droites et nues')
-    parser.add_argument('--titres', action='store_true', help='titres de page, arqués et décorés')
-    parser.add_argument('--accueil', action='store_true', help="liens de l'accueil, arqués et nus")
+                        help='sheet units per pixel')
+    parser.add_argument('-o', '--out', help='output file, relative to images/elements')
+    parser.add_argument('--decor', action='store_true', help='whiskers, flowers and heart')
+    parser.add_argument('--menu', action='store_true', help='menu entries, straight and bare')
+    parser.add_argument('--titres', action='store_true', help='page titles, arched and ornamented')
+    parser.add_argument('--accueil', action='store_true', help="home links, arched and bare")
     args = parser.parse_args()
 
     glyphes, decors = planche()
@@ -232,7 +231,7 @@ def main():
         ecrire(args.mot, args.angle, ELEMENTS / nom, args.echelle, glyphes,
                decors if args.decor else None)
     elif not (args.menu or args.titres or args.accueil):
-        parser.error('donner un mot, --menu ou --titres')
+        parser.error('give a word, --menu or --titres')
 
 
 if __name__ == '__main__':

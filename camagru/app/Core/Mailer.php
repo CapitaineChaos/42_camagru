@@ -6,10 +6,7 @@ namespace App\Core;
 
 use RuntimeException;
 
-/**
- * Client SMTP minimal (sans auth ni TLS) pour parler à MailHog en dev.
- * Suffisant pour le scope Camagru : envoi d'un email HTML simple.
- */
+/** SMTP client without auth or TLS. */
 final class Mailer
 {
     public static function send(string $to, string $subject, string $htmlBody): void
@@ -33,7 +30,7 @@ final class Mailer
             'Content-Type: text/html; charset=UTF-8',
         ]);
 
-        // Dot-stuffing : une ligne commençant par "." doit être doublée (RFC 5321)
+        // RFC 5321 dot-stuffing: a leading "." is doubled
         $body = str_replace("\r\n.", "\r\n..", "\r\n" . $htmlBody);
 
         fwrite($socket, $headers . "\r\n" . $body . "\r\n.\r\n");
@@ -53,13 +50,13 @@ final class Mailer
     private static function expect($socket, string $code): void
     {
         $line = fgets($socket, 512);
-        // Réponses multi-lignes : "250-..." continue, "250 ..." termine
+        // Multi-line replies: "250-..." continues, "250 ..." ends
         while ($line !== false && isset($line[3]) && $line[3] === '-') {
             $line = fgets($socket, 512);
         }
         if ($line === false || !str_starts_with($line, $code)) {
             throw new RuntimeException(
-                'SMTP: réponse inattendue "' . trim((string) $line) . '" (attendu ' . $code . ')'
+                'SMTP: unexpected reply "' . trim((string) $line) . '" (expected ' . $code . ')'
             );
         }
     }

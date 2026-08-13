@@ -6,6 +6,7 @@ namespace App\Controllers;
 
 use App\Core\Controller;
 use App\Core\Mailer;
+use App\Core\Settings;
 use App\Models\User;
 use Throwable;
 
@@ -13,7 +14,7 @@ final class AuthController extends Controller
 {
     public function showRegister(): void
     {
-        $this->view('auth/register', ['title' => 'Inscription']);
+        $this->view('auth/register', ['title' => 'Sign up']);
     }
 
     public function register(): void
@@ -22,51 +23,55 @@ final class AuthController extends Controller
         $email    = trim($_POST['email'] ?? '');
         $password = (string) ($_POST['password'] ?? '');
 
+        $minimum = (int) Settings::get('auth.password_min_length', 8);
+
         $errors = [];
         if ($username === '' || $email === '' || $password === '') {
-            $errors[] = 'Tous les champs sont requis.';
+            $errors[] = 'All fields are required.';
         }
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $errors[] = 'Email invalide.';
+            $errors[] = 'Invalid email address.';
         }
-        if (strlen($password) < 8) {
-            $errors[] = 'Le mot de passe doit faire au moins 8 caractères.';
+        if (strlen($password) < $minimum) {
+            $errors[] = 'Password must be at least ' . $minimum . ' characters long.';
         }
 
         $users = new User();
         if ($errors === [] && ($users->findByEmail($email) || $users->findByUsername($username))) {
-            $errors[] = 'Un compte existe déjà avec cet email ou ce pseudo.';
+            $errors[] = 'An account already exists with this email or username.';
         }
 
         if ($errors !== []) {
             $this->view('auth/register', [
-                'title'  => 'Inscription',
+                'title'  => 'Sign up',
                 'errors' => $errors,
                 'old'    => ['username' => $username, 'email' => $email],
             ]);
             return;
         }
 
-        $token = bin2hex(random_bytes(32));
-        $users->create($username, $email, password_hash($password, PASSWORD_DEFAULT), $token);
+        $ttl   = (int) Settings::get('auth.verification_ttl', 86400);
+        $token = bin2hex(random_bytes((int) Settings::get('auth.token_bytes', 32)));
+        $users->create($username, $email, password_hash($password, PASSWORD_DEFAULT), $token, $ttl);
 
         $link = APP_URL . '/verify?token=' . $token;
         try {
             Mailer::send(
                 $email,
-                'Confirmez votre inscription à Camagru',
-                'Bonjour ' . htmlspecialchars($username) . ',<br><br>'
-                . 'Cliquez sur ce lien pour activer votre compte&nbsp;:<br>'
-                . '<a href="' . $link . '">' . $link . '</a>'
+                'Confirm your Camagru account',
+                'Hi ' . htmlspecialchars($username) . ',<br><br>'
+                . 'Click this link to activate your account:<br>'
+                . '<a href="' . $link . '">' . $link . '</a><br><br>'
+                . 'The link expires in ' . $this->lifetimeInWords($ttl) . '.'
             );
         } catch (Throwable $e) {
-            error_log('Envoi email de confirmation échoué : ' . $e->getMessage());
+            error_log('Confirmation email failed: ' . $e->getMessage());
         }
 
         $this->view('auth/login', [
-            'title'  => 'Connexion',
-            'notice' => 'Compte créé. Un email de confirmation vous a été envoyé : 
-                cliquez sur le lien pour activer votre compte.',
+            'title'  => 'Login',
+            'notice' => 'Account created. A confirmation email has been sent: click the link to
+                activate your account.',
         ]);
     }
 
@@ -78,22 +83,22 @@ final class AuthController extends Controller
 
         if ($user === null) {
             $this->view('auth/login', [
-                'title'  => 'Connexion',
-                'errors' => ['Lien de confirmation invalide ou déjà utilisé.'],
+                'title'  => 'Login',
+                'errors' => ['Confirmation link invalid, expired or already used.'],
             ]);
             return;
         }
 
         $users->markVerified((int) $user['id']);
         $this->view('auth/login', [
-            'title'  => 'Connexion',
-            'notice' => 'Votre compte est activé. Vous pouvez maintenant vous connecter.',
+            'title'  => 'Login',
+            'notice' => 'Your account is active. You can now log in.',
         ]);
     }
 
     public function showLogin(): void
     {
-        $this->view('auth/login', ['title' => 'Connexion']);
+        $this->view('auth/login', ['title' => 'Login']);
     }
 
     public function login(): void
@@ -105,18 +110,18 @@ final class AuthController extends Controller
 
         if ($user === null || !password_verify($password, $user['password'])) {
             $this->view('auth/login', [
-                'title'  => 'Connexion',
-                'errors' => ['Identifiants invalides.'],
+                'title'  => 'Login',
+                'errors' => ['Invalid credentials.'],
                 'old'    => ['email' => $email],
             ]);
             return;
         }
 
-        // PDO_pgsql peut renvoyer le booléen sous forme 't'/'f' : on normalise
+        // PDO_pgsql returns booleans as 't'/'f'
         if (!in_array($user['verified'], [true, 't', '1', 1], true)) {
             $this->view('auth/login', [
-                'title'  => 'Connexion',
-                'errors' => ['Compte non vérifié. Consultez votre email pour l\'activer.'],
+                'title'  => 'Login',
+                'errors' => ['Account not verified. Check your email to activate it.'],
                 'old'    => ['email' => $email],
             ]);
             return;

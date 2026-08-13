@@ -27,4 +27,11 @@ abstract class Controller
         header('Location: ' . $path);
         exit;
     }
+
+    protected function lifetimeInWords(int $seconds): string
+    {
+        $hours = (int) round($seconds / 3600);
+
+        return $hours === 1 ? '1 hour' : $hours . ' hours';
+    }
 }

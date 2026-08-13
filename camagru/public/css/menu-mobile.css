@@ -84,7 +84,7 @@
         margin: 1rem;
     }
 
-    .menu-enseigne ul {
+    .menu-accueil ul {
         flex-direction: column;
         align-items: flex-start;
         gap: 0;
@@ -131,18 +131,8 @@
         }
     }
 
-    nav .avatar {
-        margin-left: 1rem;
-    }
-
-    nav .avatar + p {
-        margin: .35rem 1rem 1rem;
-        color: #fff;
-        text-shadow: none;
-    }
-
     .titre-page,
-    .enseigne {
+    .logo {
         max-width: calc(100% - 160px);
         min-height: 72px;
     }
