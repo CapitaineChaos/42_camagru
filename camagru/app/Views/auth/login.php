@@ -4,8 +4,6 @@
 /** @var string $notice */
 ?>
 
-<h1>Connexion</h1>
-
 <?php if (!empty($notice)): ?>
     <p style="color:green"><?= htmlspecialchars($notice) ?></p>
 <?php endif; ?>

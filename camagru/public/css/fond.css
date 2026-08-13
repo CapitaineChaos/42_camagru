@@ -1,0 +1,72 @@
+html {
+    display: flex;
+    justify-content: center;
+    background: #f4efe2;
+    overflow-x: clip;
+}
+
+body {
+    position: relative;
+    background: url("/images/fond_0.png") no-repeat center top;
+    background-size: cover;
+}
+
+body::before,
+body::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 58.8px;
+    background: url("/images/elements/couronne-3.svg") repeat-y center top;
+    background-size: 58.8px auto;
+    filter: drop-shadow(0 0 6px rgba(4, 30, 56, .3));
+    pointer-events: none;
+}
+
+body::before {
+    left: -29.4px;
+}
+
+body::after {
+    right: -29.4px;
+    transform: scaleX(-1);
+}
+
+@media (min-width: 826.8px) and (max-width: 1258.79px) {
+    body {
+        width: 768px;
+        padding-inline: 33.6px;
+        background: #737430 url("/images/fond_2.png") no-repeat center top;
+        background-size: 100% auto;
+    }
+}
+
+/* palier large : colonne 1200 */
+@media (min-width: 1258.8px) and (max-width: 2099.98px) {
+    body {
+        width: 1200px;
+        padding-inline: 33.6px;
+        background: #625f22 url("/images/fond_1.png") no-repeat center top;
+        background-size: 100% auto;
+    }
+}
+
+@media (max-width: 826.79px), (min-width: 2100px) {
+    body {
+        width: 100%;
+        background-position: center center;
+        background-attachment: fixed;
+    }
+
+    body::before,
+    body::after {
+        display: none;
+    }
+}
+
+@media (max-width: 826.79px) {
+    body {
+        background-image: url("/images/fond_3.png");
+    }
+}

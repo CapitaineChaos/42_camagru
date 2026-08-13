@@ -136,6 +136,6 @@ final class AuthController extends Controller
     {
         $_SESSION = [];
         session_destroy();
-        $this->view('auth/logout', ['title' => 'Déconnexion']);
+        $this->redirect('/');
     }
 }

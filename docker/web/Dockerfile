@@ -4,7 +4,6 @@ FROM docker.io/library/php:8.3-apache
 RUN apt-get update \
     # Auto acceptation sans dépendance inutiles
     && apt-get install -y --no-install-recommends \
-
     # PostgreSQL
     libpq-dev \
     # Support PNG pour GD
@@ -13,10 +12,8 @@ RUN apt-get update \
     libjpeg62-turbo-dev \
     # Support des polices pour GD
     libfreetype6-dev \
-
     # Support polices TrueType/OpenType pour GD
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-
     # Installation parallèle avec max cores
     && docker-php-ext-install -j"$(nproc)" \
     # Interface générique PostgreSQL (PDO)

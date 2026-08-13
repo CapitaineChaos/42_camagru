@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg version="1.1" width="130" height="702" viewBox="0 0 130 702"
+   xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+  <defs>
+    <path id="fl-clair" d="M0,-180C59.5,-108 101.8,-10.8 6.1,180C-71,-10.8 -59.5,-108 0,-180Z" />
+    <path id="fl-ombre" d="M0,-180C59.5,-108 101.8,-10.8 6.1,180C8.4,36 13.4,-72 0,-162Z" />
+    <path id="fl-nervures" d="M5.4,162C8.4,36 13.4,-72 0,-162M13.5,111.6C36.6,104.4 46.2,95.4 42.6,81M13.5,111.6C-9.5,104.4 -19.1,95.4 -15.6,81M17.8,61.2C40.9,54 50.5,45 53.7,30.6M17.8,61.2C-5.2,54 -14.8,45 -18.1,30.6M22.1,10.8C45.2,3.6 54.8,-5.4 64.8,-19.8M22.1,10.8C-0.9,3.6 -10.5,-5.4 -20.6,-19.8M19.4,-43.2C42.4,-50.4 52,-59.4 57.7,-73.8M19.4,-43.2C-3.7,-50.4 -13.3,-59.4 -19,-73.8" />
+    <path id="fo-clair" d="M0,-168C90.6,-159.6 92.5,-112.6 17.3,-84C90.6,-75.6 92.5,-28.6 17.3,0C63.2,8.4 64.4,55.4 17.3,84C0,92.4 0,139.4 0,168C0,139.4 0,92.4 -17.3,84C-64.4,55.4 -63.2,8.4 -17.3,0C-92.5,-28.6 -90.6,-75.6 -17.3,-84C-92.5,-112.6 -90.6,-159.6 0,-168Z" />
+    <path id="fo-ombre" d="M0,-168C90.6,-159.6 92.5,-112.6 17.3,-84C90.6,-75.6 92.5,-28.6 17.3,0C63.2,8.4 64.4,55.4 17.3,84C0,92.4 0,139.4 0,168C9.6,67.2 11.5,-50.4 0,-168Z" />
+    <path id="fo-nervures" d="M0,151.2C6.7,50.4 4.8,-50.4 0,-151.2M0,-130.2C22.5,-135.2 38.6,-145.3 49.9,-155.4M0,-130.2C-22.5,-135.2 -38.6,-145.3 -49.9,-155.4M0,-46.2C26.9,-51.2 46.1,-61.3 59.5,-71.4M0,-46.2C-26.9,-51.2 -46.1,-61.3 -59.5,-71.4M0,37.8C23.3,32.8 40,22.7 51.6,12.6M0,37.8C-23.3,32.8 -40,22.7 -51.6,12.6M0,121.8C11.9,116.8 20.5,106.7 26.4,96.6M0,121.8C-11.9,116.8 -20.5,106.7 -26.4,96.6" />
+    <path id="fv-clair" d="M0,-120C57,-72 92,-7.2 3.7,120C-73.6,-7.2 -57,-72 0,-120Z" />
+    <path id="fv-ombre" d="M0,-120C57,-72 92,-7.2 3.7,120C5.1,24 12.9,-48 0,-108Z" />
+    <path id="fv-nervures" d="M3.2,108C5.1,24 12.9,-48 0,-108M10.2,74.4C32.3,69.6 41.5,63.6 38.1,54M10.2,74.4C-11.9,69.6 -21.1,63.6 -17.7,54M14.3,40.8C36.4,36 45.6,30 48.7,20.4M14.3,40.8C-7.8,36 -17,30 -20.1,20.4M18.4,7.2C40.5,2.4 49.7,-3.6 59.4,-13.2M18.4,7.2C-3.6,2.4 -12.8,-3.6 -22.5,-13.2M15.8,-28.8C37.9,-33.6 47.1,-39.6 52.5,-49.2M15.8,-28.8C-6.3,-33.6 -15.5,-39.6 -20.9,-49.2" />
+    <path id="mg-sil" d="M0,0C-26.7,-45 -31,-111 0,-150C31,-111 26.7,-45 0,0ZM0,0C-0.6,-52.3 28.7,-111.6 75,-129.9C82.3,-80.6 45.6,-25.6 0,0ZM0,0C25.6,-45.6 80.6,-82.3 129.9,-75C111.6,-28.7 52.3,0.6 0,0ZM0,0C45,-26.7 111,-31 150,0C111,31 45,26.7 0,0ZM0,0C52.3,-0.6 111.6,28.7 129.9,75C80.6,82.3 25.6,45.6 0,0ZM0,0C45.6,25.6 82.3,80.6 75,129.9C28.7,111.6 -0.6,52.3 0,0ZM0,0C26.7,45 31,111 0,150C-31,111 -26.7,45 0,0ZM0,0C0.6,52.3 -28.7,111.6 -75,129.9C-82.3,80.6 -45.6,25.6 0,0ZM0,0C-25.6,45.6 -80.6,82.3 -129.9,75C-111.6,28.7 -52.3,-0.6 0,0ZM0,0C-45,26.7 -111,31 -150,0C-111,-31 -45,-26.7 0,0ZM0,0C-52.3,0.6 -111.6,-28.7 -129.9,-75C-80.6,-82.3 -25.6,-45.6 0,0ZM0,0C-45.6,-25.6 -82.3,-80.6 -75,-129.9C-28.7,-111.6 0.6,-52.3 0,0Z" />
+    <path id="mg-ombre" d="M0,0C45,-26.7 111,-31 150,0C111,31 45,26.7 0,0ZM0,0C52.3,-0.6 111.6,28.7 129.9,75C80.6,82.3 25.6,45.6 0,0ZM0,0C45.6,25.6 82.3,80.6 75,129.9C28.7,111.6 -0.6,52.3 0,0ZM0,0C26.7,45 31,111 0,150C-31,111 -26.7,45 0,0ZM0,0C0.6,52.3 -28.7,111.6 -75,129.9C-82.3,80.6 -45.6,25.6 0,0ZM0,0C-25.6,45.6 -80.6,82.3 -129.9,75C-111.6,28.7 -52.3,-0.6 0,0Z" />
+    <path id="mg-coeur" d="M0,-52C28.7,-52 52,-28.7 52,0C52,28.7 28.7,52 0,52C-28.7,52 -52,28.7 -52,0C-52,-28.7 -28.7,-52 0,-52Z" />
+    <path id="cs-sil" d="M0,0C-36.5,-54.2 -29.1,-116.5 11.5,-135.5C22.8,-143.2 21.1,-121.8 26.3,-123.6C30.3,-119.9 37.5,-140.1 44.6,-128.4C73.9,-94.6 55.4,-34.7 0,0ZM0,0C12.5,-64.2 61.8,-102.9 103.9,-87.7C117.4,-85.2 101,-71.2 106,-68.8C106.2,-63.3 125.6,-72.6 122.4,-59.3C119.2,-14.6 63.7,14.7 0,0ZM0,0C54.2,-36.5 116.5,-29.1 135.5,11.5C143.2,22.8 121.8,21.1 123.6,26.3C119.9,30.3 140.1,37.5 128.4,44.6C94.6,73.9 34.7,55.4 0,0ZM0,0C64.2,12.5 102.9,61.8 87.7,103.9C85.2,117.4 71.2,101 68.8,106C63.3,106.2 72.6,125.6 59.3,122.4C14.6,119.2 -14.7,63.7 0,0ZM0,0C36.5,54.2 29.1,116.5 -11.5,135.5C-22.8,143.2 -21.1,121.8 -26.3,123.6C-30.3,119.9 -37.5,140.1 -44.6,128.4C-73.9,94.6 -55.4,34.7 0,0ZM0,0C-12.5,64.2 -61.8,102.9 -103.9,87.7C-117.4,85.2 -101,71.2 -106,68.8C-106.2,63.3 -125.6,72.6 -122.4,59.3C-119.2,14.6 -63.7,-14.7 0,0ZM0,0C-54.2,36.5 -116.5,29.1 -135.5,-11.5C-143.2,-22.8 -121.8,-21.1 -123.6,-26.3C-119.9,-30.3 -140.1,-37.5 -128.4,-44.6C-94.6,-73.9 -34.7,-55.4 0,0ZM0,0C-64.2,-12.5 -102.9,-61.8 -87.7,-103.9C-85.2,-117.4 -71.2,-101 -68.8,-106C-63.3,-106.2 -72.6,-125.6 -59.3,-122.4C-14.6,-119.2 14.7,-63.7 0,0Z" />
+    <path id="cs-ombre" d="M0,0C54.2,-36.5 116.5,-29.1 135.5,11.5C143.2,22.8 121.8,21.1 123.6,26.3C119.9,30.3 140.1,37.5 128.4,44.6C94.6,73.9 34.7,55.4 0,0ZM0,0C64.2,12.5 102.9,61.8 87.7,103.9C85.2,117.4 71.2,101 68.8,106C63.3,106.2 72.6,125.6 59.3,122.4C14.6,119.2 -14.7,63.7 0,0ZM0,0C36.5,54.2 29.1,116.5 -11.5,135.5C-22.8,143.2 -21.1,121.8 -26.3,123.6C-30.3,119.9 -37.5,140.1 -44.6,128.4C-73.9,94.6 -55.4,34.7 0,0ZM0,0C-12.5,64.2 -61.8,102.9 -103.9,87.7C-117.4,85.2 -101,71.2 -106,68.8C-106.2,63.3 -125.6,72.6 -122.4,59.3C-119.2,14.6 -63.7,-14.7 0,0Z" />
+    <path id="cs-coeur" d="M0,-44C24.3,-44 44,-24.3 44,0C44,24.3 24.3,44 0,44C-24.3,44 -44,24.3 -44,0C-44,-24.3 -24.3,-44 0,-44Z" />
+    <path id="my-sil" d="M0,0C-34,-40.1 -28.4,-80.8 28.4,-87.5C70.5,-48.7 51.1,-12.4 0,0ZM0,0C27.6,-44.7 68.1,-52 92,0C68.1,52 27.6,44.7 0,0ZM0,0C51.1,12.4 70.5,48.7 28.4,87.5C-28.4,80.8 -34,40.1 0,0ZM0,0C4,52.4 -24.5,82.1 -74.4,54.1C-85.6,-2.1 -48.6,-20 0,0ZM0,0C-48.6,20 -85.6,2.1 -74.4,-54.1C-24.5,-82.1 4,-52.4 0,0Z" />
+    <path id="my-ombre" d="M0,0C51.1,12.4 70.5,48.7 28.4,87.5C-28.4,80.8 -34,40.1 0,0ZM0,0C4,52.4 -24.5,82.1 -74.4,54.1C-85.6,-2.1 -48.6,-20 0,0Z" />
+    <path id="my-coeur" d="M0,-30C16.6,-30 30,-16.6 30,0C30,16.6 16.6,30 0,30C-16.6,30 -30,16.6 -30,0C-30,-16.6 -16.6,-30 0,-30Z" />
+    <path id="cr-clair" d="M0,150C-52,88 -104,44 -104,-22C-104,-72 -66,-104 -28,-104C-6,-104 10,-92 0,-64C-10,-92 6,-104 28,-104C66,-104 104,-72 104,-22C104,44 52,88 0,150Z" />
+    <path id="cr-ombre" d="M0,150C52,88 104,44 104,-22C104,-72 66,-104 28,-104C6,-104 -10,-92 0,-64C10,-92 30,-96 44,-84C74,-60 66,10 0,150Z" />
+    <path id="cr-nervures" d="M-40,-60C-58,-46 -62,-20 -54,2" />
+    <g id="f-fl0" transform="scale(0.27778) translate(-15.4,-0.0)">
+      <use href="#fl-clair" fill="#b5be23" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#fl-ombre" fill="#7d8a1e" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#fl-nervures" fill="none" stroke="#1b3010" stroke-width="6" stroke-linecap="round" />
+    </g>
+    <g id="f-fv0" transform="scale(0.41667) translate(-9.2,-0.0)">
+      <use href="#fv-clair" fill="#b5be23" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#fv-ombre" fill="#7d8a1e" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#fv-nervures" fill="none" stroke="#1b3010" stroke-width="6" stroke-linecap="round" />
+    </g>
+    <g id="f-fo0" transform="scale(0.29762) translate(-0.0,-0.0)">
+      <use href="#fo-clair" fill="#b5be23" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#fo-ombre" fill="#7d8a1e" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#fo-nervures" fill="none" stroke="#1b3010" stroke-width="6" stroke-linecap="round" />
+    </g>
+    <g id="f-fl1" transform="scale(0.27778) translate(-15.4,-0.0)">
+      <use href="#fl-clair" fill="#9b9e28" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#fl-ombre" fill="#5a6419" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#fl-nervures" fill="none" stroke="#1b3010" stroke-width="6" stroke-linecap="round" />
+    </g>
+    <g id="f-fv1" transform="scale(0.41667) translate(-9.2,-0.0)">
+      <use href="#fv-clair" fill="#9b9e28" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#fv-ombre" fill="#5a6419" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#fv-nervures" fill="none" stroke="#1b3010" stroke-width="6" stroke-linecap="round" />
+    </g>
+    <g id="f-fo1" transform="scale(0.29762) translate(-0.0,-0.0)">
+      <use href="#fo-clair" fill="#9b9e28" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#fo-ombre" fill="#5a6419" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#fo-nervures" fill="none" stroke="#1b3010" stroke-width="6" stroke-linecap="round" />
+    </g>
+    <g id="f-fl2" transform="scale(0.27778) translate(-15.4,-0.0)">
+      <use href="#fl-clair" fill="#668e4c" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#fl-ombre" fill="#375f1a" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#fl-nervures" fill="none" stroke="#1b3010" stroke-width="6" stroke-linecap="round" />
+    </g>
+    <g id="f-fv2" transform="scale(0.41667) translate(-9.2,-0.0)">
+      <use href="#fv-clair" fill="#668e4c" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#fv-ombre" fill="#375f1a" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#fv-nervures" fill="none" stroke="#1b3010" stroke-width="6" stroke-linecap="round" />
+    </g>
+    <g id="f-fo2" transform="scale(0.29762) translate(-0.0,-0.0)">
+      <use href="#fo-clair" fill="#668e4c" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#fo-ombre" fill="#375f1a" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#fo-nervures" fill="none" stroke="#1b3010" stroke-width="6" stroke-linecap="round" />
+    </g>
+    <g id="nuit-fl" transform="scale(0.27778) translate(-15.4,-0.0)">
+      <use href="#fl-clair" fill="#234310" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#fl-ombre" fill="#234310" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+    </g>
+    <g id="nuit-fv" transform="scale(0.41667) translate(-9.2,-0.0)">
+      <use href="#fv-clair" fill="#234310" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#fv-ombre" fill="#234310" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+    </g>
+    <g id="nuit-fo" transform="scale(0.29762) translate(-0.0,-0.0)">
+      <use href="#fo-clair" fill="#234310" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#fo-ombre" fill="#234310" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+    </g>
+    <g id="fl-mg-blanche" transform="scale(0.33333) translate(-0.0,-0.0)">
+      <use href="#mg-sil" fill="#fbf6e8" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#mg-ombre" fill="#e2dcc4" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#mg-coeur" fill="#f6c62a" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+    </g>
+    <g id="fl-cs-blanche" transform="scale(0.34916) translate(-0.0,-0.0)">
+      <use href="#cs-sil" fill="#fbf6e8" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#cs-ombre" fill="#e2dcc4" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#cs-coeur" fill="#f6c62a" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+    </g>
+    <g id="fl-my-blanche" transform="scale(0.56306) translate(-3.2,-0.0)">
+      <use href="#my-sil" fill="#fbf6e8" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#my-ombre" fill="#e2dcc4" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#my-coeur" fill="#f6c62a" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+    </g>
+    <g id="fl-mg-rose" transform="scale(0.33333) translate(-0.0,-0.0)">
+      <use href="#mg-sil" fill="#f0a2c0" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#mg-ombre" fill="#d4809f" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#mg-coeur" fill="#f6c62a" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+    </g>
+    <g id="fl-cs-rose" transform="scale(0.34916) translate(-0.0,-0.0)">
+      <use href="#cs-sil" fill="#f0a2c0" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#cs-ombre" fill="#d4809f" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#cs-coeur" fill="#f6c62a" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+    </g>
+    <g id="fl-my-rose" transform="scale(0.56306) translate(-3.2,-0.0)">
+      <use href="#my-sil" fill="#f0a2c0" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#my-ombre" fill="#d4809f" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#my-coeur" fill="#f6c62a" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+    </g>
+    <g id="fl-mg-jaune" transform="scale(0.33333) translate(-0.0,-0.0)">
+      <use href="#mg-sil" fill="#f4cf3f" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#mg-ombre" fill="#d9ad24" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#mg-coeur" fill="#f6c62a" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+    </g>
+    <g id="fl-cs-jaune" transform="scale(0.34916) translate(-0.0,-0.0)">
+      <use href="#cs-sil" fill="#f4cf3f" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#cs-ombre" fill="#d9ad24" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#cs-coeur" fill="#f6c62a" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+    </g>
+    <g id="fl-my-jaune" transform="scale(0.56306) translate(-3.2,-0.0)">
+      <use href="#my-sil" fill="#f4cf3f" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#my-ombre" fill="#d9ad24" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#my-coeur" fill="#f6c62a" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+    </g>
+    <g id="fl-mg-bleue" transform="scale(0.33333) translate(-0.0,-0.0)">
+      <use href="#mg-sil" fill="#8fa2df" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#mg-ombre" fill="#7185c4" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#mg-coeur" fill="#f6c62a" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+    </g>
+    <g id="fl-cs-bleue" transform="scale(0.34916) translate(-0.0,-0.0)">
+      <use href="#cs-sil" fill="#8fa2df" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#cs-ombre" fill="#7185c4" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#cs-coeur" fill="#f6c62a" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+    </g>
+    <g id="fl-my-bleue" transform="scale(0.56306) translate(-3.2,-0.0)">
+      <use href="#my-sil" fill="#8fa2df" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#my-ombre" fill="#7185c4" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#my-coeur" fill="#f6c62a" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+    </g>
+    <g id="fl-mg-orange" transform="scale(0.33333) translate(-0.0,-0.0)">
+      <use href="#mg-sil" fill="#e88b3c" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#mg-ombre" fill="#cb6b28" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#mg-coeur" fill="#f6c62a" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+    </g>
+    <g id="fl-cs-orange" transform="scale(0.34916) translate(-0.0,-0.0)">
+      <use href="#cs-sil" fill="#e88b3c" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#cs-ombre" fill="#cb6b28" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#cs-coeur" fill="#f6c62a" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+    </g>
+    <g id="fl-my-orange" transform="scale(0.56306) translate(-3.2,-0.0)">
+      <use href="#my-sil" fill="#e88b3c" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#my-ombre" fill="#cb6b28" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#my-coeur" fill="#f6c62a" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+    </g>
+    <g id="fl-mg-fuchsia" transform="scale(0.33333) translate(-0.0,-0.0)">
+      <use href="#mg-sil" fill="#e2617f" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#mg-ombre" fill="#c44662" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#mg-coeur" fill="#f6c62a" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+    </g>
+    <g id="fl-cs-fuchsia" transform="scale(0.34916) translate(-0.0,-0.0)">
+      <use href="#cs-sil" fill="#e2617f" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#cs-ombre" fill="#c44662" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#cs-coeur" fill="#f6c62a" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+    </g>
+    <g id="fl-my-fuchsia" transform="scale(0.56306) translate(-3.2,-0.0)">
+      <use href="#my-sil" fill="#e2617f" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#my-ombre" fill="#c44662" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#my-coeur" fill="#f6c62a" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+    </g>
+    <g id="coeur-jaune" transform="scale(0.39370) translate(-0.0,-23.0)">
+      <use href="#cr-clair" fill="#f6c62a" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#cr-ombre" fill="#d9a41c" stroke="#1b3010" stroke-width="11" stroke-linejoin="round" />
+      <use href="#cr-nervures" fill="none" stroke="#ffe08a" stroke-width="6" stroke-linecap="round" />
+    </g>
+  </defs>
+  <g>
+
+  </g>
+  <g>
+    <use href="#f-fo0" transform="translate(81.0,-74.8) rotate(48.7) scale(0.6920,0.6920)" />
+    <use href="#f-fv1" transform="translate(78.2,-74.0) rotate(46.6) scale(0.6392,0.6392)" />
+    <use href="#f-fl0" transform="translate(49.7,-62.6) rotate(-47.1) scale(-0.6917,0.6917)" />
+    <use href="#f-fv2" transform="translate(50.9,-61.4) rotate(-47.1) scale(-0.6579,0.6579)" />
+    <use href="#f-fl1" transform="translate(78.3,-51.3) rotate(42.6) scale(-0.6867,0.6867)" />
+    <use href="#f-fl1" transform="translate(77.7,-47.9) rotate(46.0) scale(0.6300,0.6300)" />
+    <use href="#f-fv2" transform="translate(51.7,-36.5) rotate(-44.8) scale(-0.6620,0.6620)" />
+    <use href="#f-fv2" transform="translate(50.4,-36.3) rotate(-46.6) scale(-0.6772,0.6772)" />
+    <use href="#f-fo2" transform="translate(77.1,-25.3) rotate(41.1) scale(-0.6710,0.6710)" />
+    <use href="#f-fv2" transform="translate(80.0,-19.1) rotate(52.6) scale(-0.6303,0.6303)" />
+    <use href="#f-fl0" transform="translate(50.7,-11.8) rotate(-44.5) scale(0.6937,0.6937)" />
+    <use href="#f-fo0" transform="translate(51.3,-11.6) rotate(-43.9) scale(-0.6824,0.6824)" />
+    <use href="#f-fl1" transform="translate(77.5,-0.2) rotate(40.7) scale(0.6907,0.6907)" />
+    <use href="#f-fv2" transform="translate(78.8,5.7) rotate(49.6) scale(-0.6255,0.6255)" />
+    <use href="#f-fl0" transform="translate(48.3,16.8) rotate(-50.3) scale(-0.6934,0.6934)" />
+    <use href="#f-fl1" transform="translate(48.7,17.3) rotate(-50.5) scale(-0.6822,0.6822)" />
+    <use href="#f-fl1" transform="translate(78.4,28.3) rotate(44.6) scale(-0.6656,0.6656)" />
+    <use href="#f-fo1" transform="translate(81.4,30.8) rotate(51.3) scale(-0.6773,0.6773)" />
+    <use href="#f-fv0" transform="translate(50.7,40.9) rotate(-45.2) scale(0.6838,0.6838)" />
+    <use href="#f-fl0" transform="translate(50.8,41.9) rotate(-46.3) scale(-0.6694,0.6694)" />
+    <use href="#f-fo0" transform="translate(75.6,54.3) rotate(40.9) scale(-0.6281,0.6281)" />
+    <use href="#f-fl1" transform="translate(49.2,69.3) rotate(-49.9) scale(-0.6736,0.6736)" />
+    <use href="#f-fv2" transform="translate(80.1,80.6) rotate(47.0) scale(0.6864,0.6864)" />
+    <use href="#f-fl0" transform="translate(48.9,96.3) rotate(-51.7) scale(0.6667,0.6667)" />
+    <use href="#f-fv0" transform="translate(81.1,106.8) rotate(48.4) scale(0.6989,0.6989)" />
+    <use href="#f-fv2" transform="translate(51.5,120.8) rotate(-46.6) scale(0.6463,0.6463)" />
+    <use href="#f-fv2" transform="translate(77.6,130.8) rotate(42.0) scale(-0.6769,0.6769)" />
+    <use href="#f-fo2" transform="translate(52.4,147.0) rotate(-45.7) scale(0.6303,0.6303)" />
+    <use href="#f-fo1" transform="translate(79.1,161.9) rotate(50.2) scale(0.6274,0.6274)" />
+    <use href="#f-fo1" transform="translate(53.0,173.0) rotate(-45.0) scale(0.6220,0.6220)" />
+    <use href="#f-fl0" transform="translate(78.0,187.0) rotate(47.6) scale(-0.6239,0.6239)" />
+    <use href="#f-fl1" transform="translate(50.7,198.1) rotate(-46.7) scale(0.6668,0.6668)" />
+    <use href="#f-fl0" transform="translate(79.0,208.6) rotate(43.3) scale(-0.6995,0.6995)" />
+    <use href="#f-fo1" transform="translate(48.8,226.7) rotate(-52.3) scale(-0.6628,0.6628)" />
+    <use href="#f-fv1" transform="translate(79.1,238.8) rotate(48.7) scale(-0.6413,0.6413)" />
+    <use href="#f-fv1" transform="translate(47.7,251.4) rotate(-51.6) scale(-0.6963,0.6963)" />
+    <use href="#f-fv2" transform="translate(79.1,261.4) rotate(44.4) scale(0.6893,0.6893)" />
+    <use href="#f-fl2" transform="translate(50.0,279.9) rotate(-52.6) scale(-0.6285,0.6285)" />
+    <use href="#f-fl1" transform="translate(80.3,290.0) rotate(49.0) scale(-0.6706,0.6706)" />
+    <use href="#f-fv1" transform="translate(53.0,301.7) rotate(-43.2) scale(-0.6409,0.6409)" />
+    <use href="#f-fl0" transform="translate(78.9,315.8) rotate(47.1) scale(-0.6533,0.6533)" />
+    <use href="#f-fo2" transform="translate(53.2,325.8) rotate(-40.9) scale(0.6671,0.6671)" />
+    <use href="#f-fv1" transform="translate(79.6,342.2) rotate(48.5) scale(0.6573,0.6573)" />
+    <use href="#f-fv2" transform="translate(51.9,354.6) rotate(-45.9) scale(-0.6425,0.6425)" />
+    <use href="#f-fl1" transform="translate(81.7,369.5) rotate(52.5) scale(0.6739,0.6739)" />
+    <use href="#f-fv0" transform="translate(51.3,381.2) rotate(-47.4) scale(-0.6441,0.6441)" />
+    <use href="#f-fv2" transform="translate(77.5,392.9) rotate(44.2) scale(-0.6452,0.6452)" />
+    <use href="#f-fl0" transform="translate(52.8,403.0) rotate(-40.5) scale(0.6828,0.6828)" />
+    <use href="#f-fl2" transform="translate(77.1,416.5) rotate(40.8) scale(-0.6746,0.6746)" />
+    <use href="#f-fv0" transform="translate(52.0,429.7) rotate(-42.3) scale(0.6841,0.6841)" />
+    <use href="#f-fv2" transform="translate(76.8,442.4) rotate(40.4) scale(-0.6718,0.6718)" />
+    <use href="#f-fl2" transform="translate(50.0,460.5) rotate(-50.7) scale(0.6468,0.6468)" />
+    <use href="#f-fo2" transform="translate(77.4,467.4) rotate(40.1) scale(-0.6965,0.6965)" />
+    <use href="#f-fv0" transform="translate(52.4,482.6) rotate(-42.8) scale(-0.6654,0.6654)" />
+    <use href="#f-fv2" transform="translate(78.9,494.7) rotate(43.4) scale(-0.6962,0.6962)" />
+    <use href="#f-fo2" transform="translate(50.3,512.5) rotate(-50.3) scale(-0.6425,0.6425)" />
+    <use href="#f-fo1" transform="translate(79.6,523.3) rotate(47.3) scale(-0.6695,0.6695)" />
+    <use href="#f-fv1" transform="translate(51.8,533.9) rotate(-42.8) scale(0.6833,0.6833)" />
+    <use href="#f-fl0" transform="translate(78.5,550.0) rotate(47.0) scale(0.6434,0.6434)" />
+    <use href="#f-fv2" transform="translate(55.1,560.4) rotate(-39.1) scale(0.6328,0.6328)" />
+    <use href="#f-fl1" transform="translate(80.9,578.0) rotate(52.3) scale(-0.6548,0.6548)" />
+    <use href="#f-fl2" transform="translate(50.0,589.7) rotate(-49.5) scale(0.6566,0.6566)" />
+    <use href="#f-fl0" transform="translate(80.9,603.3) rotate(51.5) scale(0.6635,0.6635)" />
+    <use href="#f-fl1" transform="translate(52.3,610.6) rotate(-40.7) scale(-0.6973,0.6973)" />
+    <use href="#f-fo0" transform="translate(81.0,627.2) rotate(48.7) scale(0.6920,0.6920)" />
+    <use href="#f-fv1" transform="translate(78.2,628.0) rotate(46.6) scale(0.6392,0.6392)" />
+    <use href="#f-fl0" transform="translate(49.7,639.4) rotate(-47.1) scale(-0.6917,0.6917)" />
+    <use href="#f-fv2" transform="translate(50.9,640.6) rotate(-47.1) scale(-0.6579,0.6579)" />
+    <use href="#f-fl1" transform="translate(78.3,650.7) rotate(42.6) scale(-0.6867,0.6867)" />
+    <use href="#f-fl1" transform="translate(77.7,654.1) rotate(46.0) scale(0.6300,0.6300)" />
+    <use href="#f-fv2" transform="translate(51.7,665.5) rotate(-44.8) scale(-0.6620,0.6620)" />
+    <use href="#f-fv2" transform="translate(50.4,665.7) rotate(-46.6) scale(-0.6772,0.6772)" />
+    <use href="#f-fo2" transform="translate(77.1,676.7) rotate(41.1) scale(-0.6710,0.6710)" />
+    <use href="#f-fv2" transform="translate(80.0,682.9) rotate(52.6) scale(-0.6303,0.6303)" />
+    <use href="#f-fl0" transform="translate(50.7,690.2) rotate(-44.5) scale(0.6937,0.6937)" />
+    <use href="#f-fo0" transform="translate(51.3,690.4) rotate(-43.9) scale(-0.6824,0.6824)" />
+    <use href="#f-fl1" transform="translate(77.5,701.8) rotate(40.7) scale(0.6907,0.6907)" />
+    <use href="#f-fv2" transform="translate(78.8,707.7) rotate(49.6) scale(-0.6255,0.6255)" />
+    <use href="#f-fl0" transform="translate(48.3,718.8) rotate(-50.3) scale(-0.6934,0.6934)" />
+    <use href="#f-fl1" transform="translate(48.7,719.3) rotate(-50.5) scale(-0.6822,0.6822)" />
+    <use href="#f-fl1" transform="translate(78.4,730.3) rotate(44.6) scale(-0.6656,0.6656)" />
+    <use href="#f-fo1" transform="translate(81.4,732.8) rotate(51.3) scale(-0.6773,0.6773)" />
+    <use href="#f-fv0" transform="translate(50.7,742.9) rotate(-45.2) scale(0.6838,0.6838)" />
+    <use href="#f-fl0" transform="translate(50.8,743.9) rotate(-46.3) scale(-0.6694,0.6694)" />
+    <use href="#f-fo0" transform="translate(75.6,756.3) rotate(40.9) scale(-0.6281,0.6281)" />
+    <use href="#f-fl1" transform="translate(49.2,771.3) rotate(-49.9) scale(-0.6736,0.6736)" />
+    <use href="#f-fv2" transform="translate(80.1,782.6) rotate(47.0) scale(0.6864,0.6864)" />
+  </g>
+  <g>
+    <use href="#fl-mg-blanche" transform="translate(51.8,-13.0) rotate(25.0) scale(0.2600,0.2600)" />
+    <use href="#fl-my-blanche" transform="translate(79.8,13.0) rotate(4.7) scale(0.2600,0.2600)" />
+    <use href="#coeur-jaune" transform="translate(49.0,49.4) rotate(-22.9) scale(0.1170,0.1170)" />
+    <use href="#fl-cs-blanche" transform="translate(83.8,91.0) rotate(-26.3) scale(0.2600,0.2600)" />
+    <use href="#coeur-jaune" transform="translate(49.0,127.4) rotate(-21.6) scale(0.1170,0.1170)" />
+    <use href="#fl-my-blanche" transform="translate(53.7,195.0) rotate(1.1) scale(0.2600,0.2600)" />
+    <use href="#fl-my-rose" transform="translate(80.9,299.0) rotate(-13.0) scale(0.2600,0.2600)" />
+    <use href="#fl-mg-orange" transform="translate(47.5,403.0) rotate(6.1) scale(0.2600,0.2600)" />
+    <use href="#coeur-jaune" transform="translate(81.0,439.4) rotate(-7.0) scale(0.1170,0.1170)" />
+    <use href="#fl-cs-bleue" transform="translate(77.9,507.0) rotate(-5.0) scale(0.2600,0.2600)" />
+    <use href="#fl-mg-blanche" transform="translate(45.3,611.0) rotate(15.1) scale(0.2600,0.2600)" />
+    <use href="#fl-mg-blanche" transform="translate(51.8,689.0) rotate(25.0) scale(0.2600,0.2600)" />
+    <use href="#fl-my-blanche" transform="translate(79.8,715.0) rotate(4.7) scale(0.2600,0.2600)" />
+    <use href="#coeur-jaune" transform="translate(49.0,751.4) rotate(-22.9) scale(0.1170,0.1170)" />
+  </g>
+</svg>

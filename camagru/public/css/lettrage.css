@@ -1,0 +1,73 @@
+.enseigne svg,
+.titre-page svg {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.enseigne {
+    width: min(580px, 100%);
+    margin: 0 auto 1.5rem;
+}
+
+.titre-page {
+    width: min(460px, 100%);
+    margin: 0 auto 1.5rem;
+}
+
+.menu-enseigne ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: .2rem 1.6rem;
+    padding: 0;
+}
+
+.menu-enseigne a {
+    display: block;
+    padding: .2rem;
+}
+
+.menu-enseigne a picture,
+.menu-enseigne a img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+.menu-enseigne a:hover img,
+.menu-enseigne a:focus-visible img {
+    transform: rotate(-2.5deg) scale(1.07);
+}
+
+.menu-lateral ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: .35rem;
+}
+
+.menu-lateral a img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+.menu-lateral a {
+    display: block;
+    padding: .1rem 0;
+}
+
+.menu-lateral a:hover img,
+.menu-lateral a:focus-visible img {
+    transform: translateX(6px) scale(1.05);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .menu-enseigne a img { transition: transform .18s ease; }
+    .menu-lateral a img  { transition: transform .16s ease; }
+}

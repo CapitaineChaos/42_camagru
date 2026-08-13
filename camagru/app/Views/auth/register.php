@@ -3,8 +3,6 @@
 /** @var array<string, string> $old */
 ?>
 
-<h1>Inscription</h1>
-
 <?php foreach ($errors ?? [] as $error): ?>
     <p style="color:red"><?= htmlspecialchars($error) ?></p>
 <?php endforeach; ?>
