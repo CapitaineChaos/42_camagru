@@ -11,6 +11,7 @@ use App\Controllers\FriendsController;
 use App\Controllers\GalleryController;
 use App\Controllers\PasswordController;
 use App\Controllers\PhotoboothController;
+use App\Controllers\PhotoController;
 use App\Controllers\AdminController;
 use App\Controllers\AvatarController;
 
@@ -39,10 +40,14 @@ return static function (Router $router): void {
     $router->post('/preferences', [PrefsController::class, 'updatePrefs']);
 
     $router->get('/gallery', [GalleryController::class, 'gallery']);
-    $router->post('/gallery', [GalleryController::class, 'gallery']);
+    $router->post('/gallery/like', [GalleryController::class, 'like']);
+    $router->post('/gallery/comment', [GalleryController::class, 'comment']);
 
     $router->get('/photobooth', [PhotoboothController::class, 'photobooth']);
-    $router->post('/photobooth', [PhotoboothController::class, 'photobooth']);
+    $router->post('/photobooth/capture', [PhotoboothController::class, 'capture']);
+
+    $router->get('/photo', [PhotoController::class, 'show']);
+    $router->post('/photo/delete', [PhotoController::class, 'delete']);
 
     $router->get('/profile', [UserController::class, 'profile']);
     $router->post('/profile', [UserController::class, 'profile']);
@@ -57,7 +62,10 @@ return static function (Router $router): void {
     $router->requireAuth('GET', '/avatar');
     $router->requireAuth('POST', '/preferences');
     $router->requireAuth('GET', '/photobooth');
-    $router->requireAuth('POST', '/photobooth');
+    $router->requireAuth('POST', '/photobooth/capture');
+    $router->requireAuth('POST', '/photo/delete');
+    $router->requireAuth('POST', '/gallery/like');
+    $router->requireAuth('POST', '/gallery/comment');
     $router->requireAuth('GET', '/profile');
     $router->requireAuth('POST', '/profile');
     $router->requireAuth('GET', '/friends');

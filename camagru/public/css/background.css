@@ -9,6 +9,8 @@ body {
     position: relative;
     background: url("/images/fond_0.png") no-repeat center top;
     background-size: cover;
+
+    background-attachment: fixed;
 }
 
 body::before,
@@ -37,8 +39,9 @@ body::after {
     body {
         width: 768px;
         padding-inline: 33.6px;
-        background: #737430 url("/images/fond_2.png") no-repeat center top;
-        background-size: 100% auto;
+        background: #737430 url("/images/fond_2.png") no-repeat center top fixed;
+
+        background-size: 768px auto;
     }
 }
 
@@ -46,8 +49,8 @@ body::after {
     body {
         width: 1200px;
         padding-inline: 33.6px;
-        background: #625f22 url("/images/fond_1.png") no-repeat center top;
-        background-size: 100% auto;
+        background: #625f22 url("/images/fond_1.png") no-repeat center top fixed;
+        background-size: 1200px auto;
     }
 }
 

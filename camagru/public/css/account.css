@@ -1,0 +1,85 @@
+:root {
+    --colonne: 100%;
+    --bord: 1rem;
+}
+
+@media (min-width: 826.8px) and (max-width: 1258.79px) {
+    :root { --colonne: 768px; --bord: 2.5rem; }
+}
+
+@media (min-width: 1258.8px) and (max-width: 2099.98px) {
+    :root { --colonne: 1200px; --bord: 2.5rem; }
+}
+
+.account {
+    position: fixed;
+    top: 1rem;
+    right: calc((100% - var(--colonne)) / 2 + var(--bord));
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .35rem;
+}
+
+.badge {
+    position: relative;
+    display: block;
+}
+
+.account .avatar {
+    display: block;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #e7e2d4;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, .85), 0 2px 8px rgba(4, 30, 56, .3);
+}
+
+.initial {
+    position: absolute;
+    left: -4px;
+    bottom: -4px;
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    background: #f8bb15;
+    font-size: .85rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.account .logout-form img {
+    display: block;
+    width: 62px;
+    height: auto;
+    filter: drop-shadow(0 1px 2px rgba(255, 255, 255, .9));
+}
+
+.account .logout-form a:hover img,
+.account .logout-form a:focus-visible img {
+    transform: rotate(-2.5deg) scale(1.08);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .account .logout-form img { transition: transform .18s ease; }
+}
+
+@media screen and (max-width: 768px) {
+    .account .avatar {
+        width: 52px;
+        height: 52px;
+    }
+
+    .initial {
+        width: 22px;
+        height: 22px;
+        font-size: .75rem;
+    }
+
+    .account .logout-form img { width: 52px; }
+}

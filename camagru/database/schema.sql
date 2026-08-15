@@ -42,6 +42,9 @@ CREATE TABLE IF NOT EXISTS images (
     created_at  TIMESTAMPTZ  NOT NULL DEFAULT now()
 );
 
+CREATE INDEX IF NOT EXISTS images_user_idx ON images (user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS images_recent_idx ON images (created_at DESC);
+
 CREATE TABLE IF NOT EXISTS comments (
     id          SERIAL PRIMARY KEY,
     image_id    INTEGER REFERENCES images(id) ON DELETE CASCADE,
@@ -49,6 +52,8 @@ CREATE TABLE IF NOT EXISTS comments (
     comment     TEXT         NOT NULL,
     created_at  TIMESTAMPTZ  NOT NULL DEFAULT now()
 );
+
+CREATE INDEX IF NOT EXISTS comments_image_idx ON comments (image_id, created_at);
 
 CREATE TABLE IF NOT EXISTS likes (
     id          SERIAL PRIMARY KEY,

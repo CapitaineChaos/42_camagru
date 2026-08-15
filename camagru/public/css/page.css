@@ -4,8 +4,7 @@ body {
     min-height: 100vh;
 }
 
-body.accueil main { order: -1; }
-
+body.home main { order: -1; }
 
 footer {
     width: 100%;
@@ -20,7 +19,7 @@ footer {
 }
 
 @media (min-width: 768px) {
-    body.interieur {
+    body.inner {
         display: grid;
         grid-template-columns: 190px minmax(0, 1fr);
         grid-template-rows: auto minmax(0, 1fr) auto;
@@ -31,101 +30,14 @@ footer {
         column-gap: 1.5rem;
     }
 
-    body.interieur > .titre-page { grid-area: titre; }
-    body.interieur > main        { grid-area: contenu; }
-    body.interieur > footer      { grid-area: pied; }
+    body.inner > .page-title { grid-area: titre; }
+    body.inner > main        { grid-area: contenu; }
+    body.inner > footer      { grid-area: pied; }
 
-    body.interieur > header {
+    body.inner > header {
         grid-area: menu;
         position: sticky;
         top: 1rem;
         align-self: start;
     }
-}
-
-/* right edge of the fond.css column, inside the wreath, not the window edge */
-:root {
-    --colonne: 100%;
-    --bord: 1rem;
-}
-
-@media (min-width: 826.8px) and (max-width: 1258.79px) {
-    :root { --colonne: 768px; --bord: 2.5rem; }
-}
-
-@media (min-width: 1258.8px) and (max-width: 2099.98px) {
-    :root { --colonne: 1200px; --bord: 2.5rem; }
-}
-
-.compte {
-    position: fixed;
-    top: 1rem;
-    right: calc((100% - var(--colonne)) / 2 + var(--bord));
-    z-index: 3;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: .35rem;
-}
-
-.jeton {
-    position: relative;
-    display: block;
-}
-
-.compte .avatar {
-    display: block;
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    object-fit: cover;
-    background: #e7e2d4;
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, .85), 0 2px 8px rgba(4, 30, 56, .3);
-}
-
-.initiale {
-    position: absolute;
-    left: -4px;
-    bottom: -4px;
-    display: grid;
-    place-items: center;
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    border: 2px solid #fff;
-    background: #f8bb15;
-    font-size: .85rem;
-    font-weight: 700;
-    line-height: 1;
-}
-
-.compte .logout-form img {
-    display: block;
-    width: 62px;
-    height: auto;
-    filter: drop-shadow(0 1px 2px rgba(255, 255, 255, .9));
-}
-
-.compte .logout-form a:hover img,
-.compte .logout-form a:focus-visible img {
-    transform: rotate(-2.5deg) scale(1.08);
-}
-
-@media (prefers-reduced-motion: no-preference) {
-    .compte .logout-form img { transition: transform .18s ease; }
-}
-
-@media screen and (max-width: 768px) {
-    .compte .avatar {
-        width: 52px;
-        height: 52px;
-    }
-
-    .initiale {
-        width: 22px;
-        height: 22px;
-        font-size: .75rem;
-    }
-
-    .compte .logout-form img { width: 52px; }
 }

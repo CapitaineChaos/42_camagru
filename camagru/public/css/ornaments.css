@@ -1,27 +1,27 @@
 .logo svg,
-.titre-page svg {
+.page-title svg {
     overflow: visible;
 }
 
-.decor-anim {
+.ornament {
     cursor: pointer;
     transform-box: fill-box;
     transform-origin: 50% 50%;
 }
 
-.coeur.anime {
+.heart.playing {
     animation: envol-coeur 1.9s cubic-bezier(.4, 0, .75, .55) forwards;
 }
 
-.fleur.anime {
+.flower.playing {
     animation: chute-fleur 1.8s cubic-bezier(.45, 0, .8, .5) forwards;
 }
 
-.moustache-gauche.anime {
+.whisker-left.playing {
     animation: eclat-gauche 1.1s cubic-bezier(.5, 0, .85, .5) forwards;
 }
 
-.moustache-droite.anime {
+.whisker-right.playing {
     animation: eclat-droite 1.1s cubic-bezier(.5, 0, .85, .5) forwards;
 }
 
@@ -60,7 +60,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .decor-anim.anime {
+    .ornament.playing {
         animation: none;
     }
 }

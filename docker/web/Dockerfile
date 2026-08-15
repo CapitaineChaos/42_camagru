@@ -27,8 +27,13 @@ RUN apt-get update \
     # Suppression du cache local pour reduire la taille de l'image finale
     && rm -rf /var/lib/apt/lists/*
 
+# Bind mounts belong to the host user: Apache writes storage/ only with the same uid
+RUN usermod -u 1000 www-data && groupmod -g 1000 www-data
+
 # DocumentRoot -> public/ + routing dans le vhost (pas de .htaccess)
 COPY 000-default.conf /etc/apache2/sites-available/000-default.conf
+
+COPY uploads.ini /usr/local/etc/php/conf.d/uploads.ini
 
 # Executer les commandes à partir de /var/www/html
 WORKDIR /var/www/html

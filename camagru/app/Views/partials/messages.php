@@ -3,8 +3,8 @@
 /** @var string[]|null $errors */
 ?>
 <?php if (!empty($notice)): ?>
-    <p class="avis"><?= htmlspecialchars($notice) ?></p>
+    <p class="notice"><?= htmlspecialchars($notice) ?></p>
 <?php endif; ?>
 <?php foreach ($errors ?? [] as $erreur): ?>
-    <p class="erreur"><?= htmlspecialchars($erreur) ?></p>
+    <p class="error"><?= htmlspecialchars($erreur) ?></p>
 <?php endforeach; ?>

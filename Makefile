@@ -4,7 +4,7 @@ COMPOSE := docker compose -p camagru
 
 WATCH_CODE := camagru/app camagru/config camagru/public
 WATCH_DB   := camagru/database
-RSYNC   := rsync -a --delete --exclude=.git --exclude=node_modules --exclude='camagru/database/.schema.sql.*'
+RSYNC   := rsync -a --delete --exclude=.git --exclude=node_modules --exclude='camagru/database/.schema.sql.*' --exclude='camagru/storage/images'
 
 .PHONY: up down re logs ps psql db-apply db-reset hash shell clean fclean sync watch-code watch-db dev
 

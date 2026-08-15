@@ -1,4 +1,6 @@
 .env
 _old/
 secrets/
+camagru/storage/images/
+__pycache__/
 

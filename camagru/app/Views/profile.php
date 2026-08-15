@@ -1,10 +1,10 @@
 <?php
 ?>
-<section class="bloc bloc-identite">
+<section class="card card-identity">
     <h2>Account</h2>
-    <div class="identite">
-        <span class="avatar avatar-vide"></span>
-        <dl class="fiche">
+    <div class="identity">
+        <span class="avatar avatar-empty"></span>
+        <dl class="details">
             <dt>Username</dt><dd></dd>
             <dt>Email address</dt><dd></dd>
             <dt>Member since</dt><dd></dd>
@@ -12,14 +12,14 @@
     </div>
 </section>
 
-<section class="bloc">
+<section class="card">
     <h2>Montages</h2>
-    <ul class="vignettes">
-        <li class="vignette"></li>
-        <li class="vignette"></li>
-        <li class="vignette"></li>
-        <li class="vignette"></li>
-        <li class="vignette"></li>
-        <li class="vignette"></li>
+    <ul class="thumbs">
+        <li class="thumb"></li>
+        <li class="thumb"></li>
+        <li class="thumb"></li>
+        <li class="thumb"></li>
+        <li class="thumb"></li>
+        <li class="thumb"></li>
     </ul>
 </section>

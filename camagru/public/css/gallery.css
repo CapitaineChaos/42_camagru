@@ -1,0 +1,54 @@
+.montage-card h2 {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: .6rem;
+    overflow-wrap: anywhere;
+}
+
+.when {
+    font-size: .8rem;
+    font-weight: 400;
+    color: #5c5647;
+}
+
+.montage-view {
+    display: block;
+    width: min(520px, 100%);
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: 12px;
+    background: #e7e2d4;
+}
+
+.montage-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .8rem;
+    margin: .7rem 0;
+}
+
+.comments {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    margin-bottom: .9rem;
+    max-width: 40rem;
+}
+
+.comments li {
+    padding: .5rem .7rem;
+    border-radius: 10px;
+    background: rgba(231, 226, 212, .55);
+    font-size: .9rem;
+
+    overflow-wrap: anywhere;
+}
+
+.comments .author {
+    font-weight: 700;
+    margin-right: .5rem;
+}

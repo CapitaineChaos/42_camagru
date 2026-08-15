@@ -1,5 +1,5 @@
 .logo svg,
-.titre-page svg {
+.page-title svg {
     display: block;
     width: 100%;
     height: auto;
@@ -10,12 +10,12 @@
     margin: 0 auto 1.5rem;
 }
 
-.titre-page {
+.page-title {
     width: min(460px, 100%);
     margin: 0 auto 1.5rem;
 }
 
-.menu-accueil ul {
+.home-menu ul {
     list-style: none;
     display: flex;
     flex-wrap: wrap;
@@ -25,24 +25,24 @@
     padding: 0;
 }
 
-.menu-accueil a {
+.home-menu a {
     display: block;
     padding: .2rem;
 }
 
-.menu-accueil a picture,
-.menu-accueil a img {
+.home-menu a picture,
+.home-menu a img {
     display: block;
     max-width: 100%;
     height: auto;
 }
 
-.menu-accueil a:hover img,
-.menu-accueil a:focus-visible img {
+.home-menu a:hover img,
+.home-menu a:focus-visible img {
     transform: rotate(-2.5deg) scale(1.07);
 }
 
-.menu-lateral ul {
+.side-menu ul {
     list-style: none;
     padding: 0;
     display: flex;
@@ -51,23 +51,23 @@
     gap: .35rem;
 }
 
-.menu-lateral a img {
+.side-menu a img {
     display: block;
     max-width: 100%;
     height: auto;
 }
 
-.menu-lateral a {
+.side-menu a {
     display: block;
     padding: .1rem 0;
 }
 
-.menu-lateral a:hover img,
-.menu-lateral a:focus-visible img {
+.side-menu a:hover img,
+.side-menu a:focus-visible img {
     transform: translateX(6px) scale(1.05);
 }
 
 @media (prefers-reduced-motion: no-preference) {
-    .menu-accueil a img { transition: transform .18s ease; }
-    .menu-lateral a img  { transition: transform .16s ease; }
+    .home-menu a img { transition: transform .18s ease; }
+    .side-menu a img  { transition: transform .16s ease; }
 }

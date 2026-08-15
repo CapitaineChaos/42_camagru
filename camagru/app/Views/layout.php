@@ -36,6 +36,17 @@ $titrePage = $titres[$view ?? ''] ?? null;
 
 $v = (int) \App\Core\Settings::get('assets.version', 1);
 
+// one stylesheet per domain: the page-specific ones travel only where they apply
+$feuilles = ['global', 'background', 'page', 'account', 'lettering', 'ornaments',
+             'mobile-menu', 'blocks', 'forms'];
+$specifiques = [
+    'photobooth' => 'photobooth', 'gallery' => 'gallery',
+    'profile' => 'profile', 'friends' => 'profile', 'admin' => 'profile',
+];
+if (isset($specifiques[$view ?? ''])) {
+    $feuilles[] = $specifiques[$view];
+}
+
 $entree = static function (string $lettrage, string $libelle) use ($accueil, $v): string {
     $droit = '/images/elements/menu/' . $lettrage . '.svg?v=' . $v;
     $alt = htmlspecialchars($libelle);
@@ -56,15 +67,15 @@ $entree = static function (string $lettrage, string $libelle) use ($accueil, $v)
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= htmlspecialchars($title ?? 'Camagru') ?></title>
-    <?php foreach (['global', 'fond', 'page', 'lettrage', 'decors', 'contenu', 'menu-mobile'] as $feuille): ?>
+    <?php foreach ($feuilles as $feuille): ?>
     <link rel="stylesheet" href="/css/<?= $feuille ?>.css?v=<?= $v ?>">
     <?php endforeach; ?>
 </head>
-<body class="<?= $accueil ? 'accueil' : 'interieur' ?>">
+<body class="<?= $accueil ? 'home' : 'inner' ?>">
     <header>
         <input type="checkbox" id="burger" class="hamburger">
         <label for="burger"><span></span></label>
-        <nav class="<?= $accueil ? 'menu-accueil' : 'menu-lateral' ?>">
+        <nav class="<?= $accueil ? 'home-menu' : 'side-menu' ?>">
             <ul>
             <?php foreach ($liens as [$url, $libelle, $lettrage]): ?>
                 <li><a href="<?= $url ?>"><?= $entree($lettrage, $libelle) ?></a></li>
@@ -73,12 +84,12 @@ $entree = static function (string $lettrage, string $libelle) use ($accueil, $v)
         </nav>
     </header>
     <?php if (!empty($currentUser)): ?>
-    <div class="compte">
-        <span class="jeton">
+    <div class="account">
+        <span class="badge">
             <?php if (!empty($currentUserAvatarUrl)): ?>
             <img src="<?= htmlspecialchars($currentUserAvatarUrl) ?>" alt="Avatar de <?= htmlspecialchars($currentUser['username']) ?>" class="avatar">
             <?php endif; ?>
-            <span class="initiale"><?= htmlspecialchars(mb_strtoupper(mb_substr($currentUser['username'], 0, 1))) ?></span>
+            <span class="initial"><?= htmlspecialchars(mb_strtoupper(mb_substr($currentUser['username'], 0, 1))) ?></span>
         </span>
         <form action="/logout" method="post" class="logout-form">
             <?= \App\Core\Csrf::field() ?>
@@ -89,7 +100,7 @@ $entree = static function (string $lettrage, string $libelle) use ($accueil, $v)
     </div>
     <?php endif; ?>
     <?php if ($titrePage): ?>
-        <h1 class="titre-page"><?= \App\Core\Svg::inline('titres/' . $titrePage[0]) ?></h1>
+        <h1 class="page-title"><?= \App\Core\Svg::inline('titres/' . $titrePage[0]) ?></h1>
     <?php endif; ?>
     <main>
         <?= $content ?>
@@ -97,6 +108,12 @@ $entree = static function (string $lettrage, string $libelle) use ($accueil, $v)
     <footer>
         <p>&copy; <?= date('Y') ?> Camagru. All rights reserved.</p>
     </footer>
-    <script src="/js/decors.js?v=<?= $v ?>" defer></script>
+    <script src="/js/ornaments.js?v=<?= $v ?>" defer></script>
+    <?php if (in_array($view ?? '', ['photobooth', 'gallery'], true)): ?>
+    <script src="/js/delete-confirm.js?v=<?= $v ?>" defer></script>
+    <?php endif; ?>
+    <?php if (($view ?? '') === 'photobooth'): ?>
+    <script src="/js/photobooth.js?v=<?= $v ?>" type="module"></script>
+    <?php endif; ?>
 </body>
 </html>

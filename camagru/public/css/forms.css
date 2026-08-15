@@ -1,0 +1,87 @@
+.field-file {
+    flex-direction: row;
+    align-items: center;
+    gap: .6rem;
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .6rem;
+}
+
+.form-block {
+    display: flex;
+    flex-direction: column;
+    gap: .7rem;
+    max-width: 30rem;
+}
+
+.form-inline {
+    flex-direction: row;
+    align-items: flex-end;
+    max-width: none;
+    gap: 1rem;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
+}
+
+.field label {
+    font-weight: 700;
+    font-size: .95rem;
+}
+
+.field input,
+.field textarea {
+    padding: .45rem .6rem;
+    border: 1px solid #c9c2ae;
+    border-radius: 10px;
+    background: #fff;
+    font: inherit;
+}
+
+.field textarea {
+    resize: vertical;
+}
+
+.field-check {
+    flex-direction: row;
+    align-items: center;
+    gap: .5rem;
+}
+
+.field-check label {
+    font-weight: 400;
+}
+
+button {
+    padding: .45rem 1rem;
+    border: none;
+    border-radius: 9999px;
+    background: #6753ea;
+    color: #fff;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+button:hover,
+button:focus-visible {
+    background: #5341cd;
+}
+
+button:disabled {
+    background: #b3ab95;
+    cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+    .form-inline {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

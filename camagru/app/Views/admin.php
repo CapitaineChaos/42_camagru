@@ -1,8 +1,8 @@
 <?php
 ?>
-<section class="bloc">
+<section class="card">
     <h2>Users</h2>
-    <table class="tableau">
+    <table class="table-grid">
         <thead>
             <tr><th>Username</th><th>Email address</th><th>Member since</th><th>Role</th><th>Actions</th></tr>
         </thead>
@@ -14,12 +14,12 @@
     </table>
 </section>
 
-<section class="bloc">
+<section class="card">
     <h2>Reported montages</h2>
-    <ul class="vignettes">
-        <li class="vignette"></li>
-        <li class="vignette"></li>
-        <li class="vignette"></li>
-        <li class="vignette"></li>
+    <ul class="thumbs">
+        <li class="thumb"></li>
+        <li class="thumb"></li>
+        <li class="thumb"></li>
+        <li class="thumb"></li>
     </ul>
 </section>

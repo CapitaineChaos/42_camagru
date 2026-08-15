@@ -133,10 +133,12 @@ def composer(mot, ouverture, glyphes, decors=None):
 
 
 def famille(motif):
-    """Animation class: one per kind of ornament."""
+    """Animation class: one per kind of ornament, matching ornaments.css."""
     if motif in ('gauche', 'droite'):
-        return 'moustache moustache-' + motif
-    return 'fleur' if motif.startswith('fleur') else motif
+        return 'whisker whisker-' + ('left' if motif == 'gauche' else 'right')
+    if motif.startswith('fleur'):
+        return 'flower'
+    return {'coeur': 'heart'}.get(motif, motif)
 
 
 def semer(mot, longueur, rayon, creux, glyphes, decors):
@@ -162,7 +164,7 @@ def semer(mot, longueur, rayon, creux, glyphes, decors):
             % (sens * angle, sens * -r, redresse, inclinaison, echelle,
                *[-v for v in decors[motif]['ancre']]),
             decors[motif]['cadre'], decors[motif]['paths'])
-        return '  <g class="decor-anim %s">\n%s\n  </g>' % (famille(motif), pose)
+        return '  <g class="ornament %s">\n%s\n  </g>' % (famille(motif), pose)
 
     largeur_eclat = decors['gauche']['boite'][2] * MOUSTACHE
     ecart = longueur / 2 + largeur_eclat / 2 + DEGAGEMENT
