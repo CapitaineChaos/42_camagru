@@ -2,14 +2,19 @@ SRC     := $(CURDIR)
 TMP     := /tmp/42_camagru
 COMPOSE := docker compose -p camagru
 
+DATA    := $(TMP)/.data
+export CAMAGRU_DATA := $(DATA)
+export CAMAGRU_UID  := $(shell id -u)
+export CAMAGRU_GID  := $(shell id -g)
+
 WATCH_CODE := camagru/app camagru/config camagru/public
 WATCH_DB   := camagru/database
-RSYNC   := rsync -a --delete --exclude=.git --exclude=node_modules --exclude='camagru/database/.schema.sql.*' --exclude='camagru/storage/images'
+RSYNC   := rsync -a --delete --exclude=.git --exclude=node_modules --exclude='camagru/database/.schema.sql.*' --exclude='camagru/storage/images' --exclude='/.data'
 
-.PHONY: up down re logs ps psql db-apply db-reset hash shell clean fclean sync watch-code watch-db dev
+.PHONY: up down re logs ps psql db-apply db-reset hash shell clean data-clean fclean sync watch-code watch-db dev seed
 
 up:
-	mkdir -p $(TMP)
+	mkdir -p $(TMP) $(DATA)/postgres $(DATA)/images
 	$(RSYNC) $(SRC)/ $(TMP)/
 	cd $(TMP) && $(COMPOSE) up -d --build
 	@echo "[up] Conteneurs démarrés depuis $(TMP)"
@@ -65,6 +70,10 @@ db-reset: sync
 	printf '%s\n' 'SELECT pg_advisory_unlock(424242);' >> $$reset_sql; \
 	$(COMPOSE) exec -T db psql -v ON_ERROR_STOP=1 -U camagru -d camagru < $$reset_sql
 
+# peuple l'app par HTTP, comme le ferait un visiteur : make seed ARGS="-n 3"
+seed:
+	@./scripts/seed.py $(ARGS)
+
 hash:
 	@test -n "$(PASS)" || (echo "Usage: make hash PASS='motdepasse'" && exit 1)
 	@php -r 'echo password_hash($$argv[1], PASSWORD_DEFAULT), PHP_EOL;' '$(PASS)'
@@ -72,8 +81,15 @@ hash:
 shell:
 	$(COMPOSE) exec web bash
 
+# postgres writes as uid 70 in 0700 dirs: only a root container can remove them
+data-clean:
+	@test -d $(DATA) || exit 0; \
+	docker run --rm -v $(DATA):/data postgres:16-alpine rm -rf /data/postgres /data/images
+
+# down -v drops the volumes, not their bind targets
 clean:
 	$(COMPOSE) down -v
+	@$(MAKE) --no-print-directory data-clean
 
 php_error:
 	$(COMPOSE) exec -T web tail -50 /var/log/apache2/error.log
@@ -85,6 +101,8 @@ suppr_logs:
 	$(COMPOSE) exec -T web sh -c 'rm -f /var/log/apache2/*.log'
 
 fclean:
+	-$(COMPOSE) stop
+	@$(MAKE) --no-print-directory data-clean
 	-$(COMPOSE) down -v --rmi all
 	rm -rf $(TMP)
 	@echo "[fclean] tout supprimé"

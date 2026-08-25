@@ -8,8 +8,20 @@ CREATE TABLE IF NOT EXISTS users (
     verified    BOOLEAN      NOT NULL DEFAULT FALSE,
     verification_token VARCHAR(64),
     verification_expires_at TIMESTAMPTZ,
+    notify_comment         BOOLEAN NOT NULL DEFAULT TRUE,
+    notify_friend_request  BOOLEAN NOT NULL DEFAULT TRUE,
+    notify_friend_accepted BOOLEAN NOT NULL DEFAULT TRUE,
+    notify_friend_removed  BOOLEAN NOT NULL DEFAULT TRUE,
+    suspended   BOOLEAN      NOT NULL DEFAULT FALSE,
     created_at  TIMESTAMPTZ  NOT NULL DEFAULT now()
 );
+
+-- kept live, not commented out: they carry an existing database over
+ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_comment        BOOLEAN NOT NULL DEFAULT TRUE;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_friend_request BOOLEAN NOT NULL DEFAULT TRUE;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_friend_accepted BOOLEAN NOT NULL DEFAULT TRUE;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_friend_removed BOOLEAN NOT NULL DEFAULT TRUE;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS suspended             BOOLEAN NOT NULL DEFAULT FALSE;
 
 -- ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar VARCHAR(255);
 -- ALTER TABLE users ADD COLUMN IF NOT EXISTS modele BOOLEAN NOT NULL DEFAULT TRUE;
@@ -62,6 +74,32 @@ CREATE TABLE IF NOT EXISTS likes (
     created_at  TIMESTAMPTZ  NOT NULL DEFAULT now(),
     UNIQUE (image_id, user_id)
 );
+
+CREATE TABLE IF NOT EXISTS reports (
+    id         SERIAL PRIMARY KEY,
+    image_id   INTEGER      NOT NULL REFERENCES images(id) ON DELETE CASCADE,
+    user_id    INTEGER      NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ  NOT NULL DEFAULT now(),
+    UNIQUE (image_id, user_id)
+);
+
+CREATE INDEX IF NOT EXISTS reports_image_idx ON reports (image_id);
+
+CREATE TABLE IF NOT EXISTS friendships (
+    id           SERIAL PRIMARY KEY,
+    requester_id INTEGER      NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    addressee_id INTEGER      NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    accepted_at  TIMESTAMPTZ,
+    created_at   TIMESTAMPTZ  NOT NULL DEFAULT now(),
+    CHECK (requester_id <> addressee_id)
+);
+
+-- one row per pair, whichever way round the request went
+CREATE UNIQUE INDEX IF NOT EXISTS friendships_pair_idx
+    ON friendships (least(requester_id, addressee_id), greatest(requester_id, addressee_id));
+
+CREATE INDEX IF NOT EXISTS friendships_inbox_idx
+    ON friendships (addressee_id) WHERE accepted_at IS NULL;
 
 -- Admin : login admin@aaa.com / password 123
 INSERT INTO users (username, email, password, avatar, modele, verified)

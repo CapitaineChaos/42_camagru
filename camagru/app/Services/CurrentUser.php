@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Core\Pg;
 use App\Core\Settings;
 use App\Models\User;
 
@@ -36,7 +37,7 @@ final class CurrentUser
             return '/avatars/' . rawurlencode($avatar);
         }
 
-        return '/avatar';
+        return '/avatar?id=' . (int) $user['id'];
     }
 
     /** @param array<string, mixed> $user */
@@ -50,6 +51,6 @@ final class CurrentUser
     /** @param array<string, mixed> $user */
     public function usesModelAvatar(array $user): bool
     {
-        return in_array($user['modele'] ?? null, [true, 't', '1', 1], true);
+        return Pg::bool($user['modele'] ?? null);
     }
 }

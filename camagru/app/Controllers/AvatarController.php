@@ -6,14 +6,17 @@ namespace App\Controllers;
 
 use App\Core\Controller;
 use App\Core\Settings;
+use App\Models\User;
 use App\Services\CurrentUser;
 
 final class AvatarController extends Controller
 {
+    /** Serves an uploaded avatar: storage/ sits outside the DocumentRoot. */
     public function show(): void
     {
         $currentUser = new CurrentUser();
-        $user = $currentUser->fromSession($_SESSION);
+        $id = (int) ($_GET['id'] ?? 0);
+        $user = $id > 0 ? (new User())->findById($id) : $currentUser->fromSession($_SESSION);
         $defaut = '/avatars/' . rawurlencode((string) Settings::get('avatars.default', 'generique.png'));
 
         if ($user === null) {

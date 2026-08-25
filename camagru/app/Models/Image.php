@@ -52,7 +52,10 @@ final class Image extends Model
                     (SELECT count(*) FROM comments c WHERE c.image_id = i.id) AS comments,
                     CAST(EXISTS (SELECT 1 FROM likes l
                                  WHERE l.image_id = i.id
-                                   AND l.user_id = :viewer) AS INTEGER)       AS liked
+                                   AND l.user_id = :viewer) AS INTEGER)       AS liked,
+                    CAST(EXISTS (SELECT 1 FROM reports r
+                                 WHERE r.image_id = i.id
+                                   AND r.user_id = :viewer) AS INTEGER)       AS reported
              FROM images i JOIN users u ON u.id = i.user_id
              ORDER BY i.created_at DESC, i.id DESC
              LIMIT :limit OFFSET :offset'
@@ -84,20 +87,37 @@ final class Image extends Model
     /**
      * Drop a montage and everything hanging from it, the owner only.
      *
-     * Likes and comments are deleted by hand although the foreign keys cascade:
-     * the model owns the rule, whatever the schema in place.
-     *
      * @return string|null filename of the deleted montage, null when it is not the owner's
      */
     public function delete(int $id, int $userId): ?string
     {
+        return $this->drop($id, $userId);
+    }
+
+    /** Same, whoever owns it: the admin desk answers to reports, not to ownership. */
+    public function remove(int $id): ?string
+    {
+        return $this->drop($id, null);
+    }
+
+    /**
+     * Likes, comments and reports are deleted by hand although the foreign keys
+     * cascade: the model owns the rule, whatever the schema in place.
+     *
+     * @param int|null $userId restricts the deletion to that owner; null lifts the check
+     */
+    private function drop(int $id, ?int $userId): ?string
+    {
         $this->db->beginTransaction();
 
         try {
+            $possession = $userId === null ? '' : ' AND user_id = :user_id';
             $stmt = $this->db->prepare(
-                'SELECT filename FROM images WHERE id = :id AND user_id = :user_id FOR UPDATE'
+                'SELECT filename FROM images WHERE id = :id' . $possession . ' FOR UPDATE'
             );
-            $stmt->execute(['id' => $id, 'user_id' => $userId]);
+            $stmt->execute(
+                $userId === null ? ['id' => $id] : ['id' => $id, 'user_id' => $userId]
+            );
             $filename = $stmt->fetchColumn();
 
             if ($filename === false) {
@@ -105,7 +125,7 @@ final class Image extends Model
                 return null;
             }
 
-            foreach (['likes', 'comments', 'images'] as $table) {
+            foreach (['likes', 'comments', 'reports', 'images'] as $table) {
                 $colonne = $table === 'images' ? 'id' : 'image_id';
                 $this->db->prepare("DELETE FROM {$table} WHERE {$colonne} = :id")
                     ->execute(['id' => $id]);

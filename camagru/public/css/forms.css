@@ -79,6 +79,27 @@ button:disabled {
     cursor: not-allowed;
 }
 
+.button-quiet {
+    background: transparent;
+    color: #5341cd;
+    box-shadow: inset 0 0 0 1px #c9c2ae;
+}
+
+.button-quiet:hover,
+.button-quiet:focus-visible {
+    background: #ece7d9;
+    color: #2f2b22;
+}
+
+.button-danger {
+    background: #b3382b;
+}
+
+.button-danger:hover,
+.button-danger:focus-visible {
+    background: #94291e;
+}
+
 @media (max-width: 600px) {
     .form-inline {
         flex-direction: column;

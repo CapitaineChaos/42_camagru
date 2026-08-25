@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Core\Flash;
 use App\Core\Mailer;
+use App\Core\Pg;
 use App\Core\Settings;
 use App\Models\User;
-use Throwable;
 
 final class AuthController extends Controller
 {
@@ -55,18 +56,14 @@ final class AuthController extends Controller
         $users->create($username, $email, password_hash($password, PASSWORD_DEFAULT), $token, $ttl);
 
         $link = APP_URL . '/verify?token=' . $token;
-        try {
-            Mailer::send(
-                $email,
-                'Confirm your Camagru account',
-                'Hi ' . htmlspecialchars($username) . ',<br><br>'
-                . 'Click this link to activate your account:<br>'
-                . '<a href="' . $link . '">' . $link . '</a><br><br>'
-                . 'The link expires in ' . $this->lifetimeInWords($ttl) . '.'
-            );
-        } catch (Throwable $e) {
-            error_log('Confirmation email failed: ' . $e->getMessage());
-        }
+        Mailer::sendOrLog(
+            $email,
+            'Confirm your Camagru account',
+            'Hi ' . htmlspecialchars($username) . ',<br><br>'
+            . 'Click this link to activate your account:<br>'
+            . '<a href="' . $link . '">' . $link . '</a><br><br>'
+            . 'The link expires in ' . $this->lifetimeInWords($ttl) . '.'
+        );
 
         $this->view('auth/login', [
             'title'  => 'Login',
@@ -90,15 +87,43 @@ final class AuthController extends Controller
         }
 
         $users->markVerified((int) $user['id']);
+        $this->welcome((string) $user['email'], (string) $user['username']);
+
         $this->view('auth/login', [
             'title'  => 'Login',
             'notice' => 'Your account is active. You can now log in.',
         ]);
     }
 
+    /**
+     * The account exists for good: it deserves a trace in the mailbox, whatever
+     * the notification settings say later.
+     */
+    private function welcome(string $email, string $username): void
+    {
+        Mailer::sendOrLog(
+            $email,
+            'Your Camagru account is active',
+            'Hi ' . htmlspecialchars($username) . ',<br><br>'
+            . 'Your account is confirmed, under the name '
+            . '<strong>' . htmlspecialchars($username) . '</strong>:<br>'
+            . $this->lien('/login') . '<br><br>'
+            . 'Email notifications are on; they are yours to switch off:<br>'
+            . $this->lien('/preferences')
+        );
+    }
+
+    private function lien(string $chemin): string
+    {
+        $url = APP_URL . $chemin;
+
+        return '<a href="' . $url . '">' . $url . '</a>';
+    }
+
     public function showLogin(): void
     {
-        $this->view('auth/login', ['title' => 'Login']);
+        // where a closed session lands: the flash it left is read here
+        $this->view('auth/login', ['title' => 'Login'] + Flash::pull());
     }
 
     public function login(): void
@@ -117,11 +142,19 @@ final class AuthController extends Controller
             return;
         }
 
-        // PDO_pgsql returns booleans as 't'/'f'
-        if (!in_array($user['verified'], [true, 't', '1', 1], true)) {
+        if (!Pg::bool($user['verified'])) {
             $this->view('auth/login', [
                 'title'  => 'Login',
                 'errors' => ['Account not verified. Check your email to activate it.'],
+                'old'    => ['email' => $email],
+            ]);
+            return;
+        }
+
+        if (Pg::bool($user['suspended'] ?? null)) {
+            $this->view('auth/login', [
+                'title'  => 'Login',
+                'errors' => ['This account is suspended.'],
                 'old'    => ['email' => $email],
             ]);
             return;

@@ -49,6 +49,31 @@
         transform: translateY(15px) rotate(1.5deg);
     }
 
+    /* the menu is shut over its own pip: the burger carries the count instead */
+    .hamburger+label[data-pip]::after {
+        position: absolute;
+        top: -7px;
+        right: -11px;
+        display: grid;
+        place-items: center;
+        min-width: 21px;
+        height: 21px;
+        padding: 0 .25rem;
+        border: 3px solid #fff;
+        border-radius: 50% / 58%;
+        background: #e0362a;
+        color: #fff;
+        font-size: .72rem;
+        font-weight: 700;
+        line-height: 1;
+        transform: rotate(-6deg);
+        content: attr(data-pip);
+    }
+
+    .hamburger:checked+label[data-pip]::after {
+        content: none;
+    }
+
     .hamburger:checked+label span {
         background: transparent;
         border-color: transparent;

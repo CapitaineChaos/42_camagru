@@ -5,10 +5,24 @@ declare(strict_types=1);
 namespace App\Core;
 
 use RuntimeException;
+use Throwable;
 
 /** SMTP client without auth or TLS. */
 final class Mailer
 {
+    /** Sends and swallows: a mail that fails must not undo the action it follows. */
+    public static function sendOrLog(string $to, string $subject, string $htmlBody): bool
+    {
+        try {
+            self::send($to, $subject, $htmlBody);
+            return true;
+        } catch (Throwable $e) {
+            error_log('Mail "' . $subject . '" not sent: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /** @throws RuntimeException */
     public static function send(string $to, string $subject, string $htmlBody): void
     {
         $socket = @fsockopen(MAIL_HOST, MAIL_PORT, $errno, $errstr, 10);

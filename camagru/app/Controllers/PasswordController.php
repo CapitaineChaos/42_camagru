@@ -9,7 +9,6 @@ use App\Core\Mailer;
 use App\Core\Settings;
 use App\Models\PasswordReset;
 use App\Models\User;
-use Throwable;
 
 final class PasswordController extends Controller
 {
@@ -123,18 +122,14 @@ final class PasswordController extends Controller
         (new PasswordReset())->create($userId, hash('sha256', $token), $ttl);
 
         $link = APP_URL . '/reset-password?token=' . $token;
-        try {
-            Mailer::send(
-                $email,
-                'Reset your Camagru password',
-                'Hi ' . htmlspecialchars($username) . ',<br><br>'
-                . 'Click this link to choose a new password:<br>'
-                . '<a href="' . $link . '">' . $link . '</a><br><br>'
-                . 'The link expires in ' . $this->lifetimeInWords($ttl) . '. '
-                . 'If you did not ask for it, ignore this message.'
-            );
-        } catch (Throwable $e) {
-            error_log('Reset email failed: ' . $e->getMessage());
-        }
+        Mailer::sendOrLog(
+            $email,
+            'Reset your Camagru password',
+            'Hi ' . htmlspecialchars($username) . ',<br><br>'
+            . 'Click this link to choose a new password:<br>'
+            . '<a href="' . $link . '">' . $link . '</a><br><br>'
+            . 'The link expires in ' . $this->lifetimeInWords($ttl) . '. '
+            . 'If you did not ask for it, ignore this message.'
+        );
     }
 }

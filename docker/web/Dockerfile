@@ -28,7 +28,9 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Bind mounts belong to the host user: Apache writes storage/ only with the same uid
-RUN usermod -u 1000 www-data && groupmod -g 1000 www-data
+ARG UID=1000
+ARG GID=1000
+RUN groupmod -g $GID www-data && usermod -u $UID -g $GID www-data
 
 # DocumentRoot -> public/ + routing dans le vhost (pas de .htaccess)
 COPY 000-default.conf /etc/apache2/sites-available/000-default.conf

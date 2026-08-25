@@ -7,3 +7,13 @@
 [hidden] {
     display: none !important;
 }
+
+/* no clip-path: it sits inside the menu pip, and a clip there is one more
+   webrender picture on a node that already carries a transform */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    white-space: nowrap;
+}

@@ -28,6 +28,7 @@
 .home-menu a {
     display: block;
     padding: .2rem;
+    position: relative;
 }
 
 .home-menu a picture,
@@ -60,6 +61,7 @@
 .side-menu a {
     display: block;
     padding: .1rem 0;
+    position: relative;
 }
 
 .side-menu a:hover img,
@@ -67,7 +69,55 @@
     transform: translateX(6px) scale(1.05);
 }
 
+/* counter riding the lettering, cut from the same cloth as the burger */
+.pip {
+    position: absolute;
+    top: -.6rem;
+    right: -.9rem;
+    display: grid;
+    place-items: center;
+    min-width: 1.6rem;
+    height: 1.6rem;
+    padding: 0 .3rem;
+    border: 3px solid #fff;
+    border-radius: 50% / 58%;
+    background: #e0362a;
+    color: #fff;
+    font-size: .9rem;
+    font-weight: 700;
+    line-height: 1;
+    /* box-shadow, not drop-shadow: a filter here builds a webrender picture
+       that panics the compositor when the pip is also animated */
+    box-shadow: 0 2px 4px rgba(4, 30, 56, .45);
+    transform: rotate(-6deg);
+}
+
+/* the home lettering is drawn twice as tall; the pip follows it */
+@media (min-width: 768px) {
+    .home-menu .pip {
+        top: -.9rem;
+        right: -1.2rem;
+        min-width: 2.2rem;
+        height: 2.2rem;
+        border-width: 4px;
+        font-size: 1.2rem;
+    }
+}
+
+.side-menu a:hover .pip,
+.side-menu a:focus-visible .pip {
+    transform: translateX(6px) scale(1.05) rotate(-6deg);
+}
+
+.home-menu a:hover .pip,
+.home-menu a:focus-visible .pip {
+    transform: rotate(-8.5deg) scale(1.07);
+}
+
 @media (prefers-reduced-motion: no-preference) {
-    .home-menu a img { transition: transform .18s ease; }
-    .side-menu a img  { transition: transform .16s ease; }
+    .home-menu a img,
+    .home-menu a .pip { transition: transform .18s ease; }
+
+    .side-menu a img,
+    .side-menu a .pip { transition: transform .16s ease; }
 }

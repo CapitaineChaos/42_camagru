@@ -11,9 +11,66 @@
     font-size: 1.15rem;
 }
 
+.card h2 .count {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.4rem;
+    height: 1.4rem;
+    padding: 0 .3rem;
+    border-radius: 50% / 60%;
+    background: #e0362a;
+    color: #fff;
+    font-size: .8rem;
+    vertical-align: 1px;
+}
+
 .card-narrow {
     width: min(30rem, 100%);
     margin-inline: auto;
+}
+
+.card-danger {
+    box-shadow: 0 2px 10px rgba(4, 30, 56, .18), inset 0 0 0 2px #e0b6b0;
+}
+
+.thumbs {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: .8rem;
+}
+
+.thumb {
+    display: flex;
+    flex-direction: column;
+    gap: .45rem;
+    padding: .4rem;
+    border-radius: 12px;
+    background: rgba(231, 226, 212, .55);
+}
+
+.thumb img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: 8px;
+    background: #e7e2d4;
+}
+
+.thumb-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: .35rem .5rem;
+    font-size: .8rem;
+}
+
+.thumb-footer button {
+    padding: .2rem .7rem;
+    font-size: .8rem;
 }
 
 .notice,

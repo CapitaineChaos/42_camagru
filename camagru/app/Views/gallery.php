@@ -46,6 +46,18 @@ $sien = $viewerId !== null && $viewerId === (int) $image['user_id'];
         </form>
         <?php endif; ?>
         <span class="counts"><?= \App\Core\Text::plural((int) $image['likes'], 'like') ?>, <?= \App\Core\Text::plural((int) $image['comments'], 'comment') ?></span>
+        <?php if ($viewerId !== null && !$sien): ?>
+            <?php if ((int) $image['reported'] === 1): ?>
+        <span class="reported">Reported</span>
+            <?php else: ?>
+        <form method="post" action="/gallery/report">
+            <?= \App\Core\Csrf::field() ?>
+            <input type="hidden" name="id" value="<?= $id ?>">
+            <input type="hidden" name="page" value="<?= $page ?>">
+            <button type="submit" class="button-quiet">Report</button>
+        </form>
+            <?php endif; ?>
+        <?php endif; ?>
         <?php if ($sien): ?>
         <form method="post" action="/photo/delete" class="delete-form">
             <?= \App\Core\Csrf::field() ?>
@@ -61,7 +73,8 @@ $sien = $viewerId !== null && $viewerId === (int) $image['user_id'];
     <ul class="comments">
         <?php foreach ($commentaires[$id] as $commentaire): ?>
         <li>
-            <span class="author"><?= htmlspecialchars((string) $commentaire['username']) ?></span>
+            <span class="author<?= $commentaire['username'] === null ? ' author-gone' : '' ?>"><?=
+                htmlspecialchars((string) ($commentaire['username'] ?? 'Deleted account')) ?></span>
             <span class="when"><?= htmlspecialchars($quand((string) $commentaire['created_at'])) ?></span>
             <p><?= nl2br(htmlspecialchars((string) $commentaire['comment'])) ?></p>
         </li>

@@ -10,6 +10,8 @@ use App\Core\Settings;
 use App\Models\Comment;
 use App\Models\Image;
 use App\Models\Like;
+use App\Models\Report;
+use App\Services\Notifications;
 
 final class GalleryController extends Controller
 {
@@ -48,13 +50,29 @@ final class GalleryController extends Controller
         $this->redirect($this->retour($id));
     }
 
+    public function report(): void
+    {
+        $id = (int) ($_POST['id'] ?? 0);
+
+        if ($this->cible($id) !== null) {
+            if ((new Report())->create($id, (int) $_SESSION['user']['id'])) {
+                Flash::notice('Montage reported. An admin will look at it.');
+            } else {
+                Flash::errors(['You already reported this montage.']);
+            }
+        }
+
+        $this->redirect($this->retour($id));
+    }
+
     public function comment(): void
     {
         $id      = (int) ($_POST['id'] ?? 0);
         $texte   = trim((string) ($_POST['comment'] ?? ''));
         $maximum = (int) Settings::get('comments.max_length', 500);
+        $image   = $this->cible($id);
 
-        if ($this->cible($id) === null) {
+        if ($image === null) {
             $this->redirect($this->retour($id));
         }
 
@@ -64,13 +82,18 @@ final class GalleryController extends Controller
             Flash::errors(['Comment too long: ' . $maximum . ' characters at most.']);
         } else {
             (new Comment())->create($id, (int) $_SESSION['user']['id'], $texte);
+            (new Notifications())->comment(
+                (int) $image['user_id'],
+                (string) $_SESSION['user']['username'],
+                $id
+            );
         }
 
         $this->redirect($this->retour($id));
     }
 
     /**
-     * The montage a reader may like or comment: someone else's, and still there.
+     * The montage a reader may act on: someone else's, and still there.
      *
      * @return array<string, mixed>|null null once the refusal is flashed
      */
@@ -84,7 +107,7 @@ final class GalleryController extends Controller
         }
 
         if ((int) $image['user_id'] === $this->viewerId()) {
-            Flash::errors(['You cannot like or comment your own montage.']);
+            Flash::errors(['You cannot like, comment or report your own montage.']);
             return null;
         }
 

@@ -29,6 +29,11 @@
     margin: .7rem 0;
 }
 
+.reported {
+    font-size: .9rem;
+    color: #8c2318;
+}
+
 .comments {
     list-style: none;
     padding: 0;
@@ -51,4 +56,10 @@
 .comments .author {
     font-weight: 700;
     margin-right: .5rem;
+}
+
+.comments .author-gone {
+    font-weight: 400;
+    font-style: italic;
+    color: #6b6552;
 }

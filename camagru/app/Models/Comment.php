@@ -30,9 +30,10 @@ final class Comment extends Model
         }
 
         $marques = implode(',', array_fill(0, count($imageIds), '?'));
+        // left join: a deleted account leaves its comments behind, without a name
         $stmt = $this->db->prepare(
             "SELECT c.image_id, c.comment, c.created_at, u.username
-             FROM comments c JOIN users u ON u.id = c.user_id
+             FROM comments c LEFT JOIN users u ON u.id = c.user_id
              WHERE c.image_id IN ({$marques})
              ORDER BY c.created_at, c.id"
         );

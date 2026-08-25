@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Core\Model;
+use App\Services\Notifications;
+use PDO;
+use Throwable;
 
 final class User extends Model
 {
@@ -15,6 +18,30 @@ final class User extends Model
         $stmt->execute(['id' => $userId]);
 
         return $stmt->fetchColumn() !== false;
+    }
+
+    /**
+     * The whole roll for the admin desk, newest accounts last.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function all(): array
+    {
+        return $this->db->query(
+            'SELECT u.id, u.username, u.email, u.created_at, u.suspended,
+                    CAST(EXISTS (SELECT 1 FROM admins a WHERE a.user_id = u.id) AS INTEGER) AS is_admin,
+                    (SELECT count(*) FROM images i WHERE i.user_id = u.id) AS montages
+             FROM users u
+             ORDER BY u.created_at, u.id'
+        )->fetchAll();
+    }
+
+    public function setSuspended(int $id, bool $suspendu): void
+    {
+        $stmt = $this->db->prepare('UPDATE users SET suspended = :suspendu WHERE id = :id');
+        $stmt->bindValue('suspendu', $suspendu, PDO::PARAM_BOOL);
+        $stmt->bindValue('id', $id, PDO::PARAM_INT);
+        $stmt->execute();
     }
 
     /** @return array<string, mixed>|null */
@@ -33,6 +60,27 @@ final class User extends Model
         $stmt->execute(['username' => $username]);
 
         return $stmt->fetch() ?: null;
+    }
+
+    /**
+     * Verified accounts whose name contains the term, the searcher aside.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function search(string $terme, int $exceptId, int $limite = 20): array
+    {
+        $stmt = $this->db->prepare(
+            'SELECT id, username, avatar, modele FROM users
+             WHERE username ILIKE :motif AND id <> :except AND verified
+             ORDER BY username
+             LIMIT :limite'
+        );
+        $stmt->bindValue('motif', '%' . addcslashes($terme, '\\%_') . '%');
+        $stmt->bindValue('except', $exceptId, PDO::PARAM_INT);
+        $stmt->bindValue('limite', $limite, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
     }
 
     public function create(
@@ -84,6 +132,88 @@ final class User extends Model
     {
         $stmt = $this->db->prepare('UPDATE users SET password = :password WHERE id = :id');
         $stmt->execute(['password' => $passwordHash, 'id' => $id]);
+    }
+
+    public function updateIdentity(int $id, string $username, string $email): void
+    {
+        $stmt = $this->db->prepare(
+            'UPDATE users SET username = :username, email = :email WHERE id = :id'
+        );
+        $stmt->execute(['username' => $username, 'email' => $email, 'id' => $id]);
+    }
+
+    /**
+     * @param array<string, bool> $reglages column name => wanted, unknown names ignored
+     */
+    public function updateNotifications(int $id, array $reglages): void
+    {
+        $colonnes = array_intersect_key($reglages, array_flip(Notifications::COLONNES));
+        if ($colonnes === []) {
+            return;
+        }
+
+        $affectations = implode(', ', array_map(
+            static fn (string $colonne): string => $colonne . ' = :' . $colonne,
+            array_keys($colonnes)
+        ));
+
+        $stmt = $this->db->prepare("UPDATE users SET {$affectations} WHERE id = :id");
+        foreach ($colonnes as $colonne => $valeur) {
+            $stmt->bindValue($colonne, $valeur, PDO::PARAM_BOOL);
+        }
+        $stmt->bindValue('id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    public function updateAvatar(int $id, string $avatar, bool $modele): void
+    {
+        $stmt = $this->db->prepare(
+            'UPDATE users SET avatar = :avatar, modele = :modele WHERE id = :id'
+        );
+        $stmt->bindValue('avatar', $avatar);
+        // execute() would send a bare false as an empty string, which postgres refuses
+        $stmt->bindValue('modele', $modele, PDO::PARAM_BOOL);
+        $stmt->bindValue('id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    /**
+     * Closes an account for good: the montages go, the comments left elsewhere
+     * stay on without their author.
+     *
+     * Foreign keys cascade over the rest — likes, reports, friendships, resets,
+     * admin seat — but what has to survive or be counted is spelled out here.
+     *
+     * @return list<string> montage filenames, for the caller to unlink
+     */
+    public function delete(int $id): array
+    {
+        $this->db->beginTransaction();
+
+        try {
+            $stmt = $this->db->prepare('SELECT filename FROM images WHERE user_id = :id');
+            $stmt->execute(['id' => $id]);
+            $fichiers = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+            $this->db->prepare('UPDATE comments SET user_id = NULL WHERE user_id = :id')
+                ->execute(['id' => $id]);
+
+            $siennes = '(SELECT id FROM images WHERE user_id = :id)';
+            foreach (['likes', 'comments', 'reports'] as $table) {
+                $this->db->prepare("DELETE FROM {$table} WHERE image_id IN {$siennes}")
+                    ->execute(['id' => $id]);
+            }
+
+            $this->db->prepare('DELETE FROM images WHERE user_id = :id')->execute(['id' => $id]);
+            $this->db->prepare('DELETE FROM users WHERE id = :id')->execute(['id' => $id]);
+
+            $this->db->commit();
+
+            return array_map('strval', $fichiers);
+        } catch (Throwable $e) {
+            $this->db->rollBack();
+            throw $e;
+        }
     }
 
     public function markVerified(int $id): void

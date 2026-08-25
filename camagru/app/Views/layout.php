@@ -4,12 +4,13 @@
 /** @var string $view */
 
 $accueil = ($view ?? '') === 'home';
+$attente = (int) ($pendingRequests ?? 0);
 
 $liens = [['/', 'Home', 'home'], ['/gallery', 'Gallery', 'gallery']];
 
 if (!empty($_SESSION['user'])) {
     $liens[] = ['/photobooth', 'Photobooth', 'photobooth'];
-    $liens[] = ['/friends', 'Friends', 'friends'];
+    $liens[] = ['/friends', 'Friends', 'friends', $attente];
     $liens[] = ['/preferences', 'Preferences', 'preferences'];
     $liens[] = ['/profile', 'Profile', 'profile'];
     if (!empty($_SESSION['user']['is_admin'])) {
@@ -60,6 +61,15 @@ $entree = static function (string $lettrage, string $libelle) use ($accueil, $v)
         . '<img src="/images/elements/accueil/' . $lettrage . '.svg?v=' . $v . '" alt="' . $alt . '">'
         . '</picture>';
 };
+
+$pastille = static function (int $nombre): string {
+    if ($nombre < 1) {
+        return '';
+    }
+
+    return '<span class="pip">' . $nombre
+        . '<span class="visually-hidden"> pending friend requests</span></span>';
+};
 ?>
 <!DOCTYPE html>
 <html lang="<?= htmlspecialchars((string) \App\Core\Settings::get('app.lang', 'en')) ?>">
@@ -74,11 +84,12 @@ $entree = static function (string $lettrage, string $libelle) use ($accueil, $v)
 <body class="<?= $accueil ? 'home' : 'inner' ?>">
     <header>
         <input type="checkbox" id="burger" class="hamburger">
-        <label for="burger"><span></span></label>
+        <label for="burger"<?= $attente > 0 ? ' data-pip="' . $attente . '"' : '' ?>><span></span></label>
         <nav class="<?= $accueil ? 'home-menu' : 'side-menu' ?>">
             <ul>
-            <?php foreach ($liens as [$url, $libelle, $lettrage]): ?>
-                <li><a href="<?= $url ?>"><?= $entree($lettrage, $libelle) ?></a></li>
+            <?php foreach ($liens as $lien): ?>
+                <?php [$url, $libelle, $lettrage] = $lien; ?>
+                <li><a href="<?= $url ?>"><?= $entree($lettrage, $libelle) ?><?= $pastille($lien[3] ?? 0) ?></a></li>
             <?php endforeach; ?>
             </ul>
         </nav>
@@ -109,7 +120,7 @@ $entree = static function (string $lettrage, string $libelle) use ($accueil, $v)
         <p>&copy; <?= date('Y') ?> Camagru. All rights reserved.</p>
     </footer>
     <script src="/js/ornaments.js?v=<?= $v ?>" defer></script>
-    <?php if (in_array($view ?? '', ['photobooth', 'gallery'], true)): ?>
+    <?php if (in_array($view ?? '', ['photobooth', 'gallery', 'admin'], true)): ?>
     <script src="/js/delete-confirm.js?v=<?= $v ?>" defer></script>
     <?php endif; ?>
     <?php if (($view ?? '') === 'photobooth'): ?>

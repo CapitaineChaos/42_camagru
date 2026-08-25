@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Models\Friendship;
+
 final class LayoutDataProvider
 {
     private CurrentUser $currentUser;
@@ -15,7 +17,8 @@ final class LayoutDataProvider
 
     /**
      * @param array<string, mixed> $session
-     * @return array{currentUser: array<string, mixed>|null, currentUserAvatarUrl: string|null}
+     * @return array{currentUser: array<string, mixed>|null, currentUserAvatarUrl: string|null,
+     *               pendingRequests: int}
      */
     public function fromSession(array $session): array
     {
@@ -24,6 +27,9 @@ final class LayoutDataProvider
         return [
             'currentUser' => $user,
             'currentUserAvatarUrl' => $user !== null ? $this->currentUser->avatarUrl($user) : null,
+            'pendingRequests' => $user !== null
+                ? (new Friendship())->pendingCount((int) $user['id'])
+                : 0,
         ];
     }
 }
