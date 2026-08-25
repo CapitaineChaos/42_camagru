@@ -6,7 +6,7 @@
 /** @var string $avatarCourant */
 /** @var bool $avatarModele */
 
-$quand = static fn (string $horodatage): string
+$since = static fn (string $horodatage): string
     => date('j M Y', (int) strtotime($horodatage));
 ?>
 <?php if (!empty($notice)): ?>
@@ -24,7 +24,7 @@ $quand = static fn (string $horodatage): string
         <dl class="details">
             <dt>Username</dt><dd><?= htmlspecialchars((string) $currentUser['username']) ?></dd>
             <dt>Email address</dt><dd><?= htmlspecialchars((string) $currentUser['email']) ?></dd>
-            <dt>Member since</dt><dd><?= htmlspecialchars($quand((string) $currentUser['created_at'])) ?></dd>
+            <dt>Member since</dt><dd><?= htmlspecialchars($since((string) $currentUser['created_at'])) ?></dd>
         </dl>
     </div>
 </section>
@@ -58,7 +58,7 @@ $quand = static fn (string $horodatage): string
         <?php $id = (int) $image['id']; ?>
         <li class="thumb">
             <img src="/photo?id=<?= $id ?>" loading="lazy"
-                 alt="Montage of <?= htmlspecialchars($quand((string) $image['created_at'])) ?>">
+                 alt="Montage of <?= htmlspecialchars($since((string) $image['created_at'])) ?>">
             <div class="thumb-footer">
                 <span class="counts"><?= \App\Core\Text::plural((int) $image['likes'], 'like') ?>, <?= \App\Core\Text::plural((int) $image['comments'], 'comment') ?></span>
                 <form method="post" action="/profile/avatar">

@@ -12,13 +12,45 @@
     color: #5c5647;
 }
 
+/* the card measures itself, not the viewport: its width depends on the column
+   and on whether the side menu is there, so a media query would guess wrong */
+.montage-card {
+    container-type: inline-size;
+}
+
+/* narrow card: everything stacks and the photo fills the width */
+.montage-body {
+    display: flex;
+    flex-direction: column;
+    gap: .7rem;
+}
+
 .montage-view {
     display: block;
-    width: min(520px, 100%);
+    width: 100%;
     aspect-ratio: 4 / 3;
     object-fit: cover;
     border-radius: 12px;
     background: #e7e2d4;
+}
+
+/* 520px of photo + the gap + 17rem of meta: past that the two sit side by side */
+@container (min-width: 815px) {
+    .montage-body {
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 1.3rem;
+    }
+
+    .montage-view {
+        flex: none;
+        width: 520px;
+    }
+
+    .montage-side {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
 }
 
 .montage-actions {
@@ -26,7 +58,7 @@
     align-items: center;
     flex-wrap: wrap;
     gap: .8rem;
-    margin: .7rem 0;
+    margin-bottom: .7rem;
 }
 
 .reported {

@@ -33,9 +33,11 @@ $sien = $viewerId !== null && $viewerId === (int) $image['user_id'];
     <h2><?= htmlspecialchars((string) $image['username']) ?>
         <span class="when"><?= htmlspecialchars($quand((string) $image['created_at'])) ?></span></h2>
 
+    <div class="montage-body">
     <img class="montage-view" src="/photo?id=<?= $id ?>" loading="lazy"
          alt="Montage by <?= htmlspecialchars((string) $image['username']) ?>">
 
+    <div class="montage-side">
     <div class="montage-actions">
         <?php if ($viewerId !== null && !$sien): ?>
         <form method="post" action="/gallery/like">
@@ -97,6 +99,8 @@ $sien = $viewerId !== null && $viewerId === (int) $image['user_id'];
     <?php elseif ($viewerId === null): ?>
     <p class="note"><a href="/login">Log in</a> to like and comment.</p>
     <?php endif; ?>
+    </div>
+    </div>
 </article>
 <?php endforeach; ?>
 

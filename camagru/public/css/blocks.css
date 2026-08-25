@@ -118,11 +118,38 @@ a:focus-visible {
     font-size: .9rem;
 }
 
+/* bare links drown in the planche: the strip carries a card of its own, with
+   the two steps cut as the same pills as the buttons */
 .pagination {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 1.2rem;
-    margin-bottom: 1.2rem;
+    gap: .6rem;
+    width: fit-content;
+    margin: 0 auto 1.2rem;
+    padding: .35rem .45rem;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, .86);
+    box-shadow: 0 2px 10px rgba(4, 30, 56, .18);
     font-size: .95rem;
+}
+
+.pagination a {
+    padding: .35rem 1.1rem;
+    border-radius: 9999px;
+    background: #6753ea;
+    color: #fff;
+    font-weight: 700;
+}
+
+.pagination a:hover,
+.pagination a:focus-visible {
+    background: #5341cd;
+    color: #fff;
+}
+
+.pagination span {
+    padding-inline: .5rem;
+    font-weight: 700;
+    color: #2f2b22;
 }

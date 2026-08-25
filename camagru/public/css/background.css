@@ -7,6 +7,7 @@ html {
 
 body {
     position: relative;
+    padding-inline: 1rem;
     background: url("/images/fond_0.png") no-repeat center top;
     background-size: cover;
 
@@ -64,6 +65,14 @@ body::after {
     body::before,
     body::after {
         display: none;
+    }
+}
+
+/* past the widest planche the frame drops off, so the gutters hold the same
+   1200px column on their own instead of letting the page run to the edges */
+@media (min-width: 2100px) {
+    body {
+        padding-inline: calc((100% - 1200px) / 2 + 33.6px);
     }
 }
 
