@@ -78,8 +78,11 @@ hash:
 	@test -n "$(PASS)" || (echo "Usage: make hash PASS='motdepasse'" && exit 1)
 	@php -r 'echo password_hash($$argv[1], PASSWORD_DEFAULT), PHP_EOL;' '$(PASS)'
 
-shell:
+shell-web:
 	$(COMPOSE) exec web bash
+
+shell-db:
+	$(COMPOSE) exec db bash
 
 # postgres writes as uid 70 in 0700 dirs: only a root container can remove them
 data-clean:
