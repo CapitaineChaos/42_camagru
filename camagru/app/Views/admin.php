@@ -18,7 +18,7 @@ $quand = static fn (string $horodatage): string
         <?php foreach ($signals as $signal): ?>
         <?php $id = (int) $signal['id']; ?>
         <li class="thumb">
-            <img src="/photo?id=<?= $id ?>" loading="lazy"
+            <img src="<?= htmlspecialchars(\App\Services\Montage::url($signal)) ?>" loading="lazy"
                  alt="Montage by <?= htmlspecialchars((string) $signal['username']) ?>">
             <div class="thumb-footer">
                 <span class="counts"><?= htmlspecialchars((string) $signal['username']) ?>,
@@ -42,7 +42,7 @@ $quand = static fn (string $horodatage): string
     <?php endif; ?>
 </section>
 
-<section class="card">
+<section class="card table-card">
     <h2>Users</h2>
     <table class="table-grid">
         <thead>
@@ -57,12 +57,12 @@ $quand = static fn (string $horodatage): string
             $suspendu = \App\Core\Pg::bool($compte['suspended']);
             ?>
             <tr<?= $suspendu ? ' class="suspended"' : '' ?>>
-                <td><?= htmlspecialchars((string) $compte['username']) ?></td>
-                <td><?= htmlspecialchars((string) $compte['email']) ?></td>
-                <td><?= htmlspecialchars($quand((string) $compte['created_at'])) ?></td>
-                <td><?= (int) $compte['montages'] ?></td>
-                <td><?= $admin ? 'Admin' : 'Member' ?><?= $suspendu ? ', suspended' : '' ?></td>
-                <td>
+                <td data-label="Username"><?= htmlspecialchars((string) $compte['username']) ?></td>
+                <td data-label="Email address"><?= htmlspecialchars((string) $compte['email']) ?></td>
+                <td data-label="Member since"><?= htmlspecialchars($quand((string) $compte['created_at'])) ?></td>
+                <td data-label="Montages"><?= (int) $compte['montages'] ?></td>
+                <td data-label="Role"><?= $admin ? 'Admin' : 'Member' ?><?= $suspendu ? ', suspended' : '' ?></td>
+                <td class="actions">
                     <?php if (!$admin && $id !== $moi): ?>
                     <form method="post" action="/admin/suspend">
                         <?= \App\Core\Csrf::field() ?>

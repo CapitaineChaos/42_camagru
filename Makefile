@@ -108,4 +108,4 @@ fclean:
 	@$(MAKE) --no-print-directory data-clean
 	-$(COMPOSE) down -v --rmi all
 	rm -rf $(TMP)
-	@echo "[fclean] tout supprimé"
+	@echo "[fclean] tout a été supprimé"

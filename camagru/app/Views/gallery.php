@@ -24,6 +24,14 @@ $quand = static fn (string $horodatage): string
 </section>
 <?php else: ?>
 
+<?php if ($pages > 1): ?>
+<p class="scroll-toggle" id="scroll-toggle" hidden>
+    <input type="checkbox" id="infinite">
+    <label for="infinite">Infinite scroll</label>
+</p>
+<?php endif; ?>
+
+<div class="feed" id="feed" data-page="<?= $page ?>" data-pages="<?= $pages ?>">
 <?php foreach ($images as $image): ?>
 <?php
 $id = (int) $image['id'];
@@ -34,7 +42,7 @@ $sien = $viewerId !== null && $viewerId === (int) $image['user_id'];
         <span class="when"><?= htmlspecialchars($quand((string) $image['created_at'])) ?></span></h2>
 
     <div class="montage-body">
-    <img class="montage-view" src="/photo?id=<?= $id ?>" loading="lazy"
+    <img class="montage-view" src="<?= htmlspecialchars(\App\Services\Montage::url($image)) ?>" loading="lazy"
          alt="Montage by <?= htmlspecialchars((string) $image['username']) ?>">
 
     <div class="montage-side">
@@ -103,6 +111,7 @@ $sien = $viewerId !== null && $viewerId === (int) $image['user_id'];
     </div>
 </article>
 <?php endforeach; ?>
+</div>
 
 <?php if ($pages > 1): ?>
 <nav class="pagination">

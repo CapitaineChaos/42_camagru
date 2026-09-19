@@ -155,9 +155,69 @@
     text-decoration: none;
 }
 
-@media (max-width: 600px) {
-    .table-grid {
+.table-grid td {
+    overflow-wrap: anywhere;
+}
+
+/* the six columns need room the card lacks beside the menu: measured on the
+   card itself, each row falls into a labelled block of its own */
+.table-card {
+    container-type: inline-size;
+}
+
+@container (max-width: 760px) {
+    .table-grid thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+    }
+
+    .table-grid,
+    .table-grid tbody,
+    .table-grid tr,
+    .table-grid td {
         display: block;
-        overflow-x: auto;
+    }
+
+    .table-grid tbody tr {
+        padding: .45rem 0;
+        border-bottom: 1px solid #ddd6c4;
+    }
+
+    .table-grid tbody td {
+        display: grid;
+        grid-template-columns: 8.5rem minmax(0, 1fr);
+        gap: .6rem;
+        height: auto;
+        padding: .2rem .2rem;
+        border-bottom: 0;
+    }
+
+    .table-grid tbody td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        color: #6b6552;
+    }
+
+    .table-grid tbody td.actions {
+        display: block;
+        padding-top: .4rem;
+    }
+
+    .table-grid tbody td.actions::before {
+        content: none;
+    }
+
+    .table-grid tbody td.actions:not(:has(form)) {
+        display: none;
+    }
+}
+
+@container (max-width: 380px) {
+    .table-grid tbody td {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0;
     }
 }

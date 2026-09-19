@@ -57,7 +57,7 @@ $since = static fn (string $horodatage): string
         <?php foreach ($montages as $image): ?>
         <?php $id = (int) $image['id']; ?>
         <li class="thumb">
-            <img src="/photo?id=<?= $id ?>" loading="lazy"
+            <img src="<?= htmlspecialchars(\App\Services\Montage::url($image)) ?>" loading="lazy"
                  alt="Montage of <?= htmlspecialchars($since((string) $image['created_at'])) ?>">
             <div class="thumb-footer">
                 <span class="counts"><?= \App\Core\Text::plural((int) $image['likes'], 'like') ?>, <?= \App\Core\Text::plural((int) $image['comments'], 'comment') ?></span>

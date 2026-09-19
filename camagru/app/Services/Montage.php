@@ -126,6 +126,19 @@ final class Montage
         return $nom;
     }
 
+    /**
+     * The address a montage is shown at. Ids start over once the database is
+     * reset while browsers keep the pictures for a week: the random filename in
+     * the url keeps an old picture from standing in for a new montage.
+     *
+     * @param array<string, mixed> $image a row carrying id and filename
+     */
+    public static function url(array $image): string
+    {
+        return '/photo?id=' . (int) $image['id']
+            . '&v=' . rawurlencode(substr((string) $image['filename'], 0, 12));
+    }
+
     /** @return string|null absolute path, null when the name does not point to a montage */
     public function path(string $filename): ?string
     {

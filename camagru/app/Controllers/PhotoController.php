@@ -25,7 +25,8 @@ final class PhotoController extends Controller
 
         header('Content-Type: image/jpeg');
         header('Content-Length: ' . (string) filesize($fichier));
-        // the id addresses one immutable file: an edit creates another montage
+        // the url carries the random filename (Montage::url): the file behind it
+        // never changes, even when a reset database hands the id out again
         header('Cache-Control: public, max-age=604800, immutable');
         readfile($fichier);
     }

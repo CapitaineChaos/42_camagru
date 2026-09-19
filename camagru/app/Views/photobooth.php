@@ -11,6 +11,9 @@
 <p class="error"><?= htmlspecialchars($erreur) ?></p>
 <?php endforeach; ?>
 
+<div class="booth">
+<div class="booth-grid">
+<div class="booth-main">
 <section class="card">
     <h2>Capture</h2>
     <form class="montage" id="montage" method="post" action="/photobooth/capture"
@@ -34,6 +37,7 @@
                 <label for="file">Image</label>
                 <input type="file" id="file" name="file" accept="image/jpeg,image/png,image/gif">
             </p>
+            <p class="booth-jump"><a href="#my-montages">My montages (<?= count($montages) ?>)</a></p>
         </div>
     </form>
 </section>
@@ -54,16 +58,18 @@
     </ul>
 </section>
 <?php endforeach; ?>
+</div>
 
-<section class="card">
-    <h2>Montages</h2>
+<aside class="card booth-side" id="my-montages" aria-labelledby="my-montages-title">
+    <h2 id="my-montages-title">My montages<?php if ($montages !== []): ?>
+        <span class="count"><?= count($montages) ?></span><?php endif; ?></h2>
     <?php if ($montages === []): ?>
     <p class="note">No montage yet.</p>
     <?php else: ?>
     <ul class="thumbs">
         <?php foreach ($montages as $image): ?>
         <li class="thumb">
-            <img src="/photo?id=<?= (int) $image['id'] ?>" alt="Montage of <?= htmlspecialchars(date('j M Y', strtotime((string) $image['created_at']))) ?>" loading="lazy">
+            <img src="<?= htmlspecialchars(\App\Services\Montage::url($image)) ?>" alt="Montage of <?= htmlspecialchars(date('j M Y', strtotime((string) $image['created_at']))) ?>" loading="lazy">
             <div class="thumb-footer">
                 <span class="counts"><?= \App\Core\Text::plural((int) $image['likes'], 'like') ?>, <?= \App\Core\Text::plural((int) $image['comments'], 'comment') ?></span>
                 <form method="post" action="/photo/delete" class="delete-form">
@@ -76,4 +82,6 @@
         <?php endforeach; ?>
     </ul>
     <?php endif; ?>
-</section>
+</aside>
+</div>
+</div>

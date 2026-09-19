@@ -127,3 +127,38 @@
     background: #ded7f7;
     box-shadow: inset 0 0 0 2px #6753ea;
 }
+
+/* the subject wants the past montages beside the capture: a side column once
+   the card has the room, below the overlays otherwise, a link away */
+.booth {
+    container-type: inline-size;
+}
+
+.booth-jump {
+    font-size: .9rem;
+}
+
+@container (min-width: 820px) {
+    .booth-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 250px;
+        column-gap: 1.2rem;
+        align-items: start;
+    }
+
+    .booth-side {
+        position: sticky;
+        top: 1rem;
+        max-height: calc(100vh - 2rem);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+
+    .booth-side .thumbs {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .booth-jump {
+        display: none;
+    }
+}
