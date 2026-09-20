@@ -103,7 +103,10 @@ final class Montage
         $hauteur = (int) Settings::get('photobooth.height', 600);
 
         $montage = $this->cover($source, $largeur, $hauteur);
-        imagedestroy($source);
+        // imagedestroy is deprecated since 8.5: a GD object goes with its last
+        // reference. The caller passes the source inline and keeps none, so the
+        // full-size image is freed here rather than at the end of the request.
+        unset($source);
 
         imagealphablending($montage, true);
         foreach ($calques as $calque) {
@@ -117,7 +120,7 @@ final class Montage
 
         $nom = bin2hex(random_bytes(16)) . '.jpg';
         $ecrit = imagejpeg($montage, $dossier . $nom, (int) Settings::get('photobooth.quality', 85));
-        imagedestroy($montage);
+        unset($montage);
 
         if (!$ecrit) {
             throw new RuntimeException('Montage could not be saved.');
@@ -230,7 +233,7 @@ final class Montage
             $cible, $hauteurCible,
             imagesx($overlay), imagesy($overlay)
         );
-        imagedestroy($overlay);
+        unset($overlay);
     }
 
     private function borne(float $valeur, float $minimum, float $maximum): float

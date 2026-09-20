@@ -19,6 +19,7 @@
             <label for="password">Password</label>
             <input type="password" id="password" name="password" autocomplete="new-password" required
                    minlength="<?= (int) \App\Core\Settings::get('auth.password_min_length', 8) ?>">
+            <span class="hint">At least <?= (int) \App\Core\Settings::get('auth.password_min_length', 8) ?> characters, with one letter and one digit.</span>
         </p>
         <p class="flex-hz"><button type="submit">Sign up</button></p>
     </form>

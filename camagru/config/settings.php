@@ -16,14 +16,14 @@ return [
         'name'            => 'camagru_session',
         'lifetime'        => 7200,      // s, inactivity before drop
         'cookie_lifetime' => 0,         // 0 = cleared on browser close
-        'samesite'        => 'Lax',
+        'samesite'        => 'Lax',     // Bloque POST cross-site
         'regenerate'      => 900,       // s between id rotations
     ],
 
     'auth' => [
         'password_min_length' => 8,
         'token_bytes'         => 32,    // bytes, secret of the mail links
-        'verification_ttl'    => 86400, // s, sign-up link validity
+        'verification_ttl'    => 86400, // s, sign-up link validity (24h)
         'password_reset_ttl'  => 86400, // s, reset link validity
     ],
 

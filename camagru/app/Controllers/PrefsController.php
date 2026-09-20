@@ -7,8 +7,8 @@ namespace App\Controllers;
 use App\Core\Controller;
 use App\Core\Flash;
 use App\Core\Mailer;
+use App\Core\Password;
 use App\Core\Pg;
-use App\Core\Settings;
 use App\Core\Text;
 use App\Models\User;
 use App\Services\Avatars;
@@ -40,7 +40,6 @@ final class PrefsController extends Controller
         $username = trim((string) ($_POST['username'] ?? ''));
         $email    = trim((string) ($_POST['email'] ?? ''));
         $nouveau  = (string) ($_POST['password'] ?? '');
-        $minimum  = (int) Settings::get('auth.password_min_length', 8);
 
         $users  = new User();
         $errors = [];
@@ -63,8 +62,8 @@ final class PrefsController extends Controller
         if ($this->pris($users->findByEmail($email))) {
             $errors[] = 'This email address is already taken.';
         }
-        if ($nouveau !== '' && strlen($nouveau) < $minimum) {
-            $errors[] = 'Password must be at least ' . $minimum . ' characters long.';
+        if ($nouveau !== '') {
+            $errors = array_merge($errors, Password::errors($nouveau));
         }
 
         if ($errors !== []) {

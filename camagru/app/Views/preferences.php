@@ -24,6 +24,7 @@ $minimum = (int) \App\Core\Settings::get('auth.password_min_length', 8);
             <label for="motdepasse">New password</label>
             <input type="password" id="motdepasse" name="password" autocomplete="new-password"
                    minlength="<?= $minimum ?>">
+            <span class="hint">Leave empty to keep the current one. At least <?= $minimum ?> characters, with one letter and one digit.</span>
         </p>
         <p class="field flex-vt tight">
             <label for="actuel">Current password</label>

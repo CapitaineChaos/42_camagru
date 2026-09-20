@@ -9,8 +9,8 @@
     <form class="form-block flex-vt" method="post" action="/login">
         <?= \App\Core\Csrf::field() ?>
         <p class="field flex-vt tight">
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" value="<?= htmlspecialchars($old['email'] ?? '') ?>" autocomplete="email" required>
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" value="<?= htmlspecialchars($old['username'] ?? '') ?>" autocomplete="username" required>
         </p>
         <p class="field flex-vt tight">
             <label for="password">Password</label>

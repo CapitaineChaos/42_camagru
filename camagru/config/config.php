@@ -20,6 +20,9 @@ if (is_readable($file)) {
     }
 }
 
+// The autoloader is set up after this file: the secret reader is required by hand
+require_once dirname(__DIR__) . '/app/Core/Secret.php';
+
 // Helper to read an environment variable, .env is the only source of truth
 $env = static function (string $key): string {
     $value = getenv($key);
@@ -40,9 +43,9 @@ define('DB_DSN', sprintf(
     $env('DB_NAME')
 ));
 
-// Database credentials
-define('DB_USER', $env('DB_USER'));
-define('DB_PASS', $env('DB_PASS'));
+// Database credentials: files under secrets/, out of .env and out of the schema
+define('DB_USER', \App\Core\Secret::read('db_user'));
+define('DB_PASS', \App\Core\Secret::read('db_password'));
 
 define('APP_URL', $env('APP_URL'));
 

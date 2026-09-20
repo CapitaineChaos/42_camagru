@@ -32,9 +32,10 @@ final class PhotoboothController extends Controller
 
         try {
             $calques = $montage->layers((string) ($_POST['layers'] ?? ''));
-            $source  = $this->source($montage);
 
-            $nom = $montage->compose($source, $calques);
+            // passed inline: compose() holds the only reference and frees the
+            // full-size source as soon as it is cropped
+            $nom = $montage->compose($this->source($montage), $calques);
             (new Image())->create($this->userId(), $nom);
 
             Flash::notice('Montage saved.');

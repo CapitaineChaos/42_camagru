@@ -5,6 +5,8 @@
 /** @var list<array<string, mixed>> $resultats */
 /** @var array<int, string> $etats */
 /** @var string $recherche */
+/** @var string|null $notice */
+/** @var list<string>|null $errors */
 
 $ligne = static function (array $utilisateur, string $actions): string {
     return '<li class="tile flex-hz">'

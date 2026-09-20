@@ -7,6 +7,7 @@ namespace App\Controllers;
 use App\Core\Controller;
 use App\Core\Flash;
 use App\Core\Mailer;
+use App\Core\Password;
 use App\Core\Pg;
 use App\Core\Settings;
 use App\Models\User;
@@ -24,8 +25,6 @@ final class AuthController extends Controller
         $email    = trim($_POST['email'] ?? '');
         $password = (string) ($_POST['password'] ?? '');
 
-        $minimum = (int) Settings::get('auth.password_min_length', 8);
-
         $errors = [];
         if ($username === '' || $email === '' || $password === '') {
             $errors[] = 'All fields are required.';
@@ -33,9 +32,7 @@ final class AuthController extends Controller
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $errors[] = 'Invalid email address.';
         }
-        if (strlen($password) < $minimum) {
-            $errors[] = 'Password must be at least ' . $minimum . ' characters long.';
-        }
+        $errors = array_merge($errors, Password::errors($password));
 
         $users = new User();
         if ($errors === [] && ($users->findByEmail($email) || $users->findByUsername($username))) {
@@ -128,16 +125,16 @@ final class AuthController extends Controller
 
     public function login(): void
     {
-        $email    = trim($_POST['email'] ?? '');
+        $username = trim($_POST['username'] ?? '');
         $password = (string) ($_POST['password'] ?? '');
 
-        $user = (new User())->findByEmail($email);
+        $user = (new User())->findByUsername($username);
 
         if ($user === null || !password_verify($password, $user['password'])) {
             $this->view('auth/login', [
                 'title'  => 'Login',
                 'errors' => ['Invalid credentials.'],
-                'old'    => ['email' => $email],
+                'old'    => ['username' => $username],
             ]);
             return;
         }
@@ -146,7 +143,7 @@ final class AuthController extends Controller
             $this->view('auth/login', [
                 'title'  => 'Login',
                 'errors' => ['Account not verified. Check your email to activate it.'],
-                'old'    => ['email' => $email],
+                'old'    => ['username' => $username],
             ]);
             return;
         }
@@ -155,7 +152,7 @@ final class AuthController extends Controller
             $this->view('auth/login', [
                 'title'  => 'Login',
                 'errors' => ['This account is suspended.'],
-                'old'    => ['email' => $email],
+                'old'    => ['username' => $username],
             ]);
             return;
         }

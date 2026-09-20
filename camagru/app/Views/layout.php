@@ -2,6 +2,9 @@
 /** @var string $content */
 /** @var string $title */
 /** @var string $view */
+/** @var array<string, mixed>|null $currentUser */
+/** @var string|null $currentUserAvatarUrl */
+/** @var int|null $pendingRequests */
 
 $accueil = ($view ?? '') === 'home';
 $attente = (int) ($pendingRequests ?? 0);
@@ -77,6 +80,7 @@ $pastille = static function (int $nombre): string {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= htmlspecialchars($title ?? 'Camagru') ?></title>
+    <link rel="icon" href="/favicon.svg?v=<?= $v ?>" type="image/svg+xml">
     <?php foreach ($feuilles as $feuille): ?>
     <link rel="stylesheet" href="/css/<?= $feuille ?>.css?v=<?= $v ?>">
     <?php endforeach; ?>

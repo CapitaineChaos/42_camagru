@@ -11,9 +11,16 @@ WATCH_CODE := camagru/app camagru/config camagru/public
 WATCH_DB   := camagru/database
 RSYNC   := rsync -a --delete --exclude=.git --exclude=node_modules --exclude='camagru/database/.schema.sql.*' --exclude='camagru/storage/images' --exclude='/.data'
 
-.PHONY: up down re logs ps psql db-apply db-reset hash shell clean data-clean fclean sync watch-code watch-db dev seed
+DB_USER := $(shell cat $(SRC)/secrets/db_user 2>/dev/null)
+DB_NAME := $(shell sed -n 's/^DB_NAME=//p' $(SRC)/.env 2>/dev/null)
+PSQL    := psql -U $(DB_USER) -d $(DB_NAME)
 
-up:
+.PHONY: up down re logs ps psql db-apply db-reset hash shell clean data-clean fclean sync watch-code watch-db dev seed secrets admin env
+
+env:
+	@test -f $(SRC)/.env || { echo "[env] .env absent" >&2; exit 1; }
+
+up: env secrets
 	mkdir -p $(TMP) $(DATA)/postgres $(DATA)/images
 	$(RSYNC) $(SRC)/ $(TMP)/
 	cd $(TMP) && $(COMPOSE) up -d --build
@@ -58,30 +65,51 @@ ps:
 	$(COMPOSE) ps
 
 psql:
-	$(COMPOSE) exec db psql -U camagru -d camagru
+	$(COMPOSE) exec db $(PSQL)
 
 db-apply: sync
-	$(COMPOSE) exec -T db psql -U camagru -d camagru < $(TMP)/camagru/database/schema.sql
+	$(COMPOSE) exec -T db $(PSQL) < $(TMP)/camagru/database/schema.sql
 
 db-reset: sync
 	reset_sql=$$(mktemp $(TMP)/db-reset.XXXXXX.sql); \
 	printf '%s\n' 'SELECT pg_advisory_lock(424242);' 'DROP SCHEMA public CASCADE;' 'CREATE SCHEMA public;' > $$reset_sql; \
 	cat $(TMP)/camagru/database/schema.sql >> $$reset_sql; \
 	printf '%s\n' 'SELECT pg_advisory_unlock(424242);' >> $$reset_sql; \
-	$(COMPOSE) exec -T db psql -v ON_ERROR_STOP=1 -U camagru -d camagru < $$reset_sql
+	$(COMPOSE) exec -T db $(PSQL) -v ON_ERROR_STOP=1 < $$reset_sql
+	@$(MAKE) --no-print-directory admin
+
+secrets:
+	@mkdir -p $(SRC)/secrets
+	@set -e; \
+	demande() { \
+		fichier=$(SRC)/secrets/$$1; \
+		test -s $$fichier && return 0; \
+		test -t 0 || { echo "[secrets] secrets/$$1 absent, make secrets demande à être lancé depuis un terminal" >&2; exit 1; }; \
+		printf '%s [%s] : ' "$$2" "$$3"; read -r reponse; \
+		printf '%s' "$${reponse:-$$3}" > $$fichier; \
+	}; \
+	demande db_user     "Rôle Postgres de l'application" 'test'; \
+	demande admin_user  "Login de l'admin Camagru"       'test'; \
+	demande admin_email "Email de l'admin Camagru"       'test@test.local'
+	@test -s $(SRC)/secrets/db_password    || openssl rand -base64 24 | tr -d '\n=/+' > $(SRC)/secrets/db_password
+	@test -s $(SRC)/secrets/admin_password || openssl rand -base64 18 | tr -d '\n=/+' > $(SRC)/secrets/admin_password
+	@chmod 644 $(SRC)/secrets/db_user $(SRC)/secrets/db_password
+	@chmod 600 $(SRC)/secrets/admin_user $(SRC)/secrets/admin_email $(SRC)/secrets/admin_password
+	@echo "[secrets] $(SRC)/secrets prêt"
+	@echo "  postgres  $$(cat $(SRC)/secrets/db_user) / $$(cat $(SRC)/secrets/db_password)"
+	@echo "  admin     $$(cat $(SRC)/secrets/admin_user) <$$(cat $(SRC)/secrets/admin_email)> / $$(cat $(SRC)/secrets/admin_password)"
+
+admin: sync
+	@$(COMPOSE) exec -T web php database/admin.php
 
 # peuple l'app par HTTP, comme le ferait un visiteur : make seed ARGS="-n 3"
 seed:
 	@./scripts/seed.py $(ARGS)
 
-hash:
-	@test -n "$(PASS)" || (echo "Usage: make hash PASS='motdepasse'" && exit 1)
-	@php -r 'echo password_hash($$argv[1], PASSWORD_DEFAULT), PHP_EOL;' '$(PASS)'
-
-shell-web:
+bash-web:
 	$(COMPOSE) exec web bash
 
-shell-db:
+bash-db:
 	$(COMPOSE) exec db bash
 
 # postgres writes as uid 70 in 0700 dirs: only a root container can remove them
@@ -95,7 +123,7 @@ clean:
 	@$(MAKE) --no-print-directory data-clean
 
 php_error:
-	$(COMPOSE) exec -T web tail -50 /var/log/apache2/error.log
+	$(COMPOSE) exec -T web tail -50 /var/log/apache2/error.log /var/log/apache2/php_error.log
 
 php_access:
 	$(COMPOSE) exec -T web tail -50 /var/log/apache2/access.log

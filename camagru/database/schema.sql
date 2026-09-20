@@ -100,22 +100,3 @@ CREATE UNIQUE INDEX IF NOT EXISTS friendships_pair_idx
 
 CREATE INDEX IF NOT EXISTS friendships_inbox_idx
     ON friendships (addressee_id) WHERE accepted_at IS NULL;
-
--- Admin : login admin@aaa.com / password 123
-INSERT INTO users (username, email, password, avatar, modele, verified)
-VALUES ('admin', 'admin@aaa.com', '$2y$12$nddWL9YzNldOv8jK7H96YeAIW8zARa5gQr2Yj6oTPODHc3XTLrWZa', 'generique.png', TRUE, TRUE)
-ON CONFLICT (email) DO NOTHING;
-
-INSERT INTO users (username, email, password, avatar, modele, verified)
-VALUES ('aaa', 'aaa@aaa.com', '$2y$12$R7Q02juSA8cbyQB92NBdiumeddFfNUuUx0L8PcLvM0XiQphBs1ygW', 'generique.png', TRUE, TRUE)
-ON CONFLICT (email) DO NOTHING;
-
-INSERT INTO admins (user_id)
-SELECT id
-FROM users
-WHERE email = 'admin@aaa.com' AND username = 'admin'
-AND NOT EXISTS (
-    SELECT 1
-    FROM admins
-    WHERE admins.user_id = users.id
-);

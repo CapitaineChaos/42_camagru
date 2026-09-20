@@ -3,6 +3,8 @@
 /** @var list<array<string, mixed>> $montages */
 /** @var int $largeur */
 /** @var int $hauteur */
+/** @var string|null $notice */
+/** @var list<string>|null $errors */
 ?>
 <?php if (!empty($notice)): ?>
 <p class="notice"><?= htmlspecialchars($notice) ?></p>

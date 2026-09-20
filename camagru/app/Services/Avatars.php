@@ -57,7 +57,7 @@ final class Avatars
             intdiv($largeur - $cote, 2), intdiv($hauteur - $cote, 2),
             self::COTE, self::COTE, $cote, $cote
         );
-        imagedestroy($source);
+        unset($source);
 
         $dossier = BASE_PATH . self::DOSSIER;
         if (!is_dir($dossier) && !mkdir($dossier, 0775, true) && !is_dir($dossier)) {
@@ -66,7 +66,7 @@ final class Avatars
 
         $nom = bin2hex(random_bytes(16)) . '.jpg';
         $ecrit = imagejpeg($avatar, $dossier . $nom, 90);
-        imagedestroy($avatar);
+        unset($avatar);
 
         if (!$ecrit) {
             throw new RuntimeException('Avatar could not be saved.');

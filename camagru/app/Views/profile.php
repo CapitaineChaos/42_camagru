@@ -5,6 +5,8 @@
 /** @var list<array<string, mixed>> $montages */
 /** @var string $avatarCourant */
 /** @var bool $avatarModele */
+/** @var string|null $notice */
+/** @var list<string>|null $errors */
 
 $since = static fn (string $horodatage): string
     => date('j M Y', (int) strtotime($horodatage));

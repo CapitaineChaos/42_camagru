@@ -6,6 +6,7 @@ namespace App\Controllers;
 
 use App\Core\Controller;
 use App\Core\Mailer;
+use App\Core\Password;
 use App\Core\Settings;
 use App\Models\PasswordReset;
 use App\Models\User;
@@ -63,7 +64,6 @@ final class PasswordController extends Controller
         $token        = (string) ($_POST['token'] ?? '');
         $password     = (string) ($_POST['password'] ?? '');
         $confirmation = (string) ($_POST['password_confirmation'] ?? '');
-        $minimum      = (int) Settings::get('auth.password_min_length', 8);
 
         $demand = $this->demand($token);
         if ($demand === null) {
@@ -74,10 +74,7 @@ final class PasswordController extends Controller
             return;
         }
 
-        $errors = [];
-        if (strlen($password) < $minimum) {
-            $errors[] = 'Password must be at least ' . $minimum . ' characters long.';
-        }
+        $errors = Password::errors($password);
         if ($password !== $confirmation) {
             $errors[] = 'Both passwords must match.';
         }

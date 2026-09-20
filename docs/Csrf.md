@@ -13,13 +13,13 @@ public static function check(mixed $token): bool   // comparaison à temps const
 
 ## L'attaque sans jeton
 
-« Voler un formulaire » = rejouer la requête d'un formulaire du site depuis un
-autre site, en profitant du cookie que le navigateur envoie tout seul. Sur une
-version **sans jeton**, le déroulé est le suivant.
+Rejouer la requête d'un formulaire du site depuis un autre site, en s'appuyant
+sur le cookie que le navigateur attache automatiquement. Déroulé sur une version
+sans jeton :
 
-1. L'attaquant regarde le formulaire visé sur Camagru. Exemple : la suppression
-   d'un montage, `POST /photo/delete` avec un champ `id`. Sans protection, il n'y
-   a rien d'autre à fournir.
+1. L'attaquant relève le formulaire visé sur Camagru. Exemple : suppression d'un
+   montage, `POST /photo/delete` avec un champ `id`. Sans protection, c'est le
+   seul paramètre à fournir.
 
 2. Il recrée ce formulaire sur son propre site, champs en caché, valeurs
    choisies, et le fait s'envoyer au chargement :
@@ -32,30 +32,30 @@ version **sans jeton**, le déroulé est le suivant.
    <script>document.forms[0].submit()</script>
    ```
 
-3. Il attire une victime **connectée** sur cette page (lien, pub, iframe).
+3. Il attire une victime connectée sur cette page (lien, pub, iframe).
 
-4. Le formulaire s'auto-soumet. Le navigateur de la victime, comme pour toute
-   requête vers `camagru.local`, y attache automatiquement le cookie de session.
+4. Le formulaire s'auto-soumet. Le navigateur de la victime attache le cookie de
+   session, comme pour toute requête vers `camagru.local`.
 
-5. Le serveur reçoit un POST authentifié (cookie valide) et supprime le montage
-   42 — au nom de la victime, sans qu'elle ait cliqué. La cible n'a pas besoin
-   d'être visible : `id` est deviné ou lu ailleurs, la victime ne voit rien.
+5. Le serveur reçoit un POST authentifié et supprime le montage 42 au nom de la
+   victime. L'`id` est deviné ou relevé ailleurs ; rien n'est affiché à la
+   victime.
 
-L'attaquant ne vole pas le cookie ni ne lit la page ; il déclenche une action en
-laissant le navigateur faire le travail d'authentification.
+Le cookie n'est ni volé ni lu, la page non plus : l'action est déclenchée en
+laissant le navigateur fournir l'authentification.
 
 Le jeton casse l'étape 2 : le formulaire forgé n'a pas de `csrf_token` valide, et
-l'attaquant ne peut pas le lire (la *same-origin policy* interdit de lire une
-page Camagru depuis `evil.example`). `check()` échoue → 403.
+l'attaquant ne peut pas le lire, la same-origin policy interdisant de lire une
+page Camagru depuis `evil.example`. `check()` échoue, réponse 403.
 
-`SameSite=Lax` sur le cookie (`Core/Session.php`) bloque en plus l'envoi du
-cookie sur un POST cross-site : le jeton est la seconde barrière, indépendante du
+`SameSite=Lax` sur le cookie (`Core/Session.php`) bloque en amont l'envoi du
+cookie sur un POST cross-site. Le jeton est la barrière indépendante du
 navigateur.
 
 ## Vérification : automatique
 
-Elle est centralisée dans le routeur. **Toute requête POST** est contrôlée avant
-d'atteindre le contrôleur ; un jeton absent ou invalide renvoie un 403.
+Centralisée dans le routeur. Toute requête POST est contrôlée avant d'atteindre
+le contrôleur ; jeton absent ou invalide, réponse 403.
 
 `Core/Router.php` :
 
@@ -66,8 +66,8 @@ if ($httpMethod === 'POST' && !Csrf::check($_POST['csrf_token'] ?? null)) {
 }
 ```
 
-Il n'y a donc rien à appeler dans le contrôleur : il suffit que le formulaire
-soit en POST et qu'il porte le jeton.
+Rien à appeler dans le contrôleur : le formulaire doit être en POST et porter le
+jeton.
 
 ## Comparaison à temps constant (`hash_equals`)
 
@@ -80,18 +80,18 @@ soit en POST et qu'il porte le jeton.
 "aXxxxxxx…"  → faux à l'octet 2
 ```
 
-La durée dépend alors du nombre d'octets corrects en tête. En mesurant le temps
-de réponse sur un grand nombre d'essais, un attaquant reconstitue le secret
-octet par octet (attaque temporelle).
+La durée dépend du nombre d'octets corrects en tête. En mesurant le temps de
+réponse sur un grand nombre d'essais, le secret se reconstitue octet par octet
+(attaque temporelle).
 
-`hash_equals` compare tous les octets à chaque appel, sans court-circuit : sa
+`hash_equals` compare tous les octets à chaque appel, sans court-circuit ; sa
 durée est indépendante du contenu.
 
-Pour comparer un secret (jeton CSRF, jeton de session, hash, signature) :
-`hash_equals`. Pour un mot de passe : `password_verify`.
+Comparaison d'un secret (jeton CSRF, jeton de session, hash, signature) :
+`hash_equals`. Mot de passe : `password_verify`.
 
-Sur ce cas l'attaque est peu réaliste (jeton en session, régénéré à chaque
-session) ; `hash_equals` reste la fonction adaptée.
+L'attaque temporelle est peu réaliste ici, le jeton étant en session et régénéré
+à chaque session.
 
 ## Protéger son propre formulaire
 
@@ -110,8 +110,8 @@ Placer `Csrf::field()` à l'intérieur du `<form>` :
 </form>
 ```
 
-`Csrf::field()` génère le champ caché `csrf_token` — c'est le nom exact que le
-routeur relit dans `$_POST`.
+`Csrf::field()` génère le champ caché `csrf_token`, nom relu par le routeur dans
+`$_POST`.
 
 ### 2 : Déclarer la route en POST
 
@@ -121,22 +121,22 @@ Dans `config/routes.php` :
 $router->post('/mon-action', [MonController::class, 'traiter']);
 ```
 
-Le routeur vérifie le jeton pour cette route comme pour les autres. Rien de plus.
+Le routeur vérifie le jeton pour cette route comme pour les autres.
 
 ## Points d'attention
 
-- **Uniquement POST.** Une requête GET n'est pas vérifiée — une action qui
-  modifie l'état (création, suppression, like) ne doit jamais passer en GET.
-- **Le routeur lit `$_POST`.** Un envoi `fetch`/AJAX doit transmettre le jeton
-  dans le corps au format formulaire (`FormData` ou `application/x-www-form-urlencoded`),
-  pas en JSON — sinon `$_POST['csrf_token']` est vide et la requête est rejetée.
+- Uniquement POST. Une requête GET n'est pas vérifiée ; une action modifiant
+  l'état (création, suppression, like) ne passe pas en GET.
+- Le routeur lit `$_POST`. Un envoi `fetch`/AJAX transmet le jeton dans le corps
+  au format formulaire (`FormData` ou `application/x-www-form-urlencoded`), pas
+  en JSON : sinon `$_POST['csrf_token']` est vide et la requête est rejetée.
 
   ```js
   const data = new FormData(form); // récupère aussi le champ caché csrf_token
   fetch('/mon-action', { method: 'POST', body: data });
   ```
 
-- **Upload de fichier.** `enctype="multipart/form-data"` remplit quand même
-  `$_POST` pour les champs non-fichiers : le champ caché fonctionne tel quel.
-- **Jeton par session, pas par formulaire.** Tous les formulaires d'une même
-  session partagent le même jeton ; inutile d'en générer un par page.
+- Upload de fichier : `enctype="multipart/form-data"` remplit `$_POST` pour les
+  champs non-fichiers, le champ caché fonctionne tel quel.
+- Jeton par session, pas par formulaire. Tous les formulaires d'une même session
+  partagent le même jeton.

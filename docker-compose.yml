@@ -15,6 +15,7 @@ services:
       - ./camagru/database:/var/www/html/database
       - ./camagru/storage:/var/www/html/storage
       - images-data:/var/www/html/storage/images
+      - ./secrets:/run/secrets:ro
     env_file: .env
     depends_on:
       - db
@@ -25,11 +26,14 @@ services:
     container_name: camagru-db
     environment:
       POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASS}
+      # the entrypoint reads these files itself: the password never lands in the
+      # container environment, where a docker inspect would print it
+      POSTGRES_USER_FILE: /run/secrets/db_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
     volumes:
       - db-data:/var/lib/postgresql/data
       - ./camagru/database/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+      - ./secrets:/run/secrets:ro
     ports:
       - "5432:5432"
 

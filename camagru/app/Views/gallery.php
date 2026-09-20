@@ -6,6 +6,8 @@
 /** @var int $total */
 /** @var int|null $viewerId */
 /** @var int $maxComment */
+/** @var string|null $notice */
+/** @var list<string>|null $errors */
 
 $quand = static fn (string $horodatage): string
     => date('j M Y, H:i', (int) strtotime($horodatage));

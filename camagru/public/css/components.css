@@ -112,6 +112,11 @@
         font-size: .95rem;
     }
 
+    .field .hint {
+        font-size: .85rem;
+        color: var(--gris-doux);
+    }
+
     .field input,
     .field textarea {
         padding: .45rem .6rem;
