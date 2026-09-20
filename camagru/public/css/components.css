@@ -1,0 +1,281 @@
+@layer components {
+    .card,
+    .pagination,
+    .scroll-toggle,
+    .feed-status:not(:empty) {
+        background: var(--carte-fond);
+        box-shadow: var(--ombre);
+    }
+
+    .card {
+        border-radius: var(--r-carte);
+        padding: 1.1rem 1.3rem 1.3rem;
+        margin-bottom: 1.2rem;
+    }
+
+    .card h2 {
+        margin-bottom: .8rem;
+        font-size: 1.15rem;
+    }
+
+    .card h2 .count {
+        display: inline-grid;
+        place-items: center;
+        min-width: 1.4rem;
+        height: 1.4rem;
+        padding: 0 .3rem;
+        border-radius: 50% / 60%;
+        background: var(--rouge);
+        color: #fff;
+        font-size: .8rem;
+        vertical-align: 1px;
+    }
+
+    .card-narrow {
+        width: min(30rem, 100%);
+        margin-inline: auto;
+    }
+
+    .card-danger {
+        box-shadow: var(--ombre), inset 0 0 0 2px #e0b6b0;
+    }
+
+    .notice,
+    .error {
+        margin-bottom: .8rem;
+        padding: .55rem .8rem;
+        border-radius: var(--r-tuile);
+        font-size: .95rem;
+    }
+
+    .notice {
+        background: #e2f1de;
+        color: #245b1f;
+    }
+
+    .error {
+        background: #fbe1dd;
+        color: var(--erreur);
+    }
+
+    .note {
+        margin-bottom: 1rem;
+        font-size: .9rem;
+    }
+
+    button {
+        padding: .45rem 1rem;
+        border: none;
+        border-radius: var(--r-pilule);
+        background: var(--violet);
+        color: #fff;
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    button:hover,
+    button:focus-visible {
+        background: var(--violet-fonce);
+    }
+
+    button:disabled {
+        background: #b3ab95;
+        cursor: not-allowed;
+    }
+
+    .button-quiet {
+        background: transparent;
+        color: var(--violet-fonce);
+        box-shadow: inset 0 0 0 1px var(--bord-champ);
+    }
+
+    .button-quiet:hover,
+    .button-quiet:focus-visible {
+        background: #ece7d9;
+        color: var(--encre);
+    }
+
+    .button-danger {
+        background: var(--danger);
+    }
+
+    .button-danger:hover,
+    .button-danger:focus-visible {
+        background: var(--danger-fonce);
+    }
+
+    .form-block { max-width: 30rem; }
+
+    .field label {
+        font-weight: 700;
+        font-size: .95rem;
+    }
+
+    .field input,
+    .field textarea {
+        padding: .45rem .6rem;
+        border: 1px solid var(--bord-champ);
+        border-radius: var(--r-champ);
+        background: #fff;
+        font: inherit;
+    }
+
+    .field textarea {
+        resize: vertical;
+    }
+
+    .form-inline {
+        display: flex;
+        flex-direction: column;
+        gap: .7rem;
+    }
+
+    @media (min-width: 600px) {
+        .form-inline {
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            gap: 1rem;
+        }
+    }
+
+    .side-links {
+        margin-top: 1rem;
+        font-size: .9rem;
+    }
+
+    .thumbs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .7rem;
+    }
+
+    /* fixed basis, no grow: a lone thumb on the last row keeps its size instead
+       of stretching full width the way `flex: 1 1` would */
+    .thumbs > * { flex: 0 1 190px; }
+
+    .thumb-footer {
+        font-size: .8rem;
+    }
+
+    .thumb-footer button {
+        padding: .2rem .7rem;
+        font-size: .8rem;
+    }
+
+    .pagination,
+    .scroll-toggle,
+    .feed-status:not(:empty) {
+        width: fit-content;
+        border-radius: var(--r-pilule);
+    }
+
+    .pagination {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: .6rem;
+        margin: 0 auto 1.2rem;
+        padding: .35rem .45rem;
+        font-size: .95rem;
+    }
+
+    .pagination a {
+        padding: .35rem 1.1rem;
+        border-radius: var(--r-pilule);
+        background: var(--violet);
+        color: #fff;
+        font-weight: 700;
+    }
+
+    .pagination a:hover,
+    .pagination a:focus-visible {
+        background: var(--violet-fonce);
+        color: #fff;
+    }
+
+    .pagination span {
+        padding-inline: .5rem;
+        font-weight: 700;
+        color: var(--encre);
+    }
+
+    .account .avatar,
+    .avatar-large,
+    .friend-avatar {
+        display: block;
+        border-radius: 50%;
+        object-fit: cover;
+        background: var(--sable);
+    }
+
+    .account {
+        position: fixed;
+        top: 1rem;
+        right: calc((100% - var(--colonne)) / 2 + var(--bord));
+        z-index: 3;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: .35rem;
+    }
+
+    .badge {
+        position: relative;
+        display: block;
+    }
+
+    .account .avatar {
+        width: 64px;
+        height: 64px;
+        box-shadow: 0 0 0 3px rgba(255, 255, 255, .85), 0 2px 8px rgba(4, 30, 56, .3);
+    }
+
+    .initial {
+        position: absolute;
+        left: -4px;
+        bottom: -4px;
+        display: grid;
+        place-items: center;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        border: 2px solid #fff;
+        background: var(--jaune);
+        font-size: .85rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    .account .logout-form img {
+        display: block;
+        width: 62px;
+        height: auto;
+        filter: drop-shadow(0 1px 2px rgba(255, 255, 255, .9));
+    }
+
+    .account .logout-form a:hover img,
+    .account .logout-form a:focus-visible img {
+        transform: rotate(-2.5deg) scale(1.08);
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+        .account .logout-form img { transition: transform .18s ease; }
+    }
+
+    @media screen and (max-width: 767.98px) {
+        .account .avatar {
+            width: 52px;
+            height: 52px;
+        }
+
+        .initial {
+            width: 22px;
+            height: 22px;
+            font-size: .75rem;
+        }
+
+        .account .logout-form img { width: 52px; }
+    }
+}

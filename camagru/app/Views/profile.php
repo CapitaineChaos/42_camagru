@@ -18,7 +18,7 @@ $since = static fn (string $horodatage): string
 
 <section class="card card-identity">
     <h2>Account</h2>
-    <div class="identity">
+    <div class="identity flex-hz">
         <img class="avatar-large" src="<?= htmlspecialchars((string) $currentUserAvatarUrl) ?>"
              alt="Avatar of <?= htmlspecialchars((string) $currentUser['username']) ?>">
         <dl class="details">
@@ -33,7 +33,7 @@ $since = static fn (string $horodatage): string
     <h2>Avatar</h2>
     <form method="post" action="/profile/avatar">
         <?= \App\Core\Csrf::field() ?>
-        <ul class="avatars">
+        <ul class="avatars list-plain">
             <?php foreach ($modeles as $rang => $modele): ?>
             <?php $porte = $avatarModele && $modele === $avatarCourant; ?>
             <li>
@@ -53,13 +53,13 @@ $since = static fn (string $horodatage): string
     <?php if ($montages === []): ?>
     <p class="note">No montage yet. <a href="/photobooth">Take the first one.</a></p>
     <?php else: ?>
-    <ul class="thumbs">
+    <ul class="thumbs list-plain">
         <?php foreach ($montages as $image): ?>
         <?php $id = (int) $image['id']; ?>
-        <li class="thumb">
-            <img src="<?= htmlspecialchars(\App\Services\Montage::url($image)) ?>" loading="lazy"
+        <li class="tile flex-vt">
+            <img class="media" src="<?= htmlspecialchars(\App\Services\Montage::url($image)) ?>" loading="lazy"
                  alt="Montage of <?= htmlspecialchars($since((string) $image['created_at'])) ?>">
-            <div class="thumb-footer">
+            <div class="thumb-footer flex-hz between">
                 <span class="counts"><?= \App\Core\Text::plural((int) $image['likes'], 'like') ?>, <?= \App\Core\Text::plural((int) $image['comments'], 'comment') ?></span>
                 <form method="post" action="/profile/avatar">
                     <?= \App\Core\Csrf::field() ?>

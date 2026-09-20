@@ -38,15 +38,15 @@ $id = (int) $image['id'];
 $sien = $viewerId !== null && $viewerId === (int) $image['user_id'];
 ?>
 <article class="card montage-card" id="montage-<?= $id ?>">
-    <h2><?= htmlspecialchars((string) $image['username']) ?>
+    <h2 class="flex-hz"><?= htmlspecialchars((string) $image['username']) ?>
         <span class="when"><?= htmlspecialchars($quand((string) $image['created_at'])) ?></span></h2>
 
-    <div class="montage-body">
-    <img class="montage-view" src="<?= htmlspecialchars(\App\Services\Montage::url($image)) ?>" loading="lazy"
+    <div class="montage-body flex-hz">
+    <img class="montage-view media" src="<?= htmlspecialchars(\App\Services\Montage::url($image)) ?>" loading="lazy"
          alt="Montage by <?= htmlspecialchars((string) $image['username']) ?>">
 
     <div class="montage-side">
-    <div class="montage-actions">
+    <div class="montage-actions flex-hz">
         <?php if ($viewerId !== null && !$sien): ?>
         <form method="post" action="/gallery/like">
             <?= \App\Core\Csrf::field() ?>
@@ -80,9 +80,9 @@ $sien = $viewerId !== null && $viewerId === (int) $image['user_id'];
     </div>
 
     <?php if (!empty($commentaires[$id])): ?>
-    <ul class="comments">
+    <ul class="comments flex-vt list-plain">
         <?php foreach ($commentaires[$id] as $commentaire): ?>
-        <li>
+        <li class="tile">
             <span class="author<?= $commentaire['username'] === null ? ' author-gone' : '' ?>"><?=
                 htmlspecialchars((string) ($commentaire['username'] ?? 'Deleted account')) ?></span>
             <span class="when"><?= htmlspecialchars($quand((string) $commentaire['created_at'])) ?></span>
@@ -93,16 +93,16 @@ $sien = $viewerId !== null && $viewerId === (int) $image['user_id'];
     <?php endif; ?>
 
     <?php if ($viewerId !== null && !$sien): ?>
-    <form class="form-block" method="post" action="/gallery/comment">
+    <form class="form-block flex-vt" method="post" action="/gallery/comment">
         <?= \App\Core\Csrf::field() ?>
         <input type="hidden" name="id" value="<?= $id ?>">
         <input type="hidden" name="page" value="<?= $page ?>">
-        <p class="field">
+        <p class="field flex-vt tight">
             <label for="comment-<?= $id ?>">Comment</label>
             <textarea id="comment-<?= $id ?>" name="comment" rows="2"
                       maxlength="<?= $maxComment ?>"></textarea>
         </p>
-        <p class="actions"><button type="submit">Post</button></p>
+        <p class="flex-hz"><button type="submit">Post</button></p>
     </form>
     <?php elseif ($viewerId === null): ?>
     <p class="note"><a href="/login">Log in</a> to like and comment.</p>

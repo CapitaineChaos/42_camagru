@@ -1,223 +1,103 @@
-.identity {
-    display: flex;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    gap: 1.2rem;
-}
+@layer pages {
+    .identity { align-items: flex-start; }
 
-.avatar-large {
-    flex: 0 0 auto;
-    display: block;
-    width: 96px;
-    height: 96px;
-    border-radius: 50%;
-    object-fit: cover;
-    background: #e7e2d4;
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, .9), 0 2px 8px rgba(4, 30, 56, .25);
-}
-
-.details {
-    display: grid;
-    grid-template-columns: max-content 1fr;
-    gap: .4rem 1.2rem;
-    min-width: 0;
-}
-
-.details dt {
-    font-weight: 700;
-}
-
-.details dd {
-    min-width: 0;
-    overflow-wrap: anywhere;
-}
-
-.avatars {
-    list-style: none;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
-    gap: .6rem;
-}
-
-.avatar-choice {
-    display: block;
-    width: 100%;
-    padding: .25rem;
-    border-radius: 50%;
-    background: rgba(231, 226, 212, .55);
-}
-
-.avatar-choice img {
-    display: block;
-    width: 100%;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-.avatar-choice:hover,
-.avatar-choice:focus-visible {
-    background: #ddd6c4;
-}
-
-.avatar-choice.chosen {
-    background: #6753ea;
-    box-shadow: 0 2px 8px rgba(4, 30, 56, .35);
-}
-
-.friends-list {
-    list-style: none;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: .6rem;
-}
-
-.form-inline + .friends-list,
-.form-inline + .note {
-    margin-top: 1rem;
-}
-
-.friend {
-    display: flex;
-    align-items: center;
-    gap: .8rem;
-    padding: .5rem .7rem;
-    border-radius: 12px;
-    background: rgba(231, 226, 212, .55);
-}
-
-.friend-avatar {
-    flex: 0 0 auto;
-    display: block;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    object-fit: cover;
-    background: #e7e2d4;
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, .9);
-}
-
-.friend-name {
-    flex: 1;
-    min-width: 0;
-    min-height: 1.2em;
-    font-weight: 700;
-    overflow-wrap: anywhere;
-}
-
-.friend-actions {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: .4rem;
-}
-
-.friend-state {
-    align-self: center;
-    font-size: .9rem;
-    color: #6b6552;
-}
-
-@media (max-width: 480px) {
-    .friend {
-        flex-wrap: wrap;
+    .avatar-large {
+        flex: 0 0 auto;
+        width: 96px;
+        height: 96px;
+        box-shadow: 0 0 0 3px var(--voile-blanc), 0 2px 8px rgba(4, 30, 56, .25);
     }
 
-    .friend-actions {
-        flex-basis: 100%;
-    }
-}
-
-.table-grid {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.table-grid th,
-.table-grid td {
-    padding: .5rem .6rem;
-    text-align: left;
-    border-bottom: 1px solid #ddd6c4;
-}
-
-.table-grid tbody td {
-    height: 2.6rem;
-}
-
-.table-grid tbody tr.suspended td {
-    color: #8a8471;
-    text-decoration: line-through;
-}
-
-.table-grid tbody tr.suspended td:last-child {
-    text-decoration: none;
-}
-
-.table-grid td {
-    overflow-wrap: anywhere;
-}
-
-/* the six columns need room the card lacks beside the menu: measured on the
-   card itself, each row falls into a labelled block of its own */
-.table-card {
-    container-type: inline-size;
-}
-
-@container (max-width: 760px) {
-    .table-grid thead {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        overflow: hidden;
-        clip-path: inset(50%);
-    }
-
-    .table-grid,
-    .table-grid tbody,
-    .table-grid tr,
-    .table-grid td {
-        display: block;
-    }
-
-    .table-grid tbody tr {
-        padding: .45rem 0;
-        border-bottom: 1px solid #ddd6c4;
-    }
-
-    .table-grid tbody td {
+    /* label/value pairs: a 2-column grid is the simple, right tool here (a flex
+       row cannot line pairs up without fighting it) */
+    .details {
+        flex: 1 1 0;
+        min-width: 0;
         display: grid;
-        grid-template-columns: 8.5rem minmax(0, 1fr);
-        gap: .6rem;
-        height: auto;
-        padding: .2rem .2rem;
-        border-bottom: 0;
+        grid-template-columns: max-content 1fr;
+        gap: .4rem 1.2rem;
     }
 
-    .table-grid tbody td::before {
-        content: attr(data-label);
+    .details dt {
         font-weight: 700;
-        color: #6b6552;
     }
 
-    .table-grid tbody td.actions {
+    .details dd {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .avatars {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .6rem;
+    }
+
+    .avatars > li { flex: 0 1 84px; }
+
+    .avatar-choice {
         display: block;
-        padding-top: .4rem;
+        width: 100%;
+        padding: .25rem;
+        border-radius: 50%;
+        background: var(--sable-voile);
     }
 
-    .table-grid tbody td.actions::before {
-        content: none;
+    .avatar-choice img {
+        display: block;
+        width: 100%;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        object-fit: cover;
     }
 
-    .table-grid tbody td.actions:not(:has(form)) {
-        display: none;
+    .avatar-choice:hover,
+    .avatar-choice:focus-visible {
+        background: var(--ligne);
     }
-}
 
-@container (max-width: 380px) {
-    .table-grid tbody td {
-        grid-template-columns: minmax(0, 1fr);
-        gap: 0;
+    .avatar-choice.chosen {
+        background: var(--violet);
+        box-shadow: 0 2px 8px rgba(4, 30, 56, .35);
+    }
+
+    .form-inline + .friends-list,
+    .form-inline + .note {
+        margin-top: 1rem;
+    }
+
+    .friend-avatar {
+        flex: 0 0 auto;
+        width: 44px;
+        height: 44px;
+        box-shadow: 0 0 0 2px var(--voile-blanc);
+    }
+
+    .friend-name {
+        flex: 1;
+        min-width: 0;
+        min-height: 1.2em;
+        font-weight: 700;
+        overflow-wrap: anywhere;
+    }
+
+    .friend-state {
+        align-self: center;
+        font-size: .9rem;
+        color: var(--gris-doux);
+    }
+
+    @media (max-width: 480px) {
+        .friend-actions {
+            flex-basis: 100%;
+        }
+    }
+
+    .user-list li > * { flex: 1 1 8rem; }
+    .user-list .uname { font-weight: 700; }
+
+    .user-list li.suspended span {
+        color: #8a8471;
+        text-decoration: line-through;
     }
 }

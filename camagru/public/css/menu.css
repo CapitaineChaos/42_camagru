@@ -1,0 +1,278 @@
+@layer components {
+    .logo svg,
+    .page-title svg {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+
+    .logo {
+        width: min(580px, 100%);
+        margin: 0 auto 1.5rem;
+    }
+
+    .page-title {
+        width: min(460px, 100%);
+        margin: 0 auto 1.5rem;
+    }
+
+    .home-menu ul,
+    .side-menu ul {
+        list-style: none;
+        padding: 0;
+        display: flex;
+    }
+
+    .home-menu ul { flex-wrap: wrap; justify-content: center; align-items: center; gap: .2rem 1.6rem; }
+    .side-menu ul { flex-direction: column; align-items: flex-start; gap: .35rem; }
+
+    .home-menu a,
+    .side-menu a {
+        display: block;
+        position: relative;
+    }
+
+    .home-menu a { padding: .2rem; }
+    .side-menu a { padding: .1rem 0; }
+
+    .home-menu a picture,
+    .home-menu a img,
+    .side-menu a img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+    }
+
+    .home-menu a:hover img,
+    .home-menu a:focus-visible img {
+        transform: rotate(-2.5deg) scale(1.07);
+    }
+
+    .side-menu a:hover img,
+    .side-menu a:focus-visible img {
+        transform: translateX(6px) scale(1.05);
+    }
+
+    .pip {
+        position: absolute;
+        top: -.6rem;
+        right: -.9rem;
+        display: grid;
+        place-items: center;
+        min-width: 1.6rem;
+        height: 1.6rem;
+        padding: 0 .3rem;
+        border: 3px solid #fff;
+        border-radius: 50% / 58%;
+        background: var(--rouge);
+        color: #fff;
+        font-size: .9rem;
+        font-weight: 700;
+        line-height: 1;
+        /* box-shadow, not drop-shadow: a filter here builds a webrender picture
+           that panics the compositor when the pip is also animated */
+        box-shadow: 0 2px 4px rgba(4, 30, 56, .45);
+        transform: rotate(-6deg);
+    }
+
+    /* the home lettering is drawn twice as tall; the pip follows it */
+    @media (min-width: 768px) {
+        .home-menu .pip {
+            top: -.9rem;
+            right: -1.2rem;
+            min-width: 2.2rem;
+            height: 2.2rem;
+            border-width: 4px;
+            font-size: 1.2rem;
+        }
+    }
+
+    .side-menu a:hover .pip,
+    .side-menu a:focus-visible .pip {
+        transform: translateX(6px) scale(1.05) rotate(-6deg);
+    }
+
+    .home-menu a:hover .pip,
+    .home-menu a:focus-visible .pip {
+        transform: rotate(-8.5deg) scale(1.07);
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+        .home-menu a img,
+        .home-menu a .pip { transition: transform .18s ease; }
+
+        .side-menu a img,
+        .side-menu a .pip { transition: transform .16s ease; }
+    }
+
+    .hamburger {
+        display: none;
+    }
+
+    @media screen and (max-width: 767.98px) {
+        .hamburger + label {
+            cursor: pointer;
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 2;
+            filter: drop-shadow(0 2px 3px rgba(4, 30, 56, .35));
+        }
+
+        .hamburger + label span,
+        .hamburger + label span::before,
+        .hamburger + label span::after {
+            width: 42px;
+            height: 9px;
+            background: var(--jaune);
+            border: 3px solid #ffffff;
+            border-radius: 50% / 100%;
+        }
+
+        .hamburger + label span {
+            position: relative;
+            transform: rotate(-1.5deg);
+        }
+
+        .hamburger + label span::before,
+        .hamburger + label span::after {
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            content: "";
+        }
+
+        .hamburger + label span::before {
+            transform: translateY(-15px) rotate(2.5deg);
+        }
+
+        .hamburger + label span::after {
+            transform: translateY(15px) rotate(1.5deg);
+        }
+
+        /* the menu is shut over its own pip: the burger carries the count instead */
+        .hamburger + label[data-pip]::after {
+            position: absolute;
+            top: -7px;
+            right: -11px;
+            display: grid;
+            place-items: center;
+            min-width: 21px;
+            height: 21px;
+            padding: 0 .25rem;
+            border: 3px solid #fff;
+            border-radius: 50% / 58%;
+            background: var(--rouge);
+            color: #fff;
+            font-size: .72rem;
+            font-weight: 700;
+            line-height: 1;
+            transform: rotate(-6deg);
+            content: attr(data-pip);
+        }
+
+        .hamburger:checked + label[data-pip]::after {
+            content: none;
+        }
+
+        .hamburger:checked + label span {
+            background: transparent;
+            border-color: transparent;
+        }
+
+        .hamburger:checked + label span::before {
+            transform: rotate(45deg);
+        }
+
+        .hamburger:checked + label span::after {
+            transform: rotate(-45deg);
+        }
+
+        .menu-panel {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: min(50%, 300px);
+            background: rgba(0, 0, 0, .8);
+            transform: translateX(-100%);
+            will-change: transform;
+        }
+
+        .menu-panel ul {
+            list-style-type: none;
+            margin-top: 6rem;
+        }
+
+        .menu-panel ul li {
+            margin: 1rem;
+        }
+
+        .home-menu ul {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0;
+        }
+
+        .menu-panel a {
+            font-size: 1.25rem;
+            color: white;
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .hamburger:checked + label ~ .menu-panel {
+            transform: unset;
+            z-index: 1;
+        }
+
+        .hamburger:checked + label ~ .menu-panel a {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .menu-panel a:focus {
+            outline: 2px solid var(--violet);
+            outline-offset: 4px;
+        }
+
+        @media (prefers-reduced-motion: no-preference) {
+            .hamburger + label span {
+                transition: background 10ms 300ms;
+            }
+
+            .hamburger + label span::before,
+            .hamburger + label span::after {
+                transition: transform 300ms;
+            }
+
+            .menu-panel {
+                transition: transform 0.5s;
+            }
+
+            .menu-panel a {
+                transition: visibility 500ms, opacity 500ms 300ms;
+            }
+        }
+
+        .page-title,
+        .logo {
+            max-width: calc(100% - 160px);
+            min-height: 72px;
+        }
+
+        main {
+            margin-top: 5rem;
+        }
+
+        .page-title ~ main,
+        body.home main {
+            margin-top: 0;
+        }
+    }
+}

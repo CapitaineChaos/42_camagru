@@ -45,3 +45,53 @@ Système : PostgreSQL
 - `IF EXISTS` : Conditionne l'exécution à l'existence de l'objet ciblé.
 - `ON DELETE CASCADE` : Propage une suppression aux lignes dépendantes.
 - `ON UPDATE CASCADE` : Propage une mise à jour aux lignes dépendantes.
+
+## 2 : Se connecter et inspecter la base
+
+Base PostgreSQL exposée par le service `db` (conteneur `camagru-db`), utilisateur et base `camagru`.
+
+### A : Connexion
+
+Via le Makefile :
+
+```sh
+make psql
+```
+
+Équivalent direct :
+
+```sh
+docker exec -it camagru-db psql -U camagru -d camagru
+```
+
+Invite `camagru=#` = session ouverte. `\q` pour quitter.
+
+### B : Lister les tables
+
+```
+\dt
+```
+
+`\dt+` ajoute la taille et le propriétaire. `\d <table>` affiche la structure d'une table (colonnes, types, index, contraintes) :
+
+```
+\d users
+```
+
+### C : Afficher une table
+
+```sql
+SELECT * FROM users;
+```
+
+Restreindre les colonnes et les lignes plutôt que tout charger :
+
+```sql
+SELECT id, username, email, verified FROM users ORDER BY id LIMIT 20;
+```
+
+En une ligne sans ouvrir de session (`-c` exécute puis rend la main) :
+
+```sh
+docker exec camagru-db psql -U camagru -d camagru -c "SELECT id, username FROM users;"
+```

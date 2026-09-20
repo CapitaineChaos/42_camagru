@@ -37,9 +37,9 @@ $titrePage = $titres[$view ?? ''] ?? null;
 
 $v = (int) \App\Core\Settings::get('assets.version', 1);
 
-// one stylesheet per domain: the page-specific ones travel only where they apply
-$feuilles = ['global', 'background', 'page', 'account', 'lettering', 'ornaments',
-             'mobile-menu', 'blocks', 'forms'];
+// one stylesheet per domain, loaded in @layer order (tokens fixes the cascade);
+// the page-specific ones travel only where they apply
+$feuilles = ['tokens', 'base', 'background', 'layout', 'components', 'menu', 'ornaments', 'utilities'];
 $specifiques = [
     'photobooth' => 'photobooth', 'gallery' => 'gallery',
     'profile' => 'profile', 'friends' => 'profile', 'admin' => 'profile',
@@ -82,18 +82,18 @@ $pastille = static function (int $nombre): string {
     <?php endforeach; ?>
 </head>
 <body class="<?= $accueil ? 'home' : 'inner' ?>">
-    <header>
+    <nav class="<?= $accueil ? 'home-menu' : 'side-menu' ?>" aria-label="Main">
         <input type="checkbox" id="burger" class="hamburger">
         <label for="burger"<?= $attente > 0 ? ' data-pip="' . $attente . '"' : '' ?>><span></span></label>
-        <nav class="<?= $accueil ? 'home-menu' : 'side-menu' ?>">
+        <div class="menu-panel">
             <ul>
             <?php foreach ($liens as $lien): ?>
                 <?php [$url, $libelle, $lettrage] = $lien; ?>
                 <li><a href="<?= $url ?>"><?= $entree($lettrage, $libelle) ?><?= $pastille($lien[3] ?? 0) ?></a></li>
             <?php endforeach; ?>
             </ul>
-        </nav>
-    </header>
+        </div>
+    </nav>
     <?php if (!empty($currentUser)): ?>
     <div class="account">
         <span class="badge">

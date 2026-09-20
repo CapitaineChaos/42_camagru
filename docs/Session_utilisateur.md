@@ -2,71 +2,86 @@
 
 ## 1 : Principe
 
-Une session PHP associe un identifiant de session côté navigateur à des données stockées côté serveur.
-
-L'état de connexion est stocké dans :
+Une session PHP associe un identifiant de session, gardé côté navigateur dans un
+cookie, à des données stockées côté serveur. L'état de connexion est dans :
 
 ```php
 $_SESSION['user']
 ```
 
-## 2 : Démarrage
+Le cookie ne contient **que l'identifiant** ; les données (`user`, etc.) ne
+quittent jamais le serveur.
 
-La session se démarre au point d'entrée de l'application avec :
+## 2 : Le cookie de session
 
-```php
-session_start();
-```
+Configuré dans `Core/Session.php` (`session_set_cookie_params`) :
 
-PHP crée ou reprend la session avant le routage, les contrôleurs et les vues.
+- **nom** : `camagru_session` (`session.name`).
+- **`httponly` = true** : le cookie n'est pas lisible en JavaScript (`document.cookie`).
+- **`samesite` = Lax** : le cookie n'est pas envoyé sur un POST cross-site.
+- **`secure`** : activé automatiquement sous HTTPS (le cookie ne part qu'en HTTPS).
+- **`lifetime` = 0** (`session.cookie_lifetime`) : cookie de session, effacé à la
+  fermeture du navigateur.
 
-## 3 : Connexion
+## 3 : Démarrage
 
-Après validation des identifiants dans la BDD :
+`Session::start()` est appelé au point d'entrée (`public/index.php`) avant le
+routage. Il pose les paramètres du cookie, ouvre la session, puis :
+
+- **expiration d'inactivité** : au-delà de `session.lifetime` (7200 s) sans
+  requête, la session est détruite (`last_activity`).
+- **rotation d'identifiant** : l'ID est régénéré tous les `session.regenerate`
+  (900 s) même sans reconnexion.
+
+## 4 : Connexion
+
+Après validation des identifiants (`AuthController`) :
 
 ```php
 session_regenerate_id(true);
 $_SESSION['user'] = [
-    'id'       => (int) $user['id'],
+    'id'       => $userId,
     'username' => $user['username'],
+    'is_admin' => (new User())->isAdmin($userId),
 ];
 ```
 
-- `session_regenerate_id(true)` : Remplace l'identifiant de session après authentification.
-- `$_SESSION['user']` : Tableau associatif contenant les informations de l'utilisateur connecté.
-- `id` : Identifiant stable de l'utilisateur en base.
-- `username` : Simple donnée d'affichage.
+`session_regenerate_id(true)` remplace l'ID à la connexion et supprime l'ancien.
 
-## 4 : Lecture
+## 5 : Lecture
 
-L'utilisateur est considéré connecté si :
+L'utilisateur est connecté si :
 
 ```php
 !empty($_SESSION['user'])
 ```
 
-Exemple
-```php
-<?php if (!empty($_SESSION['user'])): ?>
-```
+Sert à distinguer la navigation connectée de la navigation anonyme, et à garder
+les pages réservées (voir `Protection_de_routes.md`).
 
-Sert à afficher une navigation différente selon l'état connecté/non connecté.
-
-## 5 : Déconnexion
-
-La déconnexion vide les données de session puis détruit la session :
+## 6 : Déconnexion
 
 ```php
 $_SESSION = [];
 session_destroy();
 ```
 
-L'utilisateur ne sera plus authentifié pour les requêtes suivantes.
+## 7 : Vol de session sans protection
 
+Voler l'identifiant contenu dans le cookie suffit à usurper la session. Chaque
+voie est fermée par un réglage précis :
 
-## 6 : Sécurité
+- **Lecture par script (XSS)** : `document.cookie` donnerait l'ID à un script
+  injecté. `httponly` l'en empêche. (voir `Xss.md`)
+- **Écoute réseau** : sur HTTP le cookie circule en clair et se capte au sniff.
+  `secure` + HTTPS évitent qu'il parte hors d'un canal chiffré.
+- **Requête forgée (CSRF)** : l'attaquant n'a pas besoin de l'ID, il fait
+  utiliser le cookie de la victime à son insu. Jeton CSRF + `SameSite=Lax`.
+  (voir `Csrf.md`)
+- **Fixation de session** : imposer à la victime un ID connu avant qu'elle se
+  connecte. `session_regenerate_id(true)` à la connexion invalide l'ID imposé.
+- **Session laissée ouverte / poste partagé** : expiration d'inactivité (7200 s),
+  rotation d'ID (900 s) et cookie effacé à la fermeture du navigateur réduisent
+  la fenêtre d'usurpation.
 
-- Régénérer l'identifiant de session après connexion.
-- Ne stocker dans `$_SESSION` que les données nécessaires.
-- Vérifier `$_SESSION['user']` avant les pages réservées aux utilisateurs connectés.
-- Utiliser `POST` pour les actions qui modifient l'état serveur.
+L'identifiant lui-même est généré aléatoirement par PHP ; il n'est pas devinable.

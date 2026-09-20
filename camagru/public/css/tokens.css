@@ -1,0 +1,43 @@
+/* cascade order fixed here: load order of the sheets no longer decides wins.
+   utilities beat component defaults; a page layer still overrides both. */
+@layer tokens, base, layout, components, utilities, pages;
+
+@layer tokens {
+    :root {
+        --violet: #6753ea;
+        --violet-fonce: #5341cd;
+        --encre: #2f2b22;
+        --gris-doux: #6b6552;
+        --sable: #e7e2d4;
+        --sable-voile: rgba(231, 226, 212, .55);
+        --ligne: #ddd6c4;
+        --bord-champ: #c9c2ae;
+        --jaune: #f8bb15;
+        --rouge: #e0362a;
+        --danger: #b3382b;
+        --danger-fonce: #94291e;
+        --erreur: #8c2318;
+
+        --carte-fond: rgba(255, 255, 255, .86);
+        --voile-blanc: rgba(255, 255, 255, .9);
+        --ombre: 0 2px 10px rgba(4, 30, 56, .18);
+
+        --r-carte: 18px;
+        --r-tuile: 12px;
+        --r-champ: 10px;
+        --r-pilule: 9999px;
+
+        --gap: .7rem;
+
+        --colonne: 100%;
+        --bord: 1rem;
+    }
+
+    @media (min-width: 826.8px) and (max-width: 1258.79px) {
+        :root { --colonne: 768px; --bord: 2.5rem; }
+    }
+
+    @media (min-width: 1258.8px) {
+        :root { --colonne: 1200px; --bord: 2.5rem; }
+    }
+}

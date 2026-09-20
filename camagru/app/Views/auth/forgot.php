@@ -9,16 +9,16 @@
     <p class="note">The link stays valid for
         <?= htmlspecialchars((string) round((int) \App\Core\Settings::get('auth.password_reset_ttl', 86400) / 3600)) ?> hours.</p>
 
-    <form class="form-block" method="post" action="/forgot-password">
+    <form class="form-block flex-vt" method="post" action="/forgot-password">
         <?= \App\Core\Csrf::field() ?>
-        <p class="field">
+        <p class="field flex-vt tight">
             <label for="email">Email</label>
             <input type="email" id="email" name="email" value="<?= htmlspecialchars($old['email'] ?? '') ?>" autocomplete="email" required>
         </p>
-        <p class="actions"><button type="submit">Send the link</button></p>
+        <p class="flex-hz"><button type="submit">Send the link</button></p>
     </form>
 
-    <p class="side-links">
+    <p class="side-links flex-hz">
         <a href="/login">Back to login</a>
     </p>
 </section>

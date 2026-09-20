@@ -1,0 +1,35 @@
+@layer base {
+    *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    [hidden] {
+        display: none !important;
+    }
+
+    /* no clip-path: it sits inside the menu pip, and a clip there is one more
+       webrender picture on a node that already carries a transform */
+    .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+
+    a {
+        color: var(--violet-fonce);
+        text-decoration: none;
+    }
+
+    a:hover {
+        color: var(--encre);
+    }
+
+    a:focus-visible {
+        outline: 2px solid var(--violet);
+        outline-offset: 3px;
+    }
+}

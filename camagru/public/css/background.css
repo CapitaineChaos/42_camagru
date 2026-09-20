@@ -1,83 +1,83 @@
-html {
-    display: flex;
-    justify-content: center;
-    background: #f4efe2;
-    overflow-x: clip;
-}
-
-body {
-    position: relative;
-    padding-inline: 1rem;
-    background: url("/images/fond_0.png") no-repeat center top;
-    background-size: cover;
-
-    background-attachment: fixed;
-}
-
-body::before,
-body::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 58.8px;
-    background: url("/images/elements/couronne-3.svg") repeat-y center top;
-    background-size: 58.8px auto;
-    filter: drop-shadow(0 0 6px rgba(4, 30, 56, .3));
-    pointer-events: none;
-}
-
-body::before {
-    left: -29.4px;
-}
-
-body::after {
-    right: -29.4px;
-    transform: scaleX(-1);
-}
-
-@media (min-width: 826.8px) and (max-width: 1258.79px) {
-    body {
-        width: 768px;
-        padding-inline: 33.6px;
-        background: #737430 url("/images/fond_2.png") no-repeat center top fixed;
-
-        background-size: 768px auto;
+@layer layout {
+    html {
+        display: flex;
+        justify-content: center;
+        background: #f4efe2;
+        overflow-x: clip;
     }
-}
 
-@media (min-width: 1258.8px) and (max-width: 2099.98px) {
     body {
-        width: 1200px;
-        padding-inline: 33.6px;
-        background: #625f22 url("/images/fond_1.png") no-repeat center top fixed;
-        background-size: 1200px auto;
-    }
-}
-
-@media (max-width: 826.79px), (min-width: 2100px) {
-    body {
-        width: 100%;
-        background-position: center center;
+        position: relative;
+        padding-inline: 1rem;
+        background: url("/images/fond_0.png") no-repeat center top;
+        background-size: cover;
         background-attachment: fixed;
     }
 
     body::before,
     body::after {
-        display: none;
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 58.8px;
+        background: url("/images/elements/couronne-3.svg") repeat-y center top;
+        background-size: 58.8px auto;
+        filter: drop-shadow(0 0 6px rgba(4, 30, 56, .3));
+        pointer-events: none;
     }
-}
 
-/* past the widest planche the frame drops off, so the gutters hold the same
-   1200px column on their own instead of letting the page run to the edges */
-@media (min-width: 2100px) {
-    body {
-        padding-inline: calc((100% - 1200px) / 2 + 33.6px);
+    body::before {
+        left: -29.4px;
     }
-}
 
-@media (max-width: 826.79px) {
-    body {
-        background-image: url("/images/fond_3.png");
+    body::after {
+        right: -29.4px;
+        transform: scaleX(-1);
+    }
+
+    @media (min-width: 826.8px) and (max-width: 1258.79px) {
+        body {
+            width: 768px;
+            padding-inline: 33.6px;
+            background: #737430 url("/images/fond_2.png") no-repeat center top fixed;
+            background-size: 768px auto;
+        }
+    }
+
+    @media (min-width: 1258.8px) and (max-width: 2099.98px) {
+        body {
+            width: 1200px;
+            padding-inline: 33.6px;
+            background: #625f22 url("/images/fond_1.png") no-repeat center top fixed;
+            background-size: 1200px auto;
+        }
+    }
+
+    @media (max-width: 826.79px), (min-width: 2100px) {
+        body {
+            width: 100%;
+            background-position: center center;
+            background-attachment: fixed;
+        }
+
+        body::before,
+        body::after {
+            display: none;
+        }
+    }
+
+    /* past the widest planche the frame drops off, so the gutters hold the same
+       1200px column on their own instead of letting the page run to the edges */
+    @media (min-width: 2100px) {
+        body {
+            padding-inline: calc((100% - 1200px) / 2 + 33.6px);
+        }
+    }
+
+    @media (max-width: 826.79px) {
+        body {
+            background-image: url("/images/fond_3.png");
+        }
     }
 }

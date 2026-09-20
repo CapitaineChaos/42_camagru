@@ -14,17 +14,17 @@ $quand = static fn (string $horodatage): string
     <?php if ($signals === []): ?>
     <p class="note">Nothing reported.</p>
     <?php else: ?>
-    <ul class="thumbs">
+    <ul class="thumbs list-plain">
         <?php foreach ($signals as $signal): ?>
         <?php $id = (int) $signal['id']; ?>
-        <li class="thumb">
-            <img src="<?= htmlspecialchars(\App\Services\Montage::url($signal)) ?>" loading="lazy"
+        <li class="tile flex-vt">
+            <img class="media" src="<?= htmlspecialchars(\App\Services\Montage::url($signal)) ?>" loading="lazy"
                  alt="Montage by <?= htmlspecialchars((string) $signal['username']) ?>">
-            <div class="thumb-footer">
+            <div class="thumb-footer flex-hz between">
                 <span class="counts"><?= htmlspecialchars((string) $signal['username']) ?>,
                     <?= \App\Core\Text::plural((int) $signal['reports'], 'report') ?></span>
             </div>
-            <div class="thumb-footer">
+            <div class="thumb-footer flex-hz between">
                 <form method="post" action="/admin/montage/delete" class="delete-form">
                     <?= \App\Core\Csrf::field() ?>
                     <input type="hidden" name="id" value="<?= $id ?>">
@@ -42,37 +42,29 @@ $quand = static fn (string $horodatage): string
     <?php endif; ?>
 </section>
 
-<section class="card table-card">
+<section class="card">
     <h2>Users</h2>
-    <table class="table-grid">
-        <thead>
-            <tr><th>Username</th><th>Email address</th><th>Member since</th>
-                <th>Montages</th><th>Role</th><th>Actions</th></tr>
-        </thead>
-        <tbody>
-            <?php foreach ($comptes as $compte): ?>
-            <?php
-            $id = (int) $compte['id'];
-            $admin = (int) $compte['is_admin'] === 1;
-            $suspendu = \App\Core\Pg::bool($compte['suspended']);
-            ?>
-            <tr<?= $suspendu ? ' class="suspended"' : '' ?>>
-                <td data-label="Username"><?= htmlspecialchars((string) $compte['username']) ?></td>
-                <td data-label="Email address"><?= htmlspecialchars((string) $compte['email']) ?></td>
-                <td data-label="Member since"><?= htmlspecialchars($quand((string) $compte['created_at'])) ?></td>
-                <td data-label="Montages"><?= (int) $compte['montages'] ?></td>
-                <td data-label="Role"><?= $admin ? 'Admin' : 'Member' ?><?= $suspendu ? ', suspended' : '' ?></td>
-                <td class="actions">
-                    <?php if (!$admin && $id !== $moi): ?>
-                    <form method="post" action="/admin/suspend">
-                        <?= \App\Core\Csrf::field() ?>
-                        <input type="hidden" name="id" value="<?= $id ?>">
-                        <button type="submit" class="button-quiet"><?= $suspendu ? 'Restore' : 'Suspend' ?></button>
-                    </form>
-                    <?php endif; ?>
-                </td>
-            </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
+    <ul class="user-list flex-vt list-plain">
+        <?php foreach ($comptes as $compte): ?>
+        <?php
+        $id = (int) $compte['id'];
+        $admin = (int) $compte['is_admin'] === 1;
+        $suspendu = \App\Core\Pg::bool($compte['suspended']);
+        ?>
+        <li class="tile flex-hz<?= $suspendu ? ' suspended' : '' ?>">
+            <span class="uname"><?= htmlspecialchars((string) $compte['username']) ?></span>
+            <span><?= htmlspecialchars((string) $compte['email']) ?></span>
+            <span><?= htmlspecialchars($quand((string) $compte['created_at'])) ?></span>
+            <span><?= (int) $compte['montages'] ?> montages</span>
+            <span><?= $admin ? 'Admin' : 'Member' ?><?= $suspendu ? ', suspended' : '' ?></span>
+            <?php if (!$admin && $id !== $moi): ?>
+            <form method="post" action="/admin/suspend">
+                <?= \App\Core\Csrf::field() ?>
+                <input type="hidden" name="id" value="<?= $id ?>">
+                <button type="submit" class="button-quiet"><?= $suspendu ? 'Restore' : 'Suspend' ?></button>
+            </form>
+            <?php endif; ?>
+        </li>
+        <?php endforeach; ?>
+    </ul>
 </section>

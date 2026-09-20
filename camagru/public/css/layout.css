@@ -1,0 +1,45 @@
+@layer layout {
+    body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    body.home main { order: -1; }
+
+    footer {
+        width: 100%;
+        max-width: 1200px;
+        margin: auto auto 1rem;
+        padding: .7rem 1rem .6rem;
+        text-align: center;
+        font-size: .85rem;
+        background: var(--carte-fond);
+        border-radius: var(--r-carte);
+        box-shadow: var(--ombre);
+    }
+
+    @media (min-width: 768px) {
+        body.inner {
+            display: grid;
+            grid-template-columns: 190px minmax(0, 1fr);
+            grid-template-rows: auto minmax(0, 1fr) auto;
+            grid-template-areas:
+                "titre   titre"
+                "menu    contenu"
+                "pied    pied";
+            column-gap: 1.5rem;
+        }
+
+        body.inner > .page-title { grid-area: titre; }
+        body.inner > main        { grid-area: contenu; }
+        body.inner > footer      { grid-area: pied; }
+
+        body.inner > nav {
+            grid-area: menu;
+            position: sticky;
+            top: 1rem;
+            align-self: start;
+        }
+    }
+}
