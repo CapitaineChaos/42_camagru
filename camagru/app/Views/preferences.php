@@ -13,17 +13,25 @@ $minimum = (int) \App\Core\Settings::get('auth.password_min_length', 8);
         <p class="field flex-vt tight">
             <label for="pseudo">Username</label>
             <input type="text" id="pseudo" name="username" autocomplete="username"
-                   value="<?= htmlspecialchars($compte['username']) ?>" maxlength="50" required>
+                   value="<?= htmlspecialchars($compte['username']) ?>" required
+                   minlength="<?= \App\Core\Username::MINIMUM ?>"
+                   maxlength="<?= \App\Core\Username::MAXIMUM ?>"
+                   pattern="<?= htmlspecialchars(\App\Core\Username::pattern()) ?>"
+                   title="<?= htmlspecialchars(\App\Core\Username::hint()) ?>">
         </p>
         <p class="field flex-vt tight">
             <label for="email">Email address</label>
             <input type="email" id="email" name="email" autocomplete="email"
-                   value="<?= htmlspecialchars($compte['email']) ?>" required>
+                   value="<?= htmlspecialchars($compte['email']) ?>" required
+                   pattern="<?= htmlspecialchars(\App\Core\Email::PATTERN) ?>"
+                   title="<?= htmlspecialchars(\App\Core\Email::hint()) ?>">
         </p>
         <p class="field flex-vt tight">
             <label for="motdepasse">New password</label>
             <input type="password" id="motdepasse" name="password" autocomplete="new-password"
-                   minlength="<?= $minimum ?>">
+                   minlength="<?= $minimum ?>"
+                   pattern="<?= htmlspecialchars(\App\Core\Password::pattern()) ?>"
+                   title="<?= htmlspecialchars(\App\Core\Password::hint()) ?>">
             <span class="hint">Leave empty to keep the current one. At least <?= $minimum ?> characters, with one letter and one digit.</span>
         </p>
         <p class="field flex-vt tight">

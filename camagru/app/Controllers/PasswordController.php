@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Core\Email;
 use App\Core\Mailer;
 use App\Core\Password;
 use App\Core\Settings;
@@ -24,10 +25,11 @@ final class PasswordController extends Controller
     {
         $email = trim($_POST['email'] ?? '');
 
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors = Email::errors($email);
+        if ($errors !== []) {
             $this->view('auth/forgot', [
                 'title'  => 'Lost password',
-                'errors' => ['Invalid email address.'],
+                'errors' => $errors,
                 'old'    => ['email' => $email],
             ]);
             return;

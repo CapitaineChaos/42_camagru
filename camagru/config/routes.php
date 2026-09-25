@@ -21,6 +21,8 @@ return static function (Router $router): void {
     $router->get('/register', [AuthController::class, 'showRegister']);
     $router->post('/register', [AuthController::class, 'register']);
 
+    $router->get('/register/available', [AuthController::class, 'available']);
+
     $router->get('/login', [AuthController::class, 'showLogin']);
     $router->post('/login', [AuthController::class, 'login']);
 

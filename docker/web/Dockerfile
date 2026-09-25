@@ -27,10 +27,11 @@ RUN apt-get update \
     # Suppression du cache local pour reduire la taille de l'image finale
     && rm -rf /var/lib/apt/lists/*
 
-# Bind mounts belong to the host user: Apache writes storage/ only with the same uid
+# Bind mounts belong to the host user: Apache writes storage/ only with the same
+# uid. -o accepts an id already taken, needed when the gid is 0 (see the Makefile).
 ARG UID=1000
 ARG GID=1000
-RUN groupmod -g $GID www-data && usermod -u $UID -g $GID www-data
+RUN groupmod -o -g $GID www-data && usermod -o -u $UID -g $GID www-data
 
 # DocumentRoot -> public/ + routing dans le vhost (pas de .htaccess)
 COPY 000-default.conf /etc/apache2/sites-available/000-default.conf

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Trace a flat-colour bitmap into SVG, one filled path per colour.
 
-Written for the filter sheets: they are flat vector art saved as small PNG, so the
+Written for the sticker sheets: they are flat vector art saved as small PNG, so the
 colours are few and the edges are clean. Marching squares gives the outlines of each
 colour mask, Ramer-Douglas-Peucker drops the staircase, and a Catmull-Rom pass turns
 the polyline into curves while keeping the sharp corners sharp.

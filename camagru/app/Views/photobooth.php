@@ -47,10 +47,10 @@
 <?php foreach ($overlays as $famille): ?>
 <section class="card">
     <h2><?= htmlspecialchars($famille['titre']) ?></h2>
-    <ul class="filters list-plain">
+    <ul class="stickers list-plain">
         <?php foreach ($famille['entrees'] as $overlay): ?>
-        <li class="filter">
-            <button type="button" class="filter-choice" data-overlay="<?= htmlspecialchars($overlay['slug']) ?>"
+        <li class="sticker">
+            <button type="button" class="sticker-choice" data-overlay="<?= htmlspecialchars($overlay['slug']) ?>"
                     data-url="<?= htmlspecialchars($overlay['url']) ?>">
                 <img src="<?= htmlspecialchars($overlay['url']) ?>" alt="">
                 <span><?= htmlspecialchars($overlay['label']) ?></span>

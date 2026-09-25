@@ -11,12 +11,18 @@
         <p class="field flex-vt tight">
             <label for="password">New password</label>
             <input type="password" id="password" name="password" autocomplete="new-password" required
-                   minlength="<?= (int) \App\Core\Settings::get('auth.password_min_length', 8) ?>">
-            <span class="hint">At least <?= (int) \App\Core\Settings::get('auth.password_min_length', 8) ?> characters, with one letter and one digit.</span>
+                   minlength="<?= \App\Core\Password::minimum() ?>"
+                   pattern="<?= htmlspecialchars(\App\Core\Password::pattern()) ?>"
+                   title="<?= htmlspecialchars(\App\Core\Password::hint()) ?>">
+            <span class="hint"><?= htmlspecialchars(\App\Core\Password::hint()) ?></span>
         </p>
         <p class="field flex-vt tight">
             <label for="password_confirmation">Confirm password</label>
-            <input type="password" id="password_confirmation" name="password_confirmation" autocomplete="new-password" required>
+            <input type="password" id="password_confirmation" name="password_confirmation"
+                   autocomplete="new-password" required
+                   minlength="<?= \App\Core\Password::minimum() ?>"
+                   pattern="<?= htmlspecialchars(\App\Core\Password::pattern()) ?>"
+                   title="<?= htmlspecialchars(\App\Core\Password::hint()) ?>">
         </p>
         <p class="flex-hz"><button type="submit">Save</button></p>
     </form>

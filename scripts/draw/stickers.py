@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Cut the filter sheets into motifs, vectorise each one, rasterise the result.
+"""Cut the sticker sheets into motifs, vectorise each one, rasterise the result.
 
 Sources are the sheets in scripts/sources. Each motif is traced by vectoriser.py,
-kept as an editable SVG in assets/filtres, then rendered to the PNG the photobooth
+kept as an editable SVG in assets/stickers, then rendered to the PNG the photobooth
 superimposes (GD reads no SVG). Slugs match the catalogue in config/settings.php.
 
-    ./scripts/filtres.py              # the whole sheet set
-    ./scripts/filtres.py cat-ears
+    ./scripts/stickers.py              # the whole sheet set
+    ./scripts/stickers.py cat-ears
 """
 
 import subprocess
@@ -19,17 +19,17 @@ from PIL import Image
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from vectoriser import vectoriser  # noqa: E402
 
-RACINE = Path(__file__).resolve().parent.parent
+RACINE = Path(__file__).resolve().parents[2]
 SOURCES = Path(__file__).resolve().parent / 'sources'
-SVG = RACINE / 'assets/filtres'
-PNG = RACINE / 'camagru/public/filtres'
+SVG = RACINE / 'assets/stickers'
+PNG = RACINE / 'camagru/public/stickers'
 
 MARGE = 6          # px kept around a motif once trimmed
 VIDE = 4           # a row/column with fewer opaque pixels counts as empty
 HAUTEUR_MIN = 8    # px, below this a strip is a leftover rule, not a motif
 FILET = 5          # px, thickness under which a full-length component is a rule
 AMONT = 6          # upsampling of a motif before tracing, small sheets need it
-LARGEUR = 900      # px, rendered width of a filter
+LARGEUR = 900      # px, rendered width of a sticker
 
 MOTIF_SEUL = {'amont': 5, 'tolerance': 0.3, 'blob': 150, 'flou': 0.1, 'part': 0.004,
               'ecart': 40}

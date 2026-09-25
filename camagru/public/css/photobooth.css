@@ -84,15 +84,15 @@
         cursor: nesw-resize;
     }
 
-    .filters {
+    .stickers {
         display: flex;
         flex-wrap: wrap;
         gap: .6rem;
     }
 
-    .filter { flex: 1 1 104px; }
+    .sticker { flex: 1 1 104px; }
 
-    .filter-choice {
+    .sticker-choice {
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -108,18 +108,18 @@
         font-weight: 400;
     }
 
-    .filter-choice img {
+    .sticker-choice img {
         width: 100%;
         height: 68px;
         object-fit: contain;
     }
 
-    .filter-choice:hover,
-    .filter-choice:focus-visible {
+    .sticker-choice:hover,
+    .sticker-choice:focus-visible {
         background: var(--ligne);
     }
 
-    .filter-choice.chosen {
+    .sticker-choice.chosen {
         background: #ded7f7;
         box-shadow: inset 0 0 0 2px var(--violet);
     }

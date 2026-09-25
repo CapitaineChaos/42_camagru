@@ -9,13 +9,13 @@ use App\Core\Settings;
 /**
  * Catalogue of the superimposable images, one family per folder under public/.
  *
- * filtres/ face filters drawn by scripts/filtres.py
+ * stickers/ face stickers drawn by scripts/stickers.py
  */
 final class Overlays
 {
     /** settings key => [folder under public/, section heading] */
     private const FAMILLES = [
-        'filters' => ['filtres', 'Filters'],
+        'stickers' => ['stickers', 'Stickers'],
     ];
 
     /**

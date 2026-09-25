@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Core\Email;
 use App\Core\Flash;
 use App\Core\Mailer;
 use App\Core\Password;
 use App\Core\Pg;
 use App\Core\Settings;
+use App\Core\Username;
 use App\Models\User;
 
 final class AuthController extends Controller
@@ -29,10 +31,8 @@ final class AuthController extends Controller
         if ($username === '' || $email === '' || $password === '') {
             $errors[] = 'All fields are required.';
         }
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $errors[] = 'Invalid email address.';
-        }
-        $errors = array_merge($errors, Password::errors($password));
+        $errors = array_merge($errors, Email::errors($email),
+                              Username::errors($username), Password::errors($password));
 
         $users = new User();
         if ($errors === [] && ($users->findByEmail($email) || $users->findByUsername($username))) {
@@ -115,6 +115,25 @@ final class AuthController extends Controller
         $url = APP_URL . $chemin;
 
         return '<a href="' . $url . '">' . $url . '</a>';
+    }
+
+    /**
+     * Availability of a username, for the sign-up form.
+     *
+     * The answer says nothing that the form does not already say on submit,
+     * and nothing about email addresses.
+     */
+    public function available(): void
+    {
+        $username = trim((string) ($_GET['username'] ?? ''));
+        $errors = Username::errors($username);
+
+        $this->json([
+            'username' => $username,
+            'valid'    => $errors === [],
+            'error'    => $errors[0] ?? null,
+            'taken'    => $errors === [] && (new User())->findByUsername($username) !== null,
+        ]);
     }
 
     public function showLogin(): void

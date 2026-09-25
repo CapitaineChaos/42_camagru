@@ -63,8 +63,9 @@ function synchroniser() {
     })));
 
     const source = champCapture.value !== '' || champFichier.files.length > 0;
-    prendre.disabled = !cameraPrete || pieces.length === 0;
-    enregistrer.disabled = pieces.length === 0 || !source;
+    // an overlay is optional: a bare shot is a montage of its own
+    prendre.disabled = !cameraPrete;
+    enregistrer.disabled = !source;
 }
 
 function redimensionner(piece, facteur) {
@@ -217,7 +218,7 @@ function direct() {
     synchroniser();
 }
 
-document.querySelectorAll('.filter-choice').forEach((choix) => {
+document.querySelectorAll('.sticker-choice').forEach((choix) => {
     marquer(choix, false);
     choix.addEventListener('click', () => {
         const deja = posee(choix.dataset.overlay);

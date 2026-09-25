@@ -63,6 +63,7 @@ make psql
 Équivalent direct :
 
 ```sh
+# Être déjà à l'intérieur du conteneur vaut authentification
 docker exec -it camagru-db psql -U "$(cat secrets/db_user)" -d camagru
 ```
 

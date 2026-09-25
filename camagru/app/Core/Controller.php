@@ -22,6 +22,13 @@ abstract class Controller
         require BASE_PATH . '/app/Views/layout.php';
     }
 
+    /** @param array<string, mixed> $data */
+    protected function json(array $data): void
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode($data, JSON_THROW_ON_ERROR);
+    }
+
     protected function redirect(string $path): void
     {
         header('Location: ' . $path);

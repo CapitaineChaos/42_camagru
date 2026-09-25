@@ -15,7 +15,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-RACINE = Path(__file__).resolve().parent.parent
+RACINE = Path(__file__).resolve().parents[2]
 PLANCHE = RACINE / 'camagru/public/images/elements/planche.svg'
 
 ALPHABETS = {

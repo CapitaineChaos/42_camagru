@@ -127,6 +127,9 @@ $pastille = static function (int $nombre): string {
     <?php if (in_array($view ?? '', ['photobooth', 'gallery', 'admin'], true)): ?>
     <script src="/js/delete-confirm.js?v=<?= $v ?>" defer></script>
     <?php endif; ?>
+    <?php if (($view ?? '') === 'auth/register'): ?>
+    <script src="/js/register.js?v=<?= $v ?>" defer></script>
+    <?php endif; ?>
     <?php if (($view ?? '') === 'gallery'): ?>
     <script src="/js/gallery.js?v=<?= $v ?>" defer></script>
     <?php endif; ?>

@@ -73,7 +73,7 @@ Le squelette ci-dessus n'est plus l'état du dépôt. Les ajouts :
 | `camagru/storage/` | fichiers écrits par l'application : `avatars/`, `images/` (montages), hors `DocumentRoot` |
 | `public/css/` | une douzaine de feuilles par domaine, au lieu de `style.css` |
 | `public/js/` | scripts de page : photobooth, galerie, ornements |
-| `public/images/` | thème, lettrages SVG, filtres |
+| `public/images/` | thème, lettrages SVG |
 | `database/admin.php` | création du compte admin depuis les secrets |
 | `secrets/` | un credential par fichier, hors dépôt |
 | `docker/`, `docker-compose.yml`, `Makefile` | exécution : Apache + PHP, PostgreSQL, MailHog |

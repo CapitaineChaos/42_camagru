@@ -13,7 +13,10 @@
         <?= \App\Core\Csrf::field() ?>
         <p class="field flex-vt tight">
             <label for="email">Email</label>
-            <input type="email" id="email" name="email" value="<?= htmlspecialchars($old['email'] ?? '') ?>" autocomplete="email" required>
+            <input type="email" id="email" name="email" value="<?= htmlspecialchars($old['email'] ?? '') ?>"
+                   autocomplete="email" required
+                   pattern="<?= htmlspecialchars(\App\Core\Email::PATTERN) ?>"
+                   title="<?= htmlspecialchars(\App\Core\Email::hint()) ?>">
         </p>
         <p class="flex-hz"><button type="submit">Send the link</button></p>
     </form>

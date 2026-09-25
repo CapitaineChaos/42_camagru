@@ -66,9 +66,17 @@ final class Montage
      */
     public function layers(string $json): array
     {
+        // no overlay is a valid montage: the source alone is posted, cropped
+        if (trim($json) === '') {
+            return [];
+        }
+
         $brut = json_decode($json, true);
-        if (!is_array($brut) || $brut === []) {
-            throw new RuntimeException('Pick at least one overlay.');
+        if (!is_array($brut)) {
+            throw new RuntimeException('Unreadable overlay list.');
+        }
+        if ($brut === []) {
+            return [];
         }
         if (count($brut) > (int) Settings::get('photobooth.max_layers', 8)) {
             throw new RuntimeException('Too many overlays on this montage.');

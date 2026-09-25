@@ -27,7 +27,7 @@ from PIL import Image
 
 RACINE = Path(__file__).resolve().parent.parent
 SEED = RACINE / 'assets/seed'
-FILTRES = RACINE / 'camagru/public/filtres'
+STICKERS = RACINE / 'camagru/public/stickers'
 
 MONTAGE = (800, 600)   # config/settings.php photobooth.width / height
 
@@ -74,7 +74,7 @@ COMMENTAIRES = [
     'Best montage of the week, no contest.',
     'How did you line that up so well?',
     'The colours work perfectly here.',
-    'Stealing this filter, thanks.',
+    'Stealing this sticker, thanks.',
     'That crown was made for you.',
     'Laughed out loud at this one.',
     'Clean framing.',
@@ -162,7 +162,7 @@ RATIOS = {}
 def ratio(slug):
     """Height over width of an overlay: the server keeps it when scaling."""
     if slug not in RATIOS:
-        largeur, hauteur = Image.open(FILTRES / f'{slug}.png').size
+        largeur, hauteur = Image.open(STICKERS / f'{slug}.png').size
         RATIOS[slug] = hauteur / largeur
     return RATIOS[slug]
 
@@ -205,10 +205,10 @@ def inscrire(client, mailhog, username, email, motdepasse):
         client.session.get(lien, timeout=15)
 
     client.page('/login')
-    reponse = client.poste('/login', {'email': email, 'password': motdepasse},
+    reponse = client.poste('/login', {'username': username, 'password': motdepasse},
                            formulaire='/login')
     if '/logout' not in reponse.text:
-        raise Erreur(f'login refused for {email}')
+        raise Erreur(f'login refused for {username}')
 
 
 def actionnables(page):
@@ -259,7 +259,7 @@ def peupler(options):
     disponibles = sorted(portraits)
     hasard.shuffle(disponibles)
 
-    filtres = sorted(POSES)
+    stickers = sorted(POSES)
     personnes = PERSONNES[:options.nombre]
     clients, comptes = [], []
 
@@ -282,7 +282,7 @@ def peupler(options):
             if not disponibles:
                 break
             nom = disponibles.pop()
-            choix = hasard.sample(filtres, hasard.randint(1, 2))
+            choix = hasard.sample(stickers, hasard.randint(1, 2))
             client.page('/photobooth')
             with (SEED / nom).open('rb') as fichier:
                 reponse = client.poste(

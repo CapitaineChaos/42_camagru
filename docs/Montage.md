@@ -35,7 +35,7 @@ coordonnées. La superposition est faite par GD, côté serveur.
 `config/settings.php` liste les slugs et leurs libellés :
 
 ```php
-'filters' => [
+'stickers' => [
     'cat-ears'      => 'Cat ears',
     'heart-glasses' => 'Heart glasses',
     // ...
@@ -43,7 +43,7 @@ coordonnées. La superposition est faite par GD, côté serveur.
 ```
 
 `Services/Overlays::catalogue()` croise cette liste avec les fichiers présents
-dans `public/filtres/<slug>.png`. Une entrée sans fichier est écartée : le
+dans `public/stickers/<slug>.png`. Une entrée sans fichier est écartée : le
 catalogue affiché ne contient que des overlays réellement utilisables.
 
 ```php
@@ -59,7 +59,7 @@ foreach ((array) Settings::get('photobooth.' . $cle, []) as $slug => $label) {
 `path()` est aussi le contrôle d'entrée côté serveur : un slug absent du
 catalogue rend `null`, et le montage est refusé.
 
-Les PNG sont produits par `scripts/filtres.py`, qui trace les motifs en SVG puis
+Les PNG sont produits par `scripts/stickers.py`, qui trace les motifs en SVG puis
 les rend en PNG avec canal alpha. GD ne lit pas le SVG, d'où la double sortie.
 
 ## 3 : La scène
@@ -115,12 +115,13 @@ champCalques.value = JSON.stringify(pieces.map((piece) => ({
     w: Number(piece.w.toFixed(4)),
 })));
 
-prendre.disabled = !cameraPrete || pieces.length === 0;
-enregistrer.disabled = pieces.length === 0 || !source;
+prendre.disabled = !cameraPrete;
+enregistrer.disabled = !source;
 ```
 
-Le bouton de capture reste inactif tant qu'aucun overlay n'est posé, et
-l'enregistrement tant qu'il n'y a pas de source.
+Les overlays sont facultatifs : une image seule, recadrée au format du montage,
+est un montage valide. La capture attend que la caméra soit prête,
+l'enregistrement qu'une source existe.
 
 ## 5 : La source
 
@@ -191,9 +192,10 @@ public function capture(): void
 
     try {
         $calques = $montage->layers((string) ($_POST['layers'] ?? ''));
-        $source  = $this->source($montage);
 
-        $nom = $montage->compose($source, $calques);
+        // passed inline: compose() holds the only reference and frees the
+        // full-size source as soon as it is cropped
+        $nom = $montage->compose($this->source($montage), $calques);
         (new Image())->create($this->userId(), $nom);
 
         Flash::notice('Montage saved.');
@@ -238,9 +240,17 @@ return $montage->fromDataUrl($capture);
 ```php
 public function layers(string $json): array
 {
+    // no overlay is a valid montage: the source alone is posted, cropped
+    if (trim($json) === '') {
+        return [];
+    }
+
     $brut = json_decode($json, true);
-    if (!is_array($brut) || $brut === []) {
-        throw new RuntimeException('Pick at least one overlay.');
+    if (!is_array($brut)) {
+        throw new RuntimeException('Unreadable overlay list.');
+    }
+    if ($brut === []) {
+        return [];
     }
     if (count($brut) > (int) Settings::get('photobooth.max_layers', 8)) {
         throw new RuntimeException('Too many overlays on this montage.');
@@ -262,10 +272,13 @@ public function layers(string $json): array
 }
 ```
 
-Rien de ce qui vient du navigateur n'est cru : le JSON peut être forgé sans
-passer par la page. Le slug doit exister dans le catalogue, le nombre de calques
-est plafonné, et les coordonnées sont ramenées dans leurs bornes plutôt que
-refusées.
+Une liste vide est acceptée et rend un tableau vide : `compose()` boucle alors
+sur rien et écrit la source recadrée.
+
+Pour le reste, rien de ce qui vient du navigateur n'est cru : le JSON peut être
+forgé sans passer par la page. Le slug doit exister dans le catalogue, le nombre
+de calques est plafonné, et les coordonnées sont ramenées dans leurs bornes
+plutôt que refusées.
 
 ## 9 : Décodage de la source
 
@@ -429,7 +442,7 @@ galerie.
 | Accès | `requireAuth` sur `GET /photobooth` et `POST /photobooth/capture` |
 | Requête forgée | jeton CSRF vérifié par le routeur |
 | Overlay inconnu | `Overlays::path()` rend `null`, montage refusé |
-| Nombre de calques | `photobooth.max_layers` |
+| Nombre de calques | `photobooth.max_layers` ; zéro est permis |
 | Échelle, position | bornées par `min_scale`, `max_scale`, et `[0,1]` |
 | Poids de la source | `photobooth.max_source`, plus `upload_max_filesize` |
 | Type de la source | lu dans les octets, comparé à `allowed_mime` |

@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Core\Email;
 use App\Core\Flash;
 use App\Core\Mailer;
 use App\Core\Password;
 use App\Core\Pg;
 use App\Core\Text;
+use App\Core\Username;
 use App\Models\User;
 use App\Services\Avatars;
 use App\Services\Montage;
@@ -50,11 +52,11 @@ final class PrefsController extends Controller
         if ($username === '' || $email === '') {
             $errors[] = 'Username and email address are required.';
         }
-        if (mb_strlen($username) > 50) {
-            $errors[] = 'Username is limited to 50 characters.';
+        if ($username !== '') {
+            $errors = array_merge($errors, Username::errors($username));
         }
-        if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $errors[] = 'Invalid email address.';
+        if ($email !== '') {
+            $errors = array_merge($errors, Email::errors($email));
         }
         if ($this->pris($users->findByUsername($username))) {
             $errors[] = 'This username is already taken.';

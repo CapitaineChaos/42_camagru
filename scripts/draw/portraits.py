@@ -19,7 +19,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFilter
 
-RACINE = Path(__file__).resolve().parent.parent
+RACINE = Path(__file__).resolve().parents[2]
 SORTIE = RACINE / 'assets/seed'
 
 LARGEUR, HAUTEUR = 1200, 900

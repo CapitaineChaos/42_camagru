@@ -117,6 +117,15 @@
         color: var(--gris-doux);
     }
 
+    .field .error-inline,
+    .field .ok-inline {
+        font-size: .85rem;
+        font-weight: 700;
+    }
+
+    .field .error-inline { color: var(--erreur); }
+    .field .ok-inline    { color: #245b1f; }
+
     .field input,
     .field textarea {
         padding: .45rem .6rem;

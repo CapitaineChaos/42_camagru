@@ -1,0 +1,6 @@
+# seed.py
+requests==2.33.1
+# seed.py, draw/portraits.py, draw/stickers.py, draw/vectoriser.py
+pillow==12.3.0
+# draw/stickers.py, draw/vectoriser.py
+numpy==2.5.3

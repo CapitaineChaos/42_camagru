@@ -1,62 +1,96 @@
+MAKEFLAGS += --no-print-directory
+
 SRC     := $(CURDIR)
 TMP     := /tmp/42_camagru
 COMPOSE := docker compose -p camagru
 
 DATA    := $(TMP)/.data
 export CAMAGRU_DATA := $(DATA)
-export CAMAGRU_UID  := $(shell id -u)
-export CAMAGRU_GID  := $(shell id -g)
+# Tester si c'est podman
+PODMAN  := $(shell docker --version 2>/dev/null | grep -qi podman && echo 1)
+export CAMAGRU_UID  := $(if $(PODMAN),33,$(shell id -u))
+export CAMAGRU_GID  := $(if $(PODMAN),0,$(shell id -g))
 
 WATCH_CODE := camagru/app camagru/config camagru/public
 WATCH_DB   := camagru/database
-RSYNC   := rsync -a --delete --exclude=.git --exclude=node_modules --exclude='camagru/database/.schema.sql.*' --exclude='camagru/storage/images' --exclude='/.data'
+RSYNC   := rsync -a --delete --exclude=.git --exclude=node_modules --exclude='camagru/database/.schema.sql.*' --exclude='camagru/storage/images' --exclude='/.data' --exclude='scripts/.venv'
+
+WEB     := camagru-web
+
+VENV    := $(SRC)/scripts/.venv
+PY      := $(VENV)/bin/python
 
 DB_USER := $(shell cat $(SRC)/secrets/db_user 2>/dev/null)
 DB_NAME := $(shell sed -n 's/^DB_NAME=//p' $(SRC)/.env 2>/dev/null)
 PSQL    := psql -U $(DB_USER) -d $(DB_NAME)
 
-.PHONY: up down re logs ps psql db-apply db-reset hash shell clean data-clean fclean sync watch-code watch-db dev seed secrets admin env
+.PHONY: up down re logs ps psql db-apply db-reset shell clean data-clean fclean sync watch-code watch-db dev seed user venv draw secrets admin env php_error php_access php_log
 
-env:
-	@test -f $(SRC)/.env || { echo "[env] .env absent" >&2; exit 1; }
 
-up: env secrets
-	mkdir -p $(TMP) $(DATA)/postgres $(DATA)/images
-	$(RSYNC) $(SRC)/ $(TMP)/
+# g+w sur la source aussi : rsync -a recopie les permissions à chaque sync
+up: env secrets sync
+	mkdir -p $(DATA)/postgres $(DATA)/images
+	# only the directories: apache creates files there but rewrites none, and the
+	# ones it already wrote are not ours. The source is included because rsync -a
+	# carries the permissions over on every sync.
+	find $(DATA)/images $(SRC)/camagru/storage $(TMP)/camagru/storage -type d -exec chmod g+w {} +
 	cd $(TMP) && $(COMPOSE) up -d --build
+# 	@$(MAKE) admin
 	@echo "[up] Conteneurs démarrés depuis $(TMP)"
 	@echo "  Camagru -> http://localhost:8080/"
 	@echo "  MailHog -> http://localhost:8025/"
 
+env:
+	@test -f $(SRC)/.env || { echo "[env] .env absent" >&2; exit 1; }
+
 down:
 	$(COMPOSE) down
 
-re: down up
+re: down fclean up
 
 sync:
 	mkdir -p $(TMP)
 	$(RSYNC) $(SRC)/ $(TMP)/
 	@echo "[sync] code resynchronisé -> $(TMP)"
 
+# docker logs plutôt que compose logs : podman-compose vomit une trace python
+# à chaque Ctrl-C. || true évite le « Error 130 » de make, et --line-buffered
+# fait sortir grep ligne par ligne au lieu d'attendre 4 ko.
+# le « |$$ » fait passer toutes les lignes, seules les correspondances sont colorées
+watch-apache:
+	@docker logs -f $(WEB) 2>&1 \
+		| grep --line-buffered --color=always -E \
+		  "PHP (Fatal error|Parse error|Warning|Notice|Deprecated)|\[error\]|\" (4|5)[0-9][0-9] |$$" || true
+
+watch-apache-errors:
+	@docker logs -f $(WEB) 2>&1 \
+		| grep --line-buffered -E "PHP (Fatal error|Parse error|Warning|Notice|Deprecated)|\[error\]" || true
+
+watch-apache-access:
+	@docker logs -f $(WEB) 2>&1 | grep --line-buffered -E 'HTTP/1\.[01]"' || true
+
 watch-code:
 	@echo "[watch-code] Surveillance code active. Ctrl-C pour arrêter."
-	@while inotifywait -r -q -e modify,create,delete,move $(addprefix $(SRC)/,$(WATCH_CODE)) >/dev/null; do \
-		$(MAKE) --no-print-directory sync ; \
+	@trap 'exit 0' INT TERM ; \
+	while inotifywait -r -q -e modify,create,delete,move $(addprefix $(SRC)/,$(WATCH_CODE)) >/dev/null; do \
+		$(MAKE) sync ; \
 		echo "[watch-code] sync $$(date +%H:%M:%S)" ; \
 	done
 
 watch-db:
 	@echo "[watch-db] Surveillance DB active. Ctrl-C pour arrêter."
-	@while inotifywait -r -q -e close_write,move,create,delete $(addprefix $(SRC)/,$(WATCH_DB)) >/dev/null; do \
-		$(MAKE) --no-print-directory db-reset ; \
-		echo "[watch-db] db-reset $$(date +%H:%M:%S)" ; \
+	@trap 'exit 0' INT TERM ; \
+	while inotifywait -r -q -e close_write,move,create,delete $(addprefix $(SRC)/,$(WATCH_DB)) >/dev/null; do \
+		$(MAKE) db-apply ; \
+		echo "[watch-db] db-apply $$(date +%H:%M:%S)" ; \
 	done
 
 dev: up
-	@$(MAKE) --no-print-directory watch-code & \
-	code_pid=$$! ; \
-	trap 'kill $$code_pid 2>/dev/null || true' INT TERM EXIT ; \
-	$(MAKE) --no-print-directory watch-db
+	@echo "[dev] watchers actifs. Ctrl-C pour arrêter."
+	@trap 'kill 0 2>/dev/null; exit 0' INT TERM ; \
+	$(MAKE) watch-code & \
+	$(MAKE) watch-db & \
+	wait
 
 logs:
 	$(COMPOSE) logs -f
@@ -76,35 +110,29 @@ db-reset: sync
 	cat $(TMP)/camagru/database/schema.sql >> $$reset_sql; \
 	printf '%s\n' 'SELECT pg_advisory_unlock(424242);' >> $$reset_sql; \
 	$(COMPOSE) exec -T db $(PSQL) -v ON_ERROR_STOP=1 < $$reset_sql
-	@$(MAKE) --no-print-directory admin
+	@$(MAKE) admin
 
 secrets:
-	@mkdir -p $(SRC)/secrets
-	@set -e; \
-	demande() { \
-		fichier=$(SRC)/secrets/$$1; \
-		test -s $$fichier && return 0; \
-		test -t 0 || { echo "[secrets] secrets/$$1 absent, make secrets demande à être lancé depuis un terminal" >&2; exit 1; }; \
-		printf '%s [%s] : ' "$$2" "$$3"; read -r reponse; \
-		printf '%s' "$${reponse:-$$3}" > $$fichier; \
-	}; \
-	demande db_user     "Rôle Postgres de l'application" 'test'; \
-	demande admin_user  "Login de l'admin Camagru"       'test'; \
-	demande admin_email "Email de l'admin Camagru"       'test@test.local'
-	@test -s $(SRC)/secrets/db_password    || openssl rand -base64 24 | tr -d '\n=/+' > $(SRC)/secrets/db_password
-	@test -s $(SRC)/secrets/admin_password || openssl rand -base64 18 | tr -d '\n=/+' > $(SRC)/secrets/admin_password
-	@chmod 644 $(SRC)/secrets/db_user $(SRC)/secrets/db_password
-	@chmod 600 $(SRC)/secrets/admin_user $(SRC)/secrets/admin_email $(SRC)/secrets/admin_password
-	@echo "[secrets] $(SRC)/secrets prêt"
-	@echo "  postgres  $$(cat $(SRC)/secrets/db_user) / $$(cat $(SRC)/secrets/db_password)"
-	@echo "  admin     $$(cat $(SRC)/secrets/admin_user) <$$(cat $(SRC)/secrets/admin_email)> / $$(cat $(SRC)/secrets/admin_password)"
+	@./scripts/credentials.py $(ARGS)
 
 admin: sync
 	@$(COMPOSE) exec -T web php database/admin.php
 
-# peuple l'app par HTTP, comme le ferait un visiteur : make seed ARGS="-n 3"
-seed:
-	@./scripts/seed.py $(ARGS)
+$(VENV): scripts/requirements.txt
+	python3 -m venv $(VENV)
+	$(PY) -m pip install --quiet --upgrade pip
+	$(PY) -m pip install --quiet -r scripts/requirements.txt
+	@touch $(VENV)
+
+venv: $(VENV)
+
+# make user ARGS="alice [alice@camagru.local] [Sunflower42]"
+user: $(VENV)
+	@test -n "$(ARGS)" || { echo 'Usage: make user ARGS="alice [email] [password]"' >&2; exit 1; }
+	@$(PY) scripts/user.py $(ARGS)
+
+seed: $(VENV)
+	@$(PY) scripts/seed.py $(ARGS)
 
 bash-web:
 	$(COMPOSE) exec web bash
@@ -117,23 +145,14 @@ data-clean:
 	@test -d $(DATA) || exit 0; \
 	docker run --rm -v $(DATA):/data postgres:16-alpine rm -rf /data/postgres /data/images
 
-# down -v drops the volumes, not their bind targets
+# -v drops the volumes
 clean:
 	$(COMPOSE) down -v
-	@$(MAKE) --no-print-directory data-clean
-
-php_error:
-	$(COMPOSE) exec -T web tail -50 /var/log/apache2/error.log /var/log/apache2/php_error.log
-
-php_access:
-	$(COMPOSE) exec -T web tail -50 /var/log/apache2/access.log
-
-suppr_logs:
-	$(COMPOSE) exec -T web sh -c 'rm -f /var/log/apache2/*.log'
+	@$(MAKE) data-clean
 
 fclean:
 	-$(COMPOSE) stop
-	@$(MAKE) --no-print-directory data-clean
+	@$(MAKE) data-clean
 	-$(COMPOSE) down -v --rmi all
 	rm -rf $(TMP)
 	@echo "[fclean] tout a été supprimé"

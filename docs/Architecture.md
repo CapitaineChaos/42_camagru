@@ -10,14 +10,14 @@ Vue d'ensemble du dépôt et de l'exécution.
 │   ├── app/              Controllers, Models, Views, Core, Services
 │   ├── config/           config.php, settings.php, routes.php
 │   ├── database/         schema.sql, admin.php
-│   ├── public/           DocumentRoot : index.php, css, js, images, filtres
+│   ├── public/           DocumentRoot : index.php, css, js, images, stickers
 │   └── storage/          données écrites : avatars, images (montages)
 ├── docker/web/           Dockerfile, vhost Apache, uploads.ini
 ├── docker-compose.yml    web + db + mailhog
 ├── Makefile              cycle de vie du projet
 ├── secrets/              un credential par fichier, hors git
 ├── .env                  configuration de déploiement, hors git
-├── assets/               sources de génération : filtres SVG, portraits de seed
+├── assets/               sources de génération : stickers SVG, portraits de seed
 ├── scripts/              outils Python de génération et de peuplement
 ├── docs/                 cette documentation
 └── composer.json         mapping PSR-4, pour l'IDE et l'analyse statique
@@ -85,7 +85,7 @@ Trois sources, séparées par nature :
 |--------|---------|---------|
 | `.env` | déploiement : `APP_URL`, `DB_HOST`, `DB_PORT`, `DB_NAME`, `MAIL_*` | `config/config.php`, via `getenv()` ; injecté par `env_file` dans les conteneurs |
 | `secrets/` | credentials : `db_user`, `db_password`, `admin_user`, `admin_email`, `admin_password` | `Core/Secret::read()` |
-| `config/settings.php` | comportement : durées de session, bornes de validation, catalogue de filtres | `Settings::get('session.lifetime')` |
+| `config/settings.php` | comportement : durées de session, bornes de validation, catalogue de stickers | `Settings::get('session.lifetime')` |
 
 Aucun credential dans `.env`, aucun dans le schéma SQL. Le compte admin est créé
 par `database/admin.php` (`make admin`) à partir des secrets.
@@ -131,12 +131,12 @@ ponctuellement, jamais à l'exécution du site :
 | `planche_index.py` | `planche.svg` | indexe et mesure chaque glyphe |
 | `lettrage.py` | la planche indexée | les SVG de lettrage des menus et titres |
 | `vectoriser.py` | PNG en aplats | SVG tracé, une forme par couleur |
-| `filtres.py` | `scripts/sources/` | `assets/filtres/*.svg` puis `public/filtres/*.png` |
+| `stickers.py` | `scripts/sources/` | `assets/stickers/*.svg` puis `public/stickers/*.png` |
 | `portraits.py` | — | `assets/seed/*.jpg` + `portraits.json` |
 | `seed.py` | les portraits | peuple une instance en cours d'exécution, par HTTP |
 
-`filtres.py` rend un PNG en plus du SVG parce que GD ne lit pas le SVG. Les
-slugs produits correspondent au catalogue `photobooth.filters` de
+`stickers.py` rend un PNG en plus du SVG parce que GD ne lit pas le SVG. Les
+slugs produits correspondent au catalogue `photobooth.stickers` de
 `settings.php`.
 
 `seed.py` n'écrit rien en base : il s'inscrit par HTTP, lit le lien de
