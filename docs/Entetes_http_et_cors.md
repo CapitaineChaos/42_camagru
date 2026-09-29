@@ -169,14 +169,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 ## 9 : En-têtes de sécurité
 
-Aucun n'est émis actuellement.
+Émis par le vhost (`docker/web/000-default.conf`), en `Header always set` :
+la directive couvre alors les réponses d'erreur, que `Header set` laisse nues.
+Les poser dans Apache plutôt qu'en PHP les met aussi sur les fichiers statiques,
+servis sans passer par `index.php`.
 
 | En-tête | Effet |
 |---------|-------|
 | `X-Content-Type-Options: nosniff` | Interdit la détection de type hors `Content-Type` annoncé. Un upload interprété comme du HTML devient un XSS. |
-| `X-Frame-Options: DENY` | Bloque l'inclusion en `<iframe>` (clickjacking). |
 | `Referrer-Policy: same-origin` | Cesse d'envoyer l'URL courante aux tiers. |
 | `Content-Security-Policy` | Restreint les sources de scripts ; un `<script>` injecté ne s'exécute pas. Complément de l'échappement. |
+
+`frame-ancestors 'none'` dans la CSP tient lieu de `X-Frame-Options: DENY`,
+qu'elle remplace sur les navigateurs qui la comprennent.
+
+Le module est à activer à la construction de l'image : `a2enmod headers`,
+sans quoi Apache refuse de démarrer sur une directive `Header` inconnue.
 
 ## Points d'attention
 

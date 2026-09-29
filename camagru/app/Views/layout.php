@@ -108,9 +108,9 @@ $pastille = static function (int $nombre): string {
         </span>
         <form action="/logout" method="post" class="logout-form">
             <?= \App\Core\Csrf::field() ?>
-            <a href="/logout" onclick="event.preventDefault(); this.closest('form').submit();">
+            <button type="submit">
                 <img src="/images/elements/menu/logout.svg?v=<?= $v ?>" alt="Logout">
-            </a>
+            </button>
         </form>
     </div>
     <?php endif; ?>

@@ -262,6 +262,12 @@
         line-height: 1;
     }
 
+    .account .logout-form button {
+        padding: 0;
+        border-radius: 0;
+        background: none;
+    }
+
     .account .logout-form img {
         display: block;
         width: 62px;
@@ -269,8 +275,8 @@
         filter: drop-shadow(0 1px 2px rgba(255, 255, 255, .9));
     }
 
-    .account .logout-form a:hover img,
-    .account .logout-form a:focus-visible img {
+    .account .logout-form button:hover img,
+    .account .logout-form button:focus-visible img {
         transform: rotate(-2.5deg) scale(1.08);
     }
 

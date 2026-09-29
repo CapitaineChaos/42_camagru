@@ -35,8 +35,7 @@ up: env secrets sync
 	# carries the permissions over on every sync.
 	find $(DATA)/images $(SRC)/camagru/storage $(TMP)/camagru/storage -type d -exec chmod g+w {} +
 	cd $(TMP) && $(COMPOSE) up -d --build
-# 	@$(MAKE) admin
-	@echo "[up] Conteneurs démarrés depuis $(TMP)"
+	@$(MAKE) admin	@echo "[up] Conteneurs démarrés depuis $(TMP)"
 	@echo "  Camagru -> http://localhost:8080/"
 	@echo "  MailHog -> http://localhost:8025/"
 

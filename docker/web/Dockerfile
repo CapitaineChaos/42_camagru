@@ -22,8 +22,9 @@ RUN apt-get update \
     pdo_pgsql \
     # Extention PHP pour la manipulation d'images (GD)
     gd \
-    # Activer la réécriture des URL pour eviter le .htaccess
-    && a2enmod rewrite \
+    # Réécriture des URL pour eviter le .htaccess, headers pour les en-têtes
+    # de sécurité posés par le vhost
+    && a2enmod rewrite headers \
     # Suppression du cache local pour reduire la taille de l'image finale
     && rm -rf /var/lib/apt/lists/*
 

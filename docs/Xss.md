@@ -101,6 +101,9 @@ l'utilisateur est validée (schéma `http`/`https` uniquement) avant affichage.
   la donnée et ne couvre pas les autres contextes.
 - `charset=utf-8` est déclaré dans `layout.php` : un jeu de caractères ambigu
   peut contourner l'échappement.
-- Pas de Content-Security-Policy en place. Un en-tête CSP restreignant les
-  sources de scripts limiterait l'impact d'une injection résiduelle
-  (durcissement optionnel, non requis par le sujet).
+- Content-Security-Policy posée par le vhost (`docker/web/000-default.conf`),
+  en durcissement de l'échappement : un `<script>` injecté ne s'exécute pas,
+  faute de `'unsafe-inline'`. Contrepartie : aucun script ni style inline dans
+  les vues, ce qui a supprimé le `onclick` de la déconnexion (le formulaire a
+  un bouton). `style-src-attr 'unsafe-inline'` reste ouvert pour le seul
+  attribut `style` du photomaton, dont la valeur vient de la configuration.
