@@ -2,7 +2,7 @@
 
 ## 1 : Structure d'un échange
 
-Requête : ligne de commande, en-têtes, corps optionnel.
+Requête : ligne de requête, en-têtes, corps optionnel.
 
 ```http
 GET /gallery?page=2 HTTP/1.1
@@ -39,12 +39,12 @@ Lus dans `$_SERVER`, préfixe `HTTP_`, tirets en underscores :
 | `Accept` | Types de contenu acceptés par le client. |
 | `Content-Type` | Format du corps envoyé (formulaire, JSON, upload). |
 | `Content-Length` | Taille du corps envoyé. |
-| `Referer` | Page émettrice. Absent ou falsifié selon les cas. |
+| `Referer` | Page émettrice. Peut être absent ou falsifié. |
 | `Origin` | Origine de la page émettrice sur les requêtes cross-site. Base du CORS. |
-| `User-Agent` | Navigateur déclaré. Déclaratif. |
+| `User-Agent` | Navigateur, tel que le client le déclare. |
 
-`Referer`, `Origin` et `User-Agent` viennent du client : exploitables pour du
-confort, pas comme preuve.
+`Referer`, `Origin` et `User-Agent` viennent du client : utilisables pour
+l'ergonomie, jamais comme preuve.
 
 ## 3 : En-têtes de réponse
 
@@ -68,8 +68,8 @@ header('Content-Length: ' . (string) filesize($fichier));
 header('Cache-Control: public, max-age=604800, immutable');
 ```
 
-`/photo?id=12` ne porte pas d'extension : c'est le `Content-Type` qui détermine
-le rendu. Les fichiers sont dans `storage/`, hors `DocumentRoot`, donc
+`/photo?id=12` ne porte pas d'extension : le `Content-Type` détermine le
+rendu. Les fichiers sont dans `storage/`, hors `DocumentRoot`, donc
 inatteignables par URL directe ; le contrôleur vérifie les droits avant
 d'émettre les en-têtes. `max-age=604800, immutable` : cache navigateur d'une
 semaine sans revalidation, un montage ne changeant pas après création.
@@ -86,7 +86,7 @@ Le navigateur interdit à du JavaScript de lire la réponse d'une autre origine.
 La restriction porte sur la lecture, pas sur l'émission :
 
 - Émission non bloquée : `<img src>`, `<form action>`, `<script src>` vers un
-  autre domaine partent avec les cookies. D'où le CSRF.
+  autre domaine partent avec les cookies, ce qui rend le CSRF possible.
 - Lecture bloquée : la requête part, le serveur répond, le code appelant reçoit
   une erreur au lieu du corps.
 
@@ -176,8 +176,8 @@ servis sans passer par `index.php`.
 
 | En-tête | Effet |
 |---------|-------|
-| `X-Content-Type-Options: nosniff` | Interdit la détection de type hors `Content-Type` annoncé. Un upload interprété comme du HTML devient un XSS. |
-| `Referrer-Policy: same-origin` | Cesse d'envoyer l'URL courante aux tiers. |
+| `X-Content-Type-Options: nosniff` | Interdit la détection de type hors `Content-Type` annoncé. Sans lui, un fichier envoyé puis interprété comme du HTML devient un XSS. |
+| `Referrer-Policy: same-origin` | N'envoie l'URL courante qu'aux requêtes de même origine. |
 | `Content-Security-Policy` | Restreint les sources de scripts ; un `<script>` injecté ne s'exécute pas. Complément de l'échappement. |
 
 `frame-ancestors 'none'` dans la CSP tient lieu de `X-Frame-Options: DENY`,

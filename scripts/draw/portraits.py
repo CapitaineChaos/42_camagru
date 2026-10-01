@@ -23,7 +23,7 @@ RACINE = Path(__file__).resolve().parents[2]
 SORTIE = RACINE / 'assets/seed'
 
 LARGEUR, HAUTEUR = 1200, 900
-ECHELLE = 3        # drawn this much larger, then reduced: that is the antialiasing
+ECHELLE = 3        # drawn this much larger, then reduced, for antialiasing
 QUALITE = 88
 
 PEAUX = [

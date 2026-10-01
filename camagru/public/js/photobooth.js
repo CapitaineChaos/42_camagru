@@ -163,10 +163,10 @@ function ajouter(slug, url, choix) {
 
     conteneur.append(element);
 
-    const decalage = (pieces.length % 4 - 1.5) * 0.06;
+    // centred across, in the upper third
     const piece = {
         slug, choix, el: element, poignees: poignees(element),
-        x: 0.5 + decalage, y: 0.5 + decalage, w: LARGEUR_DEFAUT,
+        x: 0.5, y: 1 / 3, w: LARGEUR_DEFAUT,
     };
     pieces.push(piece);
     placer(piece);
@@ -200,7 +200,7 @@ function afficher(source) {
     apercu.src = source;
     apercu.hidden = false;
     flux.hidden = true;
-    // the source is on screen: the missing-camera notice has nothing left to say
+    // the source is on screen: the missing-camera notice is hidden
     etat.hidden = true;
     prendre.hidden = true;
     reprendre.hidden = false;

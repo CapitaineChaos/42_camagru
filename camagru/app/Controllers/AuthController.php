@@ -93,8 +93,8 @@ final class AuthController extends Controller
     }
 
     /**
-     * The account exists for good: it deserves a trace in the mailbox, whatever
-     * the notification settings say later.
+     * Sent whatever the notification settings: every confirmed account receives
+     * this mail.
      */
     private function welcome(string $email, string $username): void
     {

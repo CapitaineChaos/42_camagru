@@ -1,11 +1,9 @@
 # Base de données
 
-## 1 : Schema de la base de données
+## 1 : Schéma de la base de données
 
-Le fichier `database/schema.sql` contient le schéma de la base de données utilisé pour créer les tables et les relations entre elles.
-
-Langage : SQL
-Système : PostgreSQL
+Le fichier `database/schema.sql` contient le schéma PostgreSQL : création des
+tables et des relations entre elles.
 
 ### A : Types de données
 - `SERIAL` : Entier auto-incrémenté.
@@ -23,7 +21,7 @@ Système : PostgreSQL
 - `SELECT` : Récupère des données depuis une ou plusieurs tables.
 - `UPDATE` : Met à jour des données existantes dans une table.
 - `DELETE` : Supprime des lignes dans une table.
-- `CREATE INDEX` : Crée un index pour améliorer certaines requêtes.
+- `CREATE INDEX` : Crée un index pour accélérer certaines requêtes.
 
 ### C : Contraintes SQL
 - `PRIMARY KEY` : Définit la clé primaire de la table.
@@ -40,7 +38,6 @@ Système : PostgreSQL
 - `GROUP BY` : Regroupe les résultats selon une ou plusieurs colonnes.
 - `HAVING` : Filtre les groupes selon une condition.
 - `JOIN` : Combine les lignes de deux tables selon une condition.
-- `IF` : Conditionne l'exécution d'une commande selon une condition.
 - `IF NOT EXISTS` : Conditionne l'exécution à l'absence de l'objet ciblé.
 - `IF EXISTS` : Conditionne l'exécution à l'existence de l'objet ciblé.
 - `ON DELETE CASCADE` : Propage une suppression aux lignes dépendantes.
@@ -63,7 +60,7 @@ make psql
 Équivalent direct :
 
 ```sh
-# Être déjà à l'intérieur du conteneur vaut authentification
+# Connexion locale dans le conteneur : aucun mot de passe demandé
 docker exec -it camagru-db psql -U "$(cat secrets/db_user)" -d camagru
 ```
 
@@ -87,7 +84,7 @@ Invite `camagru=#` : session ouverte. `\q` pour quitter.
 SELECT * FROM users;
 ```
 
-Restreindre les colonnes et les lignes plutôt que tout charger :
+Avec restriction des colonnes et des lignes :
 
 ```sql
 SELECT id, username, email, verified FROM users ORDER BY id LIMIT 20;
@@ -119,8 +116,8 @@ self::$pdo = new PDO(DB_DSN, DB_USER, DB_PASS, [
 | `FETCH_ASSOC` | les lignes arrivent en tableaux associatifs, pas en doublons index + nom |
 | `EMULATE_PREPARES => false` | la préparation est faite par PostgreSQL, pas simulée par PHP |
 
-Aucun contrôleur ni aucune vue n'appelle `Database::pdo()` : c'est le
-constructeur de `Core/Model` qui la récupère, et les modèles en héritent.
+Aucun contrôleur ni aucune vue n'appelle `Database::pdo()` : le constructeur de
+`Core/Model` récupère la connexion, et les modèles en héritent.
 
 ```php
 abstract class Model
@@ -154,7 +151,7 @@ foreach (['likes', 'comments', 'reports', 'images'] as $table) {
 }
 ```
 
-### C : bindValue quand le type compte
+### C : `bindValue` et types
 
 `execute([...])` envoie tout en chaîne. PostgreSQL refuse une chaîne là où il
 attend un entier : `LIMIT` et `OFFSET` demandent donc `bindValue()` avec le
@@ -250,8 +247,8 @@ $stmt = $this->db->prepare("... WHERE c.image_id IN ({$marques}) ...");
 $stmt->execute($imageIds);
 ```
 
-Une requête par page de galerie, pas une par montage : les commentaires sont
-ensuite regroupés par image en PHP.
+Une seule requête par page de galerie ; les commentaires sont ensuite regroupés
+par image en PHP.
 
 ### H : Pagination
 
@@ -275,7 +272,7 @@ certaines lignes apparaîtraient deux fois d'une page à l'autre.
 
 ### I : Transactions
 
-Plusieurs écritures qui doivent tenir ou échouer ensemble :
+Pour plusieurs écritures qui doivent réussir ou échouer ensemble :
 
 ```php
 $this->db->beginTransaction();
@@ -299,22 +296,21 @@ SELECT filename FROM images WHERE id = :id AND user_id = :user_id FOR UPDATE
 
 ### J : Contrôle de propriété
 
-La vérification se fait dans la clause `WHERE`, pas dans une condition PHP
-après coup :
+La propriété est vérifiée dans la clause `WHERE` de la requête :
 
 ```php
 public function delete(int $id, int $userId): ?string
 ```
 
 Sans ligne correspondante, la requête ne renvoie rien et la méthode rend `null`.
-Le contrôleur n'a pas à comparer un `user_id` lui-même.
+Le contrôleur ne compare pas lui-même de `user_id`.
 
 ### K : Erreurs
 
 Avec `ERRMODE_EXCEPTION`, une violation de contrainte lève une `PDOException`.
 Elle ne sert pas de message utilisateur : les contraintes courantes (unicité
 d'un pseudo, longueur) sont validées en PHP avant l'écriture, et l'exception
-reste le filet pour ce qui a échappé à la validation. `display_errors` est à
+couvre ce qui a échappé à la validation. `display_errors` est à
 `Off` côté conteneur, la trace part dans le log Apache.
 
 ### L : Trajet complet

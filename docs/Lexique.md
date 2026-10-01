@@ -1,7 +1,5 @@
 # Lexique
 
-Termes regroupés par thème.
-
 ## Sessions et cookies
 
 | Terme | Définition |
@@ -53,7 +51,7 @@ Termes regroupés par thème.
 | Sel (salt) | Valeur aléatoire ajoutée avant hachage pour que deux mots de passe identiques produisent des empreintes différentes. |
 | bcrypt | Algorithme de hachage de mots de passe lent et paramétrable, utilisé par `PASSWORD_DEFAULT`. |
 | Coût (cost) | Paramètre réglant la lenteur de bcrypt ; plus il est élevé, plus une attaque par force brute coûte cher. |
-| `password_hash` / `PASSWORD_DEFAULT` | Hachage de mot de passe avec algorithme robuste (bcrypt) et sel automatique. |
+| `password_hash` / `PASSWORD_DEFAULT` | Hachage de mot de passe avec bcrypt et sel automatique. |
 | `password_verify` | Compare un mot de passe en clair au hash stocké, sel et coût lus dans le hash lui-même. |
 | Force brute | Essai systématique de mots de passe jusqu'à trouver le bon. |
 | Table arc-en-ciel | Table d'empreintes précalculées ; rendue inutile par le sel. |
@@ -91,13 +89,13 @@ Termes regroupés par thème.
 | 403 Forbidden | Code HTTP : requête comprise mais accès refusé. |
 | 404 Not Found | Code HTTP : ressource inexistante. |
 | En-tête (header) | Métadonnée d'une requête ou d'une réponse HTTP, sous forme `Nom: valeur`. |
-| `Content-Type` | En-tête annonçant le format du corps (`text/html`, `image/jpeg`) ; c'est lui qui décide comment le navigateur interprète la réponse. |
+| `Content-Type` | En-tête annonçant le format du corps (`text/html`, `image/jpeg`) ; il détermine comment le navigateur interprète la réponse. |
 | `Cache-Control` | En-tête réglant la mise en cache d'une réponse et sa durée. |
 | `DocumentRoot` | Dossier exposé par le serveur web ; ici `public/`, pour que le code applicatif reste hors de portée des URL. |
 | Same-origin policy | Règle du navigateur interdisant à une page de lire la réponse d'une autre origine. |
 | CORS (Cross-Origin Resource Sharing) | En-têtes par lesquels un serveur autorise certaines origines à lire ses réponses ; un assouplissement de la same-origin policy, pas une protection. |
 | Preflight | Requête `OPTIONS` envoyée par le navigateur pour demander l'autorisation avant une requête cross-origin non simple. |
-| `Content-Security-Policy` | En-tête listant les sources de scripts et styles autorisées ; filet de sécurité contre le XSS. |
+| `Content-Security-Policy` | En-tête listant les sources de scripts et styles autorisées ; défense complémentaire contre le XSS. |
 | Clickjacking | Attaque affichant le site dans une iframe invisible pour détourner les clics de la victime. |
 
 ## Comptes et contrôle d'accès

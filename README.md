@@ -1,65 +1,42 @@
-## Dev mode
+# Camagru
 
-### 1st time
-```bash
-make frontend-install
+Application web de montages photo : capture par webcam ou envoi d'image,
+superposition de stickers côté serveur, galerie publique avec likes et
+commentaires. PHP 8.3 sans framework, PostgreSQL 16, Apache, MailHog pour les
+mails.
+
+## Prérequis
+
+- podman et podman-compose : `docker-compose.yml` utilise `userns_mode: keep-id`,
+  propre à podman ;
+- make ;
+- python3, pour `make secrets` et les scripts de `scripts/`.
+
+## Lancement
+
+```sh
+cp .env.example .env
+make up
 ```
 
-### During work
-```bash
-make dev
-```
-Then just edit scss files, watcher will automatically compile them to uncompressed style.css and will provide a style.css.map for helping to debug.
+Au premier lancement, `make up` demande le rôle PostgreSQL et le compte admin,
+puis tire les mots de passe ; les valeurs sont écrites dans `secrets/`, hors
+git.
 
+| Service | Adresse |
+|---------|---------|
+| Camagru | http://localhost:8080/ |
+| MailHog (mails envoyés) | http://localhost:8025/ |
 
-### Once ready to deliver
-```bash
-make frontend
-```
-This will build the definitive and compressed style.css with no map
+## Commandes
 
-## Deploy mode and prod
-```bash
-make
-```
-
-## General informations
-
-### Frontend
-- UI
-- Login / register
-- Galerie
-- Upload, webcam, filters
-
-autorisé : routes HTTP, JSON, sessions/JWT, hash mot de passe, upload, accès SQL, mails
-
-### Services
-
-#### Auth-service
-- Register
-- Login
-- Session
-- Validation
-
-#### Media-service
-- Upload
-- Picture edit
-- Filters
-- Files
-
-#### post-service
-- Gallery
-- Posts
-- Likes
-
-#### notification-service
-- Emails
-- Alert
-
-
-## Bonuses
-- Avatar upload / change / from cam
-- live edit picture from cam preview
-- Friends
-- User account delete and data anonymization
-- Admin panel
+| Commande | Effet |
+|----------|-------|
+| `make up` | construit l'image et démarre, code copié dans l'image |
+| `make dev` | idem, code monté depuis le dépôt, puis rejeu de `schema.sql` à chaque modification |
+| `make down` | arrête et supprime les conteneurs ; les données restent |
+| `make clean` | `down`, plus suppression des données (volumes) |
+| `make fclean` | `clean`, plus suppression des images |
+| `make watch-apache` | logs d'Apache et de PHP, colorés |
+| `make psql` | client SQL dans le conteneur `db` |
+| `make seed` | peuple l'instance par HTTP (`ARGS="-n 3"`) |

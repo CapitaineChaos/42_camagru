@@ -45,7 +45,7 @@ if (champ && etat) {
                      avis.taken ? 'error-inline' : 'ok-inline');
             }
         } catch {
-            // the form checks again on submit: staying silent is enough
+            // no message on failure: the form checks again on submit
             dire(repos, 'hint');
         }
     }

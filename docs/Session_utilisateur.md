@@ -9,8 +9,6 @@ des données stockées côté serveur. L'état de connexion est dans :
 $_SESSION['user']
 ```
 
-Le cookie ne transporte que l'identifiant ; les données restent sur le serveur.
-
 ## 2 : Le cookie de session
 
 Configuré dans `Core/Session.php` (`session_set_cookie_params`) :
@@ -57,7 +55,7 @@ L'utilisateur est connecté si :
 !empty($_SESSION['user'])
 ```
 
-Test utilisé pour l'affichage conditionnel et pour les routes réservées.
+Ce test sert à l'affichage conditionnel et au contrôle des routes réservées.
 
 ## 6 : Déconnexion
 
@@ -68,8 +66,8 @@ session_destroy();
 
 ## 7 : Vol de session
 
-Détenir l'identifiant suffit à usurper la session. Voies d'obtention et réglage
-qui les ferme :
+Détenir l'identifiant suffit à usurper la session. Moyens d'obtention et
+contre-mesures :
 
 | Voie | Mécanisme | Contre-mesure |
 |------|-----------|---------------|

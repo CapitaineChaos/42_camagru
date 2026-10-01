@@ -1,6 +1,6 @@
 <?php
 
-// No silent casting / auto cast
+// Strict scalar types: no implicit conversion of arguments
 declare(strict_types=1);
 
 // Load the .env file when it is readable (CLI, php -S).
@@ -23,7 +23,7 @@ if (is_readable($file)) {
 // The autoloader is set up after this file: the secret reader is required by hand
 require_once dirname(__DIR__) . '/app/Core/Secret.php';
 
-// Helper to read an environment variable, .env is the only source of truth
+// Reads a required environment variable: missing or empty stops the boot
 $env = static function (string $key): string {
     $value = getenv($key);
     if ($value === false || $value === '') {

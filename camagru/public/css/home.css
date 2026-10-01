@@ -1,5 +1,5 @@
-/* Two prints fanned out of the booth: they lean on their bottom corners, so the
-   pivot sits there and not in the middle of the frame */
+/* Two prints fanned out of the booth: they lean on their bottom corners, which
+   carry the pivot */
 .polaroids {
     display: flex;
     justify-content: center;
@@ -25,7 +25,7 @@
     background: #e7e2d4;
 }
 
-/* the overlap is what makes it a fan and not two photos side by side */
+/* the overlap forms the fan */
 .polaroid-left {
     margin-right: -2.2rem;
     transform: rotate(-8deg);

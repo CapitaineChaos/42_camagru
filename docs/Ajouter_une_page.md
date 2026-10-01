@@ -1,6 +1,6 @@
 # Ajouter une page au projet Camagru
 
-Exemple avec la Galerie.
+Exemple : la galerie.
 
 ## 1 : Créer le contrôleur
 
@@ -111,8 +111,8 @@ Toujours dans `layout.php`, tableau `$titres`, indexé par nom de vue :
 Premier élément : le fichier `public/images/elements/titres/gallery.svg`, injecté
 en ligne par `Svg::inline()`. Second : le libellé.
 
-Une vue absente de `$titres` s'affiche sans titre. L'accueil est dans ce cas,
-volontairement, puisqu'il porte le logo.
+Une vue absente de `$titres` s'affiche sans titre. C'est le cas de l'accueil,
+qui affiche le logo à la place.
 
 ## 7 : Feuille de style propre à la page
 
@@ -173,7 +173,8 @@ public function like(): void
 
 ## 9 : Messages après redirection
 
-Un message posé avant la redirection survit à celle-ci :
+Un message enregistré par `Flash` avant la redirection reste disponible après
+celle-ci :
 
 ```php
 Flash::notice('Montage reported. An admin will look at it.');

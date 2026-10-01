@@ -1,7 +1,6 @@
 .env
 _old/
 secrets/
-camagru/storage/images/
 __pycache__/
 
 scripts/.venv/

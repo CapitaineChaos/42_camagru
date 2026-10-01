@@ -1,12 +1,12 @@
-# Création du squelette from scratch
+# Création du squelette
 
-Point de départ minimal : ce qu'il faut écrire pour qu'une première page
-s'affiche. L'état actuel du projet est décrit en fin de document.
+Fichiers minimaux pour afficher une première page. La section 3 décrit les
+ajouts présents dans l'état actuel du dépôt.
 
 ## 1 : Structure minimale
 
-L'application vit dans `camagru/`, pas à la racine du dépôt. Seul `public/` est
-exposé par le serveur web ; tout le reste est un niveau au-dessus.
+L'application se trouve dans le sous-dossier `camagru/` du dépôt. Seul
+`public/` est exposé par le serveur web ; le reste est un niveau au-dessus.
 
 ```text
 camagru/
@@ -37,7 +37,7 @@ camagru/
 
 | Dossier | Contenu |
 |---------|---------|
-| `app/Core/` | le socle : routage, classes de base, connexion PDO |
+| `app/Core/` | routage, classes de base, connexion PDO |
 | `app/Controllers/` | un fichier par ensemble de pages |
 | `app/Models/` | un fichier par table ou par entité |
 | `app/Views/` | les gabarits, plus `layout.php` qui les enveloppe |
@@ -62,15 +62,15 @@ camagru/
 - Contrôleur : reçoit la requête, appelle les modèles, choisit la vue. Exemple :
   `HomeController`, `AuthController`.
 
-## 3 : Ce que le projet a ajouté depuis
+## 3 : Ajouts ultérieurs
 
-Le squelette ci-dessus n'est plus l'état du dépôt. Les ajouts :
+Ajouts au squelette dans l'état actuel du dépôt :
 
 | Ajout | Contenu |
 |-------|---------|
 | `app/Core/` étendu | `Session`, `Csrf`, `Flash`, `Mailer`, `Settings`, `Secret`, `Svg`, `Text`, `Pg` |
 | `app/Services/` | logique métier hors modèle et hors contrôleur : `Montage`, `Notifications`, `Avatars`, `Overlays`, `CurrentUser`, `LayoutDataProvider` |
-| `camagru/storage/` | fichiers écrits par l'application : `avatars/`, `images/` (montages), hors `DocumentRoot` |
+| `storage/` (conteneur) | fichiers écrits par l'application : `avatars/`, `images/` (montages), hors `DocumentRoot` ; créé par le Dockerfile, monté sur des volumes nommés |
 | `public/css/` | une douzaine de feuilles par domaine, au lieu de `style.css` |
 | `public/js/` | scripts de page : photobooth, galerie, ornements |
 | `public/images/` | thème, lettrages SVG |

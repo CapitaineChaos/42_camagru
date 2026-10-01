@@ -192,7 +192,7 @@ def calques(geometrie, choix, hasard):
 
 
 def inscrire(client, mailhog, username, email, motdepasse):
-    """Sign-up, mailbox, confirmation, login: the whole front door."""
+    """Sign-up, confirmation link read from the mailbox, then login."""
     client.page('/register')
     reponse = client.poste('/register',
                            {'username': username, 'email': email, 'password': motdepasse},
@@ -225,7 +225,7 @@ def actionnables(page):
 
 
 def parcourir(client, pages_max=20):
-    """The whole wall, page after page: the oldest montages live on the last one.
+    """Every page of the gallery: the oldest montages are on the last one.
 
     @return dict of montage id => (page it sits on, already liked)
     """
@@ -342,7 +342,7 @@ def social(clients, personnes, hasard, options):
                          formulaire='/gallery')
             ecrits += 1
 
-    # two readers flag the same montage: the admin desk needs something to answer
+    # two readers flag the same montage, so the admin desk has a report to handle
     if len(clients) >= 3:
         juges = clients[-2:]
         vues = [parcourir(client) for client in juges]

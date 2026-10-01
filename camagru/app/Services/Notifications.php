@@ -8,7 +8,7 @@ use App\Core\Mailer;
 use App\Core\Pg;
 use App\Models\User;
 
-/** Emails the events a reader asked to hear about; silence is the setting, not a failure. */
+/** Emails the events a reader subscribed to; an event switched off sends nothing, without error. */
 final class Notifications
 {
     /** column => label on the preferences form */

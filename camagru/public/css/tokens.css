@@ -1,5 +1,5 @@
-/* cascade order fixed here: load order of the sheets no longer decides wins.
-   utilities beat component defaults; a page layer still overrides both. */
+/* cascade order fixed here, independent of the load order of the sheets:
+   utilities beat component defaults; a page layer overrides both. */
 @layer tokens, base, layout, components, utilities, pages;
 
 @layer tokens {

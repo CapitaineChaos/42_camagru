@@ -15,12 +15,12 @@ l'application. Les émetteurs, tous présents dans le projet :
 | Appel JavaScript | `GET` | `fetch('/gallery?page=2')` du scroll infini |
 | Lien reçu par mail | `GET` | `/verify?token=…`, `/reset-password?token=…` |
 
-Les trois dernières lignes sont celles qu'on oublie. Une balise `<img>` est une
-requête HTTP complète : elle traverse le routeur, les filtres compris, et le
-contrôleur répond avec des octets d'image au lieu d'une page.
+Une balise `<img>` vers une route produit une requête HTTP complète : elle
+traverse le routeur et ses filtres, et le contrôleur répond par les octets de
+l'image.
 
-Toutes ces requêtes n'arrivent pas au routeur. Apache sert directement ce qui
-correspond à un fichier réel de `public/` :
+Seules les requêtes sans fichier correspondant atteignent le routeur. Apache
+sert directement les fichiers réels de `public/` :
 
 ```apache
 RewriteCond %{REQUEST_FILENAME} !-f
@@ -28,15 +28,14 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ index.php [QSA,L]
 ```
 
-`/css/base.css`, `/js/gallery.js`, `/images/perso1.png` et `/avatars/modele_01.png`
-existent sur le disque : PHP n'est jamais démarré pour eux. `/photo?id=12` et
+`/css/base.css`, `/js/gallery.js`, `/images/fond_0.png` et `/avatars/modele_01.png`
+existent sur le disque : PHP n'intervient pas. `/photo?id=12` et
 `/avatar?id=3` ne correspondent à aucun fichier : ils sont réécrits vers
 `index.php` et deviennent des routes.
 
-Le même chemin peut d'ailleurs basculer de l'un à l'autre : `/avatar?id=3` est
-une route qui, pour un avatar de la galerie de modèles, répond par une
-redirection vers `/avatars/modele_01.png`, servi ensuite par Apache sans passer
-par PHP.
+Une route peut renvoyer vers un fichier statique : pour un avatar de la galerie
+de modèles, la route `/avatar?id=3` répond par une redirection vers
+`/avatars/modele_01.png`, que sert ensuite Apache sans passer par PHP.
 
 ## 2 : Déclaration
 
@@ -92,7 +91,7 @@ $router->dispatch(
 );
 ```
 
-La correspondance est une lecture de tableau, pas une expression régulière :
+La correspondance est une lecture de tableau, sans expression régulière :
 `$this->routes[$method][$path]`.
 
 ## 4 : Résolution
@@ -131,16 +130,16 @@ if ($action === null) {
 (new $controller())->{$method}();
 ```
 
-Les filtres passent avant la recherche de la route : une route protégée et une
-route inexistante se distinguent, mais le jeton CSRF est exigé sur tout POST,
-y compris vers un chemin qui n'existe pas.
+Les filtres s'appliquent avant la recherche de la route. Une route protégée
+redirige vers `/login` et une route inexistante répond 404, mais le jeton CSRF
+est exigé sur tout POST, y compris vers un chemin qui n'existe pas.
 
 Le contrôleur est instancié sans argument et la méthode appelée sans paramètre.
 Tout ce dont elle a besoin vient de `$_GET`, `$_POST` et `$_SESSION`.
 
-Un seul contrôleur est instancié par requête, celui que la table désigne. Il n'y
-a ni chaîne de contrôleurs, ni pile de middlewares : les trois filtres sont des
-conditions dans `dispatch()`, pas des objets traversés.
+Un seul contrôleur est instancié par requête, celui que la table désigne. Les
+trois filtres sont des conditions dans `dispatch()` ; il n'y a ni chaîne de
+contrôleurs ni pile de middlewares.
 
 Les `use App\Controllers\…` en tête de `config/routes.php` ne chargent rien : un
 `use` est une règle de résolution de nom, résolue à la compilation.

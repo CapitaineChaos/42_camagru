@@ -1,6 +1,6 @@
 # Gestion des credentials
 
-Deux familles, traitées séparément :
+Deux familles de credentials :
 
 | Famille | Contenu | Emplacement |
 |---------|---------|-------------|
@@ -21,24 +21,27 @@ Un fichier par valeur, sous `secrets/`, ignoré par git :
 
 Lecture par `Core/Secret::read()`, qui cherche `/run/secrets/<nom>` puis
 `secrets/<nom>` à la racine du dépôt, rejette un nom hors `[a-z0-9_]`, coupe le
-retour à la ligne final et lève si le fichier manque ou est vide.
+retour à la ligne final et lève une exception si le fichier manque ou est vide.
 
 ```php
 define('DB_USER', \App\Core\Secret::read('db_user'));
 define('DB_PASS', \App\Core\Secret::read('db_password'));
 ```
 
-`docker-compose.yml` monte `./secrets` sur `/run/secrets` en lecture seule dans
-`web` et `db`. PostgreSQL lit `POSTGRES_USER_FILE` et `POSTGRES_PASSWORD_FILE` :
+`docker-compose.yml` déclare chaque fichier dans sa clé `secrets:`. Un service
+ne reçoit que les secrets qu'il liste, en lecture seule sous
+`/run/secrets/<nom>` : `web` les cinq, `db` seulement `db_user` et
+`db_password`. PostgreSQL lit `POSTGRES_USER_FILE` et `POSTGRES_PASSWORD_FILE` :
 le mot de passe n'apparaît pas dans l'environnement du conteneur, donc pas dans
 un `inspect`.
 
-`make secrets` demande les identifiants et tire les deux mots de passe
-(`openssl rand -base64`). Un fichier déjà rempli n'est pas remplacé.
+`make secrets` (`scripts/credentials.py`) demande les identifiants et tire les
+deux mots de passe avec le module `secrets` de Python : lettres et chiffres,
+32 caractères pour `db_password`, 24 pour `admin_password`. Un fichier déjà
+rempli n'est pas remplacé.
 
-Permissions : `db_user` et `db_password` en 644, lus par l'uid 70 du conteneur
-PostgreSQL ; les `admin_*` en 600, lus par PHP qui tourne sous l'uid de
-l'utilisateur.
+Permissions : 600 pour tous les fichiers. PostgreSQL et PHP tournent sous l'uid
+de l'utilisateur hôte (`userns_mode: keep-id`).
 
 Le compte admin est créé par `database/admin.php` (`make admin`), qui hashe le
 mot de passe côté PHP et fait un `ON CONFLICT (email) DO UPDATE` : relancer le
@@ -46,7 +49,8 @@ script change le mot de passe au lieu d'échouer.
 
 ## 2 : Politique de mot de passe
 
-Une seule valeur, dans `config/settings.php` :
+Le seul paramètre de la politique, `auth.password_min_length`, est dans
+`config/settings.php` :
 
 ```php
 'auth' => [
@@ -70,7 +74,7 @@ contraintes non satisfaites :
 $errors = array_merge($errors, Password::errors($password));
 ```
 
-Trois appelants, une seule politique : `AuthController::register`,
+`Password::errors()` a trois appelants : `AuthController::register`,
 `PasswordController::reset` (qui ajoute l'égalité avec la confirmation) et
 `PrefsController::account` (qui n'appelle que si un nouveau mot de passe est
 fourni).
@@ -98,7 +102,7 @@ session. La session ne porte que `id`, `username` et `is_admin`.
 
 ## 4 : Vérification à la connexion
 
-L'identifiant de connexion est le pseudo, pas l'adresse :
+L'identifiant de connexion est le pseudo :
 
 ```php
 $user = (new User())->findByUsername($username);
@@ -112,9 +116,9 @@ L'adresse ne sert qu'aux envois de mail et à la demande de réinitialisation.
 
 `password_verify` relit le sel et le coût depuis le hash stocké, et compare en
 temps constant. Un compte inexistant et un mot de passe faux produisent le même
-message, ce qui ne dit pas à un visiteur si le pseudo est pris.
+message : un visiteur ne peut pas en déduire si le pseudo existe.
 
-Deux contrôles suivent, après authentification réussie :
+Après authentification, deux contrôles s'appliquent :
 
 | Contrôle | Message |
 |----------|---------|
@@ -139,7 +143,7 @@ l'adresse sont mis à jour.
 
 ## 6 : Jetons de mail
 
-Deux usages, même génération :
+Les deux jetons sont générés de la même façon :
 
 ```php
 $token = bin2hex(random_bytes((int) Settings::get('auth.token_bytes', 32)));
@@ -156,17 +160,17 @@ Le jeton de réinitialisation n'est jamais stocké tel quel : la base garde
 `hash('sha256', $token)`, et la recherche hashe la valeur reçue avant de
 comparer. Une lecture de la table ne permet donc pas de forger un lien.
 
-`PasswordReset::create()` appelle `deleteForUser()` d'abord : une seule demande
-vivante par compte, une nouvelle demande annule la précédente.
+`PasswordReset::create()` appelle d'abord `deleteForUser()` : un compte n'a
+qu'une demande en cours, et une nouvelle demande remplace la précédente.
 
-`findValid()` filtre sur trois conditions à la fois :
+`findValid()` combine trois conditions :
 
 ```sql
 WHERE token_hash = :token_hash AND used_at IS NULL AND expires_at > now()
 ```
 
-Les durées sont calculées côté base (`now() + make_interval(secs => :ttl)`),
-pas côté PHP : l'horloge de référence est celle de PostgreSQL.
+Les durées sont calculées par PostgreSQL (`now() + make_interval(secs => :ttl)`) :
+l'horloge de référence est celle de la base.
 
 ## 7 : Énumération de comptes
 
@@ -180,7 +184,7 @@ private const CONFIRMATION = 'If an account matches this address, a reset link h
 Le mail n'est envoyé que si le compte existe, mais la réponse HTTP est
 identique. Même principe au login avec `Invalid credentials.`
 
-L'inscription, elle, distingue explicitement : `An account already exists with
+L'inscription distingue le cas : `An account already exists with
 this email or username.` L'information est nécessaire pour que l'utilisateur
 comprenne le refus ; elle confirme en contrepartie qu'une adresse est inscrite.
 

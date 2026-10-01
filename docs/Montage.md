@@ -27,8 +27,8 @@ storage/images/<32 hex>.jpg      hors DocumentRoot
 GET /photo?id=…&v=…  →  PhotoController::show
 ```
 
-Le navigateur n'envoie jamais d'image composée : il envoie une source et des
-coordonnées. La superposition est faite par GD, côté serveur.
+Le navigateur envoie une source et des coordonnées ; la superposition est faite
+par GD, côté serveur.
 
 ## 2 : Le catalogue d'overlays
 
@@ -43,8 +43,7 @@ coordonnées. La superposition est faite par GD, côté serveur.
 ```
 
 `Services/Overlays::catalogue()` croise cette liste avec les fichiers présents
-dans `public/stickers/<slug>.png`. Une entrée sans fichier est écartée : le
-catalogue affiché ne contient que des overlays réellement utilisables.
+dans `public/stickers/<slug>.png`. Une entrée sans fichier est écartée.
 
 ```php
 foreach ((array) Settings::get('photobooth.' . $cle, []) as $slug => $label) {
@@ -101,8 +100,8 @@ piece.x = borne(prise.x + (evenement.clientX - boite.left) / boite.width, 0, 1);
 piece.w = borne(piece.w * facteur, LARGEUR_MIN, LARGEUR_MAX);
 ```
 
-Les coordonnées sont stockées en fractions et non en pixels : la scène change de
-taille avec la fenêtre, les proportions non.
+Les coordonnées sont stockées en fractions de la scène : sa taille suit la
+fenêtre, ses proportions restent fixes.
 
 À chaque modification, `synchroniser()` réécrit le champ caché `layers` et
 recalcule l'état des boutons :
@@ -125,8 +124,7 @@ l'enregistrement qu'une source existe.
 
 ## 5 : La source
 
-Deux chemins, exclusifs : le second champ est vidé dès que le premier est
-rempli.
+Deux chemins exclusifs : remplir l'un des deux champs vide l'autre.
 
 Capture webcam, par un canvas hors écran :
 
@@ -145,8 +143,7 @@ champCapture.value = toile.toDataURL('image/jpeg', 0.9);
 ```
 
 L'aperçu est retourné en CSS pour se comporter comme un miroir ; le canvas
-applique la même inversion, sans quoi la photo sortirait à l'envers de ce qui
-était visé.
+applique la même inversion, pour que la photo corresponde à ce qui était visé.
 
 Fichier, quand il n'y a pas de caméra ou que l'utilisateur préfère une image :
 le champ `file` est envoyé tel quel, et `getUserMedia` absent ou refusé
@@ -212,14 +209,14 @@ public function capture(): void
 ```
 
 La géométrie est validée avant que la source soit décodée : un JSON invalide
-évite de charger une image en mémoire pour rien.
+est refusé sans qu'aucune image soit chargée en mémoire.
 
 Deux niveaux d'erreur. `RuntimeException` porte un message destiné à
 l'utilisateur, levé par les validations du service. Tout le reste est renvoyé
 sous un message générique, le détail partant dans le log. Dans les deux cas, la
 réponse est une redirection : un rafraîchissement ne rejoue pas la capture.
 
-Le choix de la source est explicite, fichier prioritaire :
+Le fichier est prioritaire sur la capture :
 
 ```php
 $fichier = $_FILES['file'] ?? null;
@@ -275,10 +272,10 @@ public function layers(string $json): array
 Une liste vide est acceptée et rend un tableau vide : `compose()` boucle alors
 sur rien et écrit la source recadrée.
 
-Pour le reste, rien de ce qui vient du navigateur n'est cru : le JSON peut être
-forgé sans passer par la page. Le slug doit exister dans le catalogue, le nombre
-de calques est plafonné, et les coordonnées sont ramenées dans leurs bornes
-plutôt que refusées.
+Le JSON peut être forgé sans passer par la page ; son contenu est donc vérifié.
+Le slug doit exister dans le catalogue, le nombre de calques est plafonné, et
+les coordonnées hors bornes sont ramenées dans leurs bornes au lieu d'être
+refusées.
 
 ## 9 : Décodage de la source
 
@@ -317,8 +314,8 @@ de laisser GD travailler :
 | Décodage | `imagecreatefromstring()`, qui échoue sur un contenu corrompu |
 
 Le type vient de la lecture des octets, jamais de l'en-tête déclaré par le
-client. Le plafond de pixels protège la mémoire : GD travaille en 4 octets par
-pixel, indépendamment du poids du fichier compressé.
+client. Le plafond de pixels borne la mémoire consommée : GD travaille en
+4 octets par pixel, indépendamment du poids du fichier compressé.
 
 ## 10 : Composition
 
@@ -366,10 +363,12 @@ imagecopyresampled(
 le fond au lieu de les écraser. Sans lui, l'overlay poserait un rectangle opaque.
 
 La hauteur est déduite de la largeur : les proportions de l'overlay sont
-conservées, seul `w` circule.
+conservées, et seul `w` est transmis.
 
-Les ressources GD sont libérées au fur et à mesure (`imagedestroy`), la source
-juste après le recadrage.
+`imagedestroy` est déprécié depuis PHP 8.5 : un objet GD est libéré avec sa
+dernière référence. Le contrôleur passe la source à `compose()` sans la
+conserver, et `compose()` appelle `unset($source)` juste après le recadrage,
+puis `unset($montage)` après l'écriture du JPEG.
 
 ## 11 : Écriture
 
@@ -414,7 +413,7 @@ header('Cache-Control: public, max-age=604800, immutable');
 readfile($fichier);
 ```
 
-`Montage::path()` refuse tout nom contenant un chemin, ce qui ferme la
+`Montage::path()` refuse tout nom contenant un chemin, ce qui empêche la
 traversée de répertoire :
 
 ```php
@@ -430,8 +429,8 @@ transaction, et renvoie le nom du fichier supprimé, ou `null` si la ligne
 n'appartient pas au demandeur. Le contrôleur passe ensuite le nom à
 `Montage::remove()`, qui efface le fichier.
 
-L'ordre compte : la ligne d'abord, le fichier ensuite. Un échec après la
-suppression de la ligne laisse un fichier orphelin ; l'inverse laisserait une
+La ligne est supprimée avant le fichier. Un échec après la suppression de la
+ligne laisse un fichier orphelin ; l'inverse laisserait une
 ligne pointant vers un fichier absent, visible comme une image cassée dans la
 galerie.
 

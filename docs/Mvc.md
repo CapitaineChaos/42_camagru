@@ -184,35 +184,34 @@ marqueurs nommés.
 ## 7 : Vue
 
 ```php
-<!-- Views/home.php -->
-<h1 class="logo"><?= \App\Core\Svg::inline('logo') ?></h1>
-
-<div class="polaroids">
-    <figure class="polaroid polaroid-left">
-        <img src="/images/perso1.png" alt="Montage with the cat ears filter">
-    </figure>
-</div>
+<!-- Views/partials/messages.php -->
+<?php if (!empty($notice)): ?>
+    <p class="notice"><?= htmlspecialchars($notice) ?></p>
+<?php endif; ?>
+<?php foreach ($errors ?? [] as $erreur): ?>
+    <p class="error"><?= htmlspecialchars($erreur) ?></p>
+<?php endforeach; ?>
 ```
 
 Toute valeur issue de l'utilisateur ou de la base est échappée par
-`htmlspecialchars()`. Les conditions portent sur des variables déjà
-préparées par le contrôleur, pas sur des données à requêter.
+`htmlspecialchars()`. Les conditions portent sur des variables préparées par
+le contrôleur.
 
 ## 8 : Core et Services
 
 | Dossier | Contenu |
 |---------|---------|
-| `app/Core/` | Plomberie : `Router`, `Controller`, `Model`, `Database`, `Session`, `Csrf`, `Flash`, `Mailer`, `Settings`, `Secret`. Indépendant du métier Camagru. |
+| `app/Core/` | Infrastructure : `Router`, `Controller`, `Model`, `Database`, `Session`, `Csrf`, `Flash`, `Mailer`, `Settings`, `Secret`. Indépendant du métier Camagru. |
 | `app/Services/` | Logique métier hors modèle et hors contrôleur : `Montage` (composition d'images), `Notifications` (emails), `Avatars`, `Overlays`, `LayoutDataProvider`. |
 
-Composer une image avec un overlay n'est ni une requête SQL, ni de l'affichage,
-ni du routage ; ce code est dans `Services/` plutôt que dans les contrôleurs.
+La composition d'une image avec un overlay (`Montage`) n'accède pas à la base
+et ne produit pas de HTML : ce code est dans `Services/`, hors des contrôleurs.
 
 ## 9 : Aller-retour complet
 
-Un « j'aime » sur un montage.
+Exemple : un « j'aime » sur un montage.
 
-Vue — formulaire POST portant le jeton CSRF :
+Vue, un formulaire POST portant le jeton CSRF :
 
 ```php
 <form method="post" action="/gallery/like">
@@ -225,7 +224,7 @@ Vue — formulaire POST portant le jeton CSRF :
 
 Le libellé vient de `liked`, calculé par le contrôleur.
 
-Routeur — `POST /gallery/like` : jeton vérifié, session vérifiée
+Routeur : `POST /gallery/like`, jeton vérifié, session vérifiée
 (`requireAuth`), appel de `GalleryController::like()`.
 
 Contrôleur :
@@ -243,9 +242,9 @@ public function like(): void
 }
 ```
 
-Modèle — `Like::toggle()` ajoute ou retire la ligne.
+Modèle : `Like::toggle()` ajoute ou retire la ligne.
 
-Réponse — aucune vue rendue, un `Location:`. Le navigateur refait un `GET` ;
+Réponse : aucune vue rendue, un en-tête `Location:`. Le navigateur refait un `GET` ;
 un rafraîchissement ne redéclenche pas le POST (Post/Redirect/Get).
 
 ## 10 : Ajouter une fonctionnalité
@@ -255,7 +254,6 @@ un rafraîchissement ne redéclenche pas le POST (Post/Redirect/Get).
 3. Méthode du contrôleur.
 4. Vue ou fragment de vue.
 5. Route dans `config/routes.php`, avec `requireAuth` / `requireAdmin`.
-
 
 ## Points d'attention
 

@@ -9,14 +9,14 @@ return [
     ],
 
     'assets' => [
-        'version' => 73,                // ?v= on css, js and svg
+        'version' => 75,                // ?v= on css, js and svg
     ],
 
     'session' => [
         'name'            => 'camagru_session',
         'lifetime'        => 7200,      // s, inactivity before drop
         'cookie_lifetime' => 0,         // 0 = cleared on browser close
-        'samesite'        => 'Lax',     // Bloque POST cross-site
+        'samesite'        => 'Lax',     // blocks cross-site POST
         'regenerate'      => 900,       // s between id rotations
     ],
 

@@ -8,8 +8,8 @@
         box-shadow: 0 0 0 3px var(--voile-blanc), 0 2px 8px rgba(4, 30, 56, .25);
     }
 
-    /* label/value pairs: a 2-column grid is the simple, right tool here (a flex
-       row cannot line pairs up without fighting it) */
+    /* label/value pairs on a 2-column grid: a flex row does not align the pairs
+       from one row to the next */
     .details {
         flex: 1 1 0;
         min-width: 0;

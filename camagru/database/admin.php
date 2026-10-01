@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * Create or update the Camagru admin account from the secrets.
  *
- * The schema no longer carries any credential: the account is born here, with a
+ * The schema carries no credential: the account is created here, with a
  * hash computed by PHP, from admin_user / admin_email / admin_password. Those
  * three have nothing to do with db_user / db_password, which are the Postgres
  * role the application connects with.

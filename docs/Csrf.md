@@ -1,7 +1,7 @@
 # Protection CSRF
 
-Le jeton anti-CSRF vit en session (`$_SESSION['csrf_token']`), généré une fois
-(32 octets aléatoires) et réutilisé pour toute la session.
+Le jeton anti-CSRF est stocké en session (`$_SESSION['csrf_token']`), généré
+une fois (32 octets aléatoires) et réutilisé pour toute la session.
 
 `Core/Csrf.php` :
 
@@ -13,9 +13,9 @@ public static function check(mixed $token): bool   // comparaison à temps const
 
 ## L'attaque sans jeton
 
-Rejouer la requête d'un formulaire du site depuis un autre site, en s'appuyant
-sur le cookie que le navigateur attache automatiquement. Déroulé sur une version
-sans jeton :
+L'attaque rejoue la requête d'un formulaire du site depuis un autre site, en
+s'appuyant sur le cookie que le navigateur joint automatiquement. Déroulé sur
+une version sans jeton :
 
 1. L'attaquant relève le formulaire visé sur Camagru. Exemple : suppression d'un
    montage, `POST /photo/delete` avec un champ `id`. Sans protection, c'est le
@@ -41,21 +41,21 @@ sans jeton :
    victime. L'`id` est deviné ou relevé ailleurs ; rien n'est affiché à la
    victime.
 
-Le cookie n'est ni volé ni lu, la page non plus : l'action est déclenchée en
-laissant le navigateur fournir l'authentification.
+L'attaquant ne lit ni le cookie ni la page ; le navigateur de la victime
+fournit lui-même l'authentification.
 
-Le jeton casse l'étape 2 : le formulaire forgé n'a pas de `csrf_token` valide, et
+Le jeton rend l'étape 2 inopérante : le formulaire forgé n'a pas de `csrf_token` valide, et
 l'attaquant ne peut pas le lire, la same-origin policy interdisant de lire une
 page Camagru depuis `evil.example`. `check()` échoue, réponse 403.
 
 `SameSite=Lax` sur le cookie (`Core/Session.php`) bloque en amont l'envoi du
-cookie sur un POST cross-site. Le jeton est la barrière indépendante du
-navigateur.
+cookie sur un POST cross-site. Le jeton protège indépendamment du comportement
+du navigateur.
 
-## Vérification : automatique
+## Vérification dans le routeur
 
-Centralisée dans le routeur. Toute requête POST est contrôlée avant d'atteindre
-le contrôleur ; jeton absent ou invalide, réponse 403.
+Toute requête POST est contrôlée par le routeur avant d'atteindre le
+contrôleur. Jeton absent ou invalide : réponse 403.
 
 `Core/Router.php` :
 
@@ -66,8 +66,8 @@ if ($httpMethod === 'POST' && !Csrf::check($_POST['csrf_token'] ?? null)) {
 }
 ```
 
-Rien à appeler dans le contrôleur : le formulaire doit être en POST et porter le
-jeton.
+Le contrôleur n'appelle rien ; le formulaire doit être envoyé en POST et porter
+le jeton.
 
 ## Comparaison à temps constant (`hash_equals`)
 
@@ -93,7 +93,7 @@ Comparaison d'un secret (jeton CSRF, jeton de session, hash, signature) :
 L'attaque temporelle est peu réaliste ici, le jeton étant en session et régénéré
 à chaque session.
 
-## Protéger son propre formulaire
+## Protéger un formulaire
 
 ### 1 : Émettre le jeton dans la vue
 
@@ -138,5 +138,5 @@ Le routeur vérifie le jeton pour cette route comme pour les autres.
 
 - Upload de fichier : `enctype="multipart/form-data"` remplit `$_POST` pour les
   champs non-fichiers, le champ caché fonctionne tel quel.
-- Jeton par session, pas par formulaire. Tous les formulaires d'une même session
-  partagent le même jeton.
+- Un jeton par session : tous les formulaires d'une même session partagent le
+  même jeton.

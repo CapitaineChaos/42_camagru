@@ -9,7 +9,7 @@ use RuntimeException;
 /**
  * One credential per file, never in .env and never in the SQL.
  *
- * The containers see them under /run/secrets (bind mount, read only); a CLI run
+ * The containers see them under /run/secrets (compose secrets, read only); a CLI run
  * from the host reads ./secrets at the root of the repo, which git ignores.
  */
 final class Secret

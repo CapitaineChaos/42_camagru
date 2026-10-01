@@ -1,4 +1,8 @@
-.git
-_old
-docs
-.env
+# Contexte de build de web : la racine du dépôt. Seul ce que le Dockerfile copie
+# est envoyé ; secrets/ et .env n'entrent jamais dans l'image.
+*
+!docker/web
+!camagru/public
+!camagru/app
+!camagru/config
+!camagru/database

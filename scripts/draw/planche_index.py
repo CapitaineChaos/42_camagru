@@ -16,7 +16,7 @@ import tempfile
 from pathlib import Path
 
 RACINE = Path(__file__).resolve().parents[2]
-PLANCHE = RACINE / 'camagru/public/images/elements/planche.svg'
+PLANCHE = RACINE / 'assets/elements/planche.svg'
 
 ALPHABETS = {
     'majuscules': 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',

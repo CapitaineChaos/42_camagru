@@ -25,9 +25,6 @@ ASKED = {
 
 DRAWN = {'db_password': 32, 'admin_password': 24}
 
-# postgres reads db_* as uid 70 in the container, php reads admin_* as ours
-MODES = {'db_user': 0o644, 'db_password': 0o644}
-
 
 def read(name):
     path = FOLDER / name
@@ -37,7 +34,7 @@ def read(name):
 def write(name, value):
     path = FOLDER / name
     path.write_text(value)
-    path.chmod(MODES.get(name, 0o600))
+    path.chmod(0o600)   # postgres and php both read them as the host user (keep-id)
 
 
 def main():

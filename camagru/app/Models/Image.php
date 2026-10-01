@@ -94,15 +94,15 @@ final class Image extends Model
         return $this->drop($id, $userId);
     }
 
-    /** Same, whoever owns it: the admin desk answers to reports, not to ownership. */
+    /** Same without the owner check: the admin desk deletes reported montages. */
     public function remove(int $id): ?string
     {
         return $this->drop($id, null);
     }
 
     /**
-     * Likes, comments and reports are deleted by hand although the foreign keys
-     * cascade: the model owns the rule, whatever the schema in place.
+     * Likes, comments and reports are deleted explicitly although the foreign
+     * keys cascade, so the deletion does not depend on the schema in place.
      *
      * @param int|null $userId restricts the deletion to that owner; null lifts the check
      */

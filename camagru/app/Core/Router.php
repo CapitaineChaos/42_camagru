@@ -67,7 +67,7 @@ final class Router
             return;
         }
 
-        // null if the route is not found or PROTECTED
+        // null when no route matches
         $action = $this->routes[$httpMethod][$normalizedPath] ?? null;
 
         if ($action === null) {

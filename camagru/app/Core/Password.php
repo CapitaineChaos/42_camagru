@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Core;
 
-/** The password policy, in one place: inscription, reset and preferences share it. */
+/** The password policy, shared by sign-up, reset and preferences. */
 final class Password
 {
     /** @return list<string> the unmet rules, empty when the password passes */

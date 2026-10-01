@@ -67,7 +67,7 @@ final class Friendship extends Model
                 return self::FRIENDS;
             }
 
-            // asking back someone who asked first is an answer, not a second request
+            // asking back someone who asked first accepts their pending request
             if ((int) $existante['requester_id'] === $addresseeId) {
                 return $this->accept($requesterId, $addresseeId) ? self::ACCEPTED : self::FRIENDS;
             }

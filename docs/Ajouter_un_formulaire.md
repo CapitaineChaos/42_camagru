@@ -39,9 +39,9 @@ l'envoi.
 </form>
 ```
 
-Points fixes :
+Règles :
 
-- `method="post"` — un GET n'est pas vérifié par le routeur.
+- `method="post"` : un GET n'est pas vérifié par le routeur.
 - `Csrf::field()` à l'intérieur du `<form>`, sinon 403.
 - `name` : c'est la clé lue dans `$_POST`.
 - `id` sur le champ et `for` correspondant sur le `<label>`.
@@ -87,8 +87,9 @@ public function account(): void
 }
 ```
 
-Lecture systématique en `?? ''` puis `trim()` : une clé de `$_POST` absente n'est
-pas une erreur PHP à provoquer, un champ peut ne pas être envoyé.
+Chaque champ est lu avec `?? ''` puis `trim()` : un champ peut ne pas être
+envoyé, et lire une clé absente de `$_POST` sans `??` produit un avertissement
+PHP.
 
 Les messages sont accumulés dans `$errors` et affichés d'un bloc, plutôt que de
 sortir à la première erreur.
@@ -96,9 +97,9 @@ sortir à la première erreur.
 Une contrainte de base (longueur, unicité) est validée en PHP même si la colonne
 la porte aussi : l'erreur SQL n'est pas un message utilisateur.
 
-## 4 : Répondre — deux motifs
+## 4 : Réponse
 
-Les deux existent dans le projet.
+Le projet emploie deux motifs.
 
 Redirection + Flash, quand le formulaire est sur une page qui affiche autre
 chose (préférences, galerie) :
@@ -127,7 +128,7 @@ return;
 ```
 
 Différence : le rendu direct conserve les valeurs saisies (`$old`) sans les
-stocker en session, mais laisse le navigateur sur une réponse à un POST — un
+stocker en session, mais laisse le navigateur sur une réponse à un POST : un
 rafraîchissement propose de renvoyer le formulaire. La redirection l'évite
 (Post/Redirect/Get) au prix de la perte des champs saisis.
 

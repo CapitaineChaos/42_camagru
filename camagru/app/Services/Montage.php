@@ -8,12 +8,12 @@ use App\Core\Settings;
 use GdImage;
 use RuntimeException;
 
-/** Builds the montage server side: the browser only ever sends coordinates. */
+/** Builds the montage server side from the source and the overlay coordinates sent by the browser. */
 final class Montage
 {
     private const DOSSIER = '/storage/images/';
 
-    /** Decoding beyond this stays out of memory_limit at 4 bytes per pixel. */
+    /** Pixel cap: at 4 bytes per pixel, decoding a larger image would exceed memory_limit. */
     private const MAX_PIXELS = 16000000;
 
     private Overlays $overlays;

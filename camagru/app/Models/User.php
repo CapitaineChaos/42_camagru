@@ -181,8 +181,8 @@ final class User extends Model
      * Closes an account for good: the montages go, the comments left elsewhere
      * stay on without their author.
      *
-     * Foreign keys cascade over the rest — likes, reports, friendships, resets,
-     * admin seat — but what has to survive or be counted is spelled out here.
+     * Foreign keys cascade over the rest (likes, reports, friendships, resets,
+     * admin seat); what has to survive or be counted is handled here.
      *
      * @return list<string> montage filenames, for the caller to unlink
      */
