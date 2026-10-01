@@ -1,6 +1,5 @@
 FROM docker.io/library/php:8.3-apache
 
-# Extensions : PDO PostgreSQL + GD (manipulation d'images pour Camagru)
 RUN apt-get update \
     # -y : sans confirmation ; --no-install-recommends : sans les paquets recommandés
     && apt-get install -y --no-install-recommends \
