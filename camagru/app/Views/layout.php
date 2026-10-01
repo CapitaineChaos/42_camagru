@@ -40,8 +40,9 @@ $titrePage = $titres[$view ?? ''] ?? null;
 
 $v = (int) \App\Core\Settings::get('assets.version');
 
-// one stylesheet per domain, loaded in @layer order (tokens fixes the cascade);
-// the page-specific ones travel only where they apply
+// one stylesheet per domain; the load order is the cascade order (utilities
+// beat component defaults, a page sheet overrides both), so it stays as is.
+// The page-specific ones travel only where they apply
 $feuilles = ['tokens', 'base', 'background', 'layout', 'components', 'menu', 'ornaments', 'utilities'];
 $specifiques = [
     'photobooth' => 'photobooth', 'gallery' => 'gallery',

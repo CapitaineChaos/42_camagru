@@ -1,71 +1,69 @@
-@layer pages {
-    .when {
-        font-size: .8rem;
-        font-weight: 400;
-        color: #5c5647;
-    }
+.when {
+    font-size: .8rem;
+    font-weight: 400;
+    color: #5c5647;
+}
 
-    .montage-body { align-items: flex-start; }
-    .montage-view {
-        flex: 0 0 auto;
-        width: 520px;
-        max-width: 100%;
-    }
-    .montage-side { flex: 1 1 240px; }
+.montage-body { align-items: flex-start; }
+.montage-view {
+    flex: 0 0 auto;
+    width: 520px;
+    max-width: 100%;
+}
+.montage-side { flex: 1 1 240px; }
 
-    .montage-actions {
-        margin-bottom: .7rem;
-    }
+.montage-actions {
+    margin-bottom: .7rem;
+}
 
-    .reported {
-        font-size: .9rem;
-        color: var(--erreur);
-    }
+.reported {
+    font-size: .9rem;
+    color: var(--erreur);
+}
 
-    .comments {
-        max-width: 40rem;
-        margin-bottom: .9rem;
-    }
+.comments {
+    max-width: 40rem;
+    margin-bottom: .9rem;
+}
 
-    .comments li {
-        font-size: .9rem;
-        overflow-wrap: anywhere;
-    }
+.comments li {
+    font-size: .9rem;
+    overflow-wrap: anywhere;
+}
 
-    .comments .author {
-        font-weight: 700;
-        margin-right: .5rem;
-    }
+.comments .author {
+    font-weight: 700;
+    margin-right: .5rem;
+}
 
-    .comments .author-gone {
-        font-weight: 400;
-        font-style: italic;
-        color: var(--gris-doux);
-    }
+.comments .author-gone {
+    font-weight: 400;
+    font-style: italic;
+    color: var(--gris-doux);
+}
 
-    .scroll-toggle {
-        display: flex;
-        align-items: center;
-        gap: .5rem;
-        margin: 0 0 1.2rem auto;
-        padding: .4rem .9rem;
-        font-size: .95rem;
-        font-weight: 700;
-    }
+.scroll-toggle {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    margin: 0 0 1.2rem auto;
+    padding: .4rem .9rem;
+    font-size: .95rem;
+    font-weight: 700;
+}
 
-    .scroll-toggle input {
-        width: 1.05rem;
-        height: 1.05rem;
-        accent-color: var(--violet);
-    }
+.scroll-toggle input {
+    width: 1.05rem;
+    height: 1.05rem;
+    accent-color: var(--violet);
+}
 
-    .feed-status:not(:empty) {
-        margin: 0 auto 1.2rem;
-        padding: .4rem 1rem;
-        font-size: .9rem;
-    }
+.feed-status:not(:empty) {
+    margin: 0 auto 1.2rem;
+    padding: .4rem 1rem;
+    font-size: .9rem;
+}
 
-    .feed-sentinel {
-        height: 1px;
-    }
+.feed-sentinel {
+    height: 1px;
 }

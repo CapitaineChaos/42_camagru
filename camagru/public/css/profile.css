@@ -1,103 +1,101 @@
-@layer pages {
-    .identity { align-items: flex-start; }
+.identity { align-items: flex-start; }
 
-    .avatar-large {
-        flex: 0 0 auto;
-        width: 96px;
-        height: 96px;
-        box-shadow: 0 0 0 3px var(--voile-blanc), 0 2px 8px rgba(4, 30, 56, .25);
+.avatar-large {
+    flex: 0 0 auto;
+    width: 96px;
+    height: 96px;
+    box-shadow: 0 0 0 3px var(--voile-blanc), 0 2px 8px rgba(4, 30, 56, .25);
+}
+
+/* label/value pairs on a 2-column grid: a flex row does not align the pairs
+   from one row to the next */
+.details {
+    flex: 1 1 0;
+    min-width: 0;
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: .4rem 1.2rem;
+}
+
+.details dt {
+    font-weight: 700;
+}
+
+.details dd {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.avatars {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .6rem;
+}
+
+.avatars > li { flex: 0 1 84px; }
+
+.avatar-choice {
+    display: block;
+    width: 100%;
+    padding: .25rem;
+    border-radius: 50%;
+    background: var(--sable-voile);
+}
+
+.avatar-choice img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.avatar-choice:hover,
+.avatar-choice:focus-visible {
+    background: var(--ligne);
+}
+
+.avatar-choice.chosen {
+    background: var(--violet);
+    box-shadow: 0 2px 8px rgba(4, 30, 56, .35);
+}
+
+.form-inline + .friends-list,
+.form-inline + .note {
+    margin-top: 1rem;
+}
+
+.friend-avatar {
+    flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
+    box-shadow: 0 0 0 2px var(--voile-blanc);
+}
+
+.friend-name {
+    flex: 1;
+    min-width: 0;
+    min-height: 1.2em;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.friend-state {
+    align-self: center;
+    font-size: .9rem;
+    color: var(--gris-doux);
+}
+
+@media (max-width: 480px) {
+    .friend-actions {
+        flex-basis: 100%;
     }
+}
 
-    /* label/value pairs on a 2-column grid: a flex row does not align the pairs
-       from one row to the next */
-    .details {
-        flex: 1 1 0;
-        min-width: 0;
-        display: grid;
-        grid-template-columns: max-content 1fr;
-        gap: .4rem 1.2rem;
-    }
+.user-list li > * { flex: 1 1 8rem; }
+.user-list .uname { font-weight: 700; }
 
-    .details dt {
-        font-weight: 700;
-    }
-
-    .details dd {
-        min-width: 0;
-        overflow-wrap: anywhere;
-    }
-
-    .avatars {
-        display: flex;
-        flex-wrap: wrap;
-        gap: .6rem;
-    }
-
-    .avatars > li { flex: 0 1 84px; }
-
-    .avatar-choice {
-        display: block;
-        width: 100%;
-        padding: .25rem;
-        border-radius: 50%;
-        background: var(--sable-voile);
-    }
-
-    .avatar-choice img {
-        display: block;
-        width: 100%;
-        aspect-ratio: 1;
-        border-radius: 50%;
-        object-fit: cover;
-    }
-
-    .avatar-choice:hover,
-    .avatar-choice:focus-visible {
-        background: var(--ligne);
-    }
-
-    .avatar-choice.chosen {
-        background: var(--violet);
-        box-shadow: 0 2px 8px rgba(4, 30, 56, .35);
-    }
-
-    .form-inline + .friends-list,
-    .form-inline + .note {
-        margin-top: 1rem;
-    }
-
-    .friend-avatar {
-        flex: 0 0 auto;
-        width: 44px;
-        height: 44px;
-        box-shadow: 0 0 0 2px var(--voile-blanc);
-    }
-
-    .friend-name {
-        flex: 1;
-        min-width: 0;
-        min-height: 1.2em;
-        font-weight: 700;
-        overflow-wrap: anywhere;
-    }
-
-    .friend-state {
-        align-self: center;
-        font-size: .9rem;
-        color: var(--gris-doux);
-    }
-
-    @media (max-width: 480px) {
-        .friend-actions {
-            flex-basis: 100%;
-        }
-    }
-
-    .user-list li > * { flex: 1 1 8rem; }
-    .user-list .uname { font-weight: 700; }
-
-    .user-list li.suspended span {
-        color: #8a8471;
-        text-decoration: line-through;
-    }
+.user-list li.suspended span {
+    color: #8a8471;
+    text-decoration: line-through;
 }
