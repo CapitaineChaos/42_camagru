@@ -5,9 +5,9 @@ Glyphs and ornaments come measured by planche_index.py: data-boite, data-ancre, 
 Letters are threaded on a circle, or on a line when the opening is 0; anchor = middle of
 the box, on the baseline. logo.svg comes from the same sheet.
 
-    ./scripts/lettrage.py Gallery -a 24 --decor    # negative angle = hollow arc
-    ./scripts/lettrage.py Gallery -a 0             # straight, no ornament
-    ./scripts/lettrage.py --menu --titres --accueil
+    scripts/.venv/bin/python scripts/draw/lettrage.py Gallery -a 24 --decor    # negative angle = hollow arc
+    scripts/.venv/bin/python scripts/draw/lettrage.py Gallery -a 0             # straight, no ornament
+    scripts/.venv/bin/python scripts/draw/lettrage.py --menu --titres --accueil
 """
 
 import argparse

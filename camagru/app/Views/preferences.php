@@ -2,7 +2,7 @@
 /** @var array{username: string, email: string} $compte */
 /** @var array<string, bool> $reglages */
 
-$minimum = (int) \App\Core\Settings::get('auth.password_min_length', 8);
+$minimum = (int) \App\Core\Settings::get('auth.password_min_length');
 ?>
 <?php require BASE_PATH . '/app/Views/partials/messages.php'; ?>
 

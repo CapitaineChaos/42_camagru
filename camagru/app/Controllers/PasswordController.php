@@ -115,8 +115,8 @@ final class PasswordController extends Controller
 
     private function issue(int $userId, string $email, string $username): void
     {
-        $ttl   = (int) Settings::get('auth.password_reset_ttl', 86400);
-        $token = bin2hex(random_bytes((int) Settings::get('auth.token_bytes', 32)));
+        $ttl   = (int) Settings::get('auth.password_reset_ttl');
+        $token = bin2hex(random_bytes((int) Settings::get('auth.token_bytes')));
 
         (new PasswordReset())->create($userId, hash('sha256', $token), $ttl);
 

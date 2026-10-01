@@ -18,9 +18,9 @@ final class Montage
 
     private Overlays $overlays;
 
-    public function __construct(?Overlays $overlays = null)
+    public function __construct()
     {
-        $this->overlays = $overlays ?? new Overlays();
+        $this->overlays = new Overlays();
     }
 
     /** @throws RuntimeException on a source that is not a decodable image */
@@ -78,12 +78,12 @@ final class Montage
         if ($brut === []) {
             return [];
         }
-        if (count($brut) > (int) Settings::get('photobooth.max_layers', 8)) {
+        if (count($brut) > (int) Settings::get('photobooth.max_layers')) {
             throw new RuntimeException('Too many overlays on this montage.');
         }
 
-        $minimum = (float) Settings::get('photobooth.min_scale', 0.05);
-        $maximum = (float) Settings::get('photobooth.max_scale', 2.0);
+        $minimum = (float) Settings::get('photobooth.min_scale');
+        $maximum = (float) Settings::get('photobooth.max_scale');
 
         $calques = [];
         foreach ($brut as $calque) {
@@ -107,8 +107,8 @@ final class Montage
      */
     public function compose(GdImage $source, array $calques): string
     {
-        $largeur = (int) Settings::get('photobooth.width', 800);
-        $hauteur = (int) Settings::get('photobooth.height', 600);
+        $largeur = (int) Settings::get('photobooth.width');
+        $hauteur = (int) Settings::get('photobooth.height');
 
         $montage = $this->cover($source, $largeur, $hauteur);
         // imagedestroy is deprecated since 8.5: a GD object goes with its last
@@ -127,7 +127,7 @@ final class Montage
         }
 
         $nom = bin2hex(random_bytes(16)) . '.jpg';
-        $ecrit = imagejpeg($montage, $dossier . $nom, (int) Settings::get('photobooth.quality', 85));
+        $ecrit = imagejpeg($montage, $dossier . $nom, (int) Settings::get('photobooth.quality'));
         unset($montage);
 
         if (!$ecrit) {
@@ -172,12 +172,12 @@ final class Montage
 
     private function decode(string $binaire): GdImage
     {
-        if (strlen($binaire) > (int) Settings::get('photobooth.max_source', 6291456)) {
+        if (strlen($binaire) > (int) Settings::get('photobooth.max_source')) {
             throw new RuntimeException('Image too large.');
         }
 
         $mesures = @getimagesizefromstring($binaire);
-        $autorises = (array) Settings::get('photobooth.allowed_mime', []);
+        $autorises = (array) Settings::get('photobooth.allowed_mime');
         if ($mesures === false || !in_array($mesures['mime'] ?? '', $autorises, true)) {
             throw new RuntimeException('Only JPEG, PNG and GIF images are accepted.');
         }

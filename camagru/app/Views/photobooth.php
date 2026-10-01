@@ -1,5 +1,5 @@
 <?php
-/** @var list<array{titre: string, entrees: list<array{slug: string, label: string, url: string}>}> $overlays */
+/** @var list<array{slug: string, label: string, url: string}> $overlays */
 /** @var list<array<string, mixed>> $montages */
 /** @var int $largeur */
 /** @var int $hauteur */
@@ -37,18 +37,19 @@
             </p>
             <p class="field flex-hz">
                 <label for="file">Image</label>
-                <input type="file" id="file" name="file" accept="image/jpeg,image/png,image/gif">
+                <input type="file" id="file" name="file" accept="image/jpeg,image/png,image/gif"
+                       data-max="<?= (int) \App\Core\Settings::get('photobooth.max_source') ?>">
             </p>
             <p class="booth-jump"><a href="#my-montages">My montages (<?= count($montages) ?>)</a></p>
         </div>
     </form>
 </section>
 
-<?php foreach ($overlays as $famille): ?>
+<?php if ($overlays !== []): ?>
 <section class="card">
-    <h2><?= htmlspecialchars($famille['titre']) ?></h2>
+    <h2>Stickers</h2>
     <ul class="stickers list-plain">
-        <?php foreach ($famille['entrees'] as $overlay): ?>
+        <?php foreach ($overlays as $overlay): ?>
         <li class="sticker">
             <button type="button" class="sticker-choice" data-overlay="<?= htmlspecialchars($overlay['slug']) ?>"
                     data-url="<?= htmlspecialchars($overlay['url']) ?>">
@@ -59,7 +60,7 @@
         <?php endforeach; ?>
     </ul>
 </section>
-<?php endforeach; ?>
+<?php endif; ?>
 </div>
 
 <aside class="card booth-side" id="my-montages" aria-labelledby="my-montages-title">

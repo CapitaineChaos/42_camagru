@@ -19,8 +19,8 @@ Un fichier par valeur, sous `secrets/`, ignoré par git :
 | `db_user`, `db_password` | rôle PostgreSQL avec lequel l'application se connecte |
 | `admin_user`, `admin_email`, `admin_password` | compte admin Camagru, sans rapport avec le rôle PostgreSQL |
 
-Lecture par `Core/Secret::read()`, qui cherche `/run/secrets/<nom>` puis
-`secrets/<nom>` à la racine du dépôt, rejette un nom hors `[a-z0-9_]`, coupe le
+Lecture par `Core/Secret::read()`, qui lit `/run/secrets/<nom>`, rejette un nom
+hors `[a-z0-9_]`, coupe le
 retour à la ligne final et lève une exception si le fichier manque ou est vide.
 
 ```php
@@ -146,7 +146,7 @@ l'adresse sont mis à jour.
 Les deux jetons sont générés de la même façon :
 
 ```php
-$token = bin2hex(random_bytes((int) Settings::get('auth.token_bytes', 32)));
+$token = bin2hex(random_bytes((int) Settings::get('auth.token_bytes')));
 ```
 
 32 octets du générateur cryptographique, rendus en 64 caractères hexadécimaux.

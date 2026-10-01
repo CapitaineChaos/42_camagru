@@ -78,7 +78,7 @@ final class PrefsController extends Controller
             $users->updatePassword($this->viewerId(), password_hash($nouveau, PASSWORD_DEFAULT));
         }
 
-        // the session carries the username, and CurrentUser reads the account by it
+        // notifications sign with the session username
         $_SESSION['user']['username'] = $username;
 
         Flash::notice('Account updated.');

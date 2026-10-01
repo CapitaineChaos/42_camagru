@@ -255,7 +255,7 @@ par image en PHP.
 Le modèle fournit le total et la tranche, le contrôleur calcule les bornes :
 
 ```php
-$parPage = max(1, (int) Settings::get('gallery.per_page', 6));
+$parPage = max(1, (int) Settings::get('gallery.per_page'));
 $total   = $images->count();
 $pages   = max(1, (int) ceil($total / $parPage));
 $page    = min(max(1, (int) ($_GET['page'] ?? 1)), $pages);
@@ -270,29 +270,20 @@ Le tri porte sur deux colonnes, `ORDER BY i.created_at DESC, i.id DESC` : deux
 montages créés dans la même seconde auraient sinon un ordre indéterminé, et
 certaines lignes apparaîtraient deux fois d'une page à l'autre.
 
-### I : Transactions
+### I : Suppressions en cascade
 
-Pour plusieurs écritures qui doivent réussir ou échouer ensemble :
-
-```php
-$this->db->beginTransaction();
-
-try {
-    // ... plusieurs requêtes
-    $this->db->commit();
-} catch (Throwable $e) {
-    $this->db->rollBack();
-    throw $e;
-}
-```
-
-`SELECT ... FOR UPDATE` verrouille la ligne lue jusqu'à la fin de la
-transaction, pour qu'une suppression concurrente ne passe pas entre la
-vérification et l'effacement :
+Les clés étrangères portent les suppressions dépendantes : supprimer un montage
+supprime ses likes, commentaires et signalements (`ON DELETE CASCADE`), et
+`RETURNING` rend le nom du fichier dans la même requête :
 
 ```sql
-SELECT filename FROM images WHERE id = :id AND user_id = :user_id FOR UPDATE
+DELETE FROM images WHERE id = :id AND user_id = :user_id RETURNING filename
 ```
+
+Supprimer un compte supprime ses montages, likes, signalements, amitiés,
+demandes de réinitialisation et son rang d'admin. Ses commentaires sur les
+montages des autres restent, sans auteur : `comments.user_id` est en
+`ON DELETE SET NULL`.
 
 ### J : Contrôle de propriété
 

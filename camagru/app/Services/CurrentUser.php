@@ -10,22 +10,12 @@ use App\Models\User;
 
 final class CurrentUser
 {
-    private User $users;
-
-    public function __construct(?User $users = null)
-    {
-        $this->users = $users ?? new User();
-    }
-
     /** @param array<string, mixed> $session */
     public function fromSession(array $session): ?array
     {
-        $username = (string) ($session['user']['username'] ?? '');
-        if ($username === '') {
-            return null;
-        }
+        $id = (int) ($session['user']['id'] ?? 0);
 
-        return $this->users->findByUsername($username);
+        return $id > 0 ? (new User())->findById($id) : null;
     }
 
     /** @param array<string, mixed> $user */
@@ -45,7 +35,7 @@ final class CurrentUser
     {
         $avatar = basename((string) ($user['avatar'] ?? ''));
 
-        return $avatar !== '' ? $avatar : (string) Settings::get('avatars.default', 'generique.png');
+        return $avatar !== '' ? $avatar : (string) Settings::get('avatars.default');
     }
 
     /** @param array<string, mixed> $user */

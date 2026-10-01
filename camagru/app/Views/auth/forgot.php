@@ -7,7 +7,7 @@
     <?php require BASE_PATH . '/app/Views/partials/messages.php'; ?>
 
     <p class="note">The link stays valid for
-        <?= htmlspecialchars((string) round((int) \App\Core\Settings::get('auth.password_reset_ttl', 86400) / 3600)) ?> hours.</p>
+        <?= htmlspecialchars((string) round((int) \App\Core\Settings::get('auth.password_reset_ttl') / 3600)) ?> hours.</p>
 
     <form class="form-block flex-vt" method="post" action="/forgot-password">
         <?= \App\Core\Csrf::field() ?>

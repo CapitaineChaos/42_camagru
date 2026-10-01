@@ -46,19 +46,22 @@ par GD, côté serveur.
 dans `public/stickers/<slug>.png`. Une entrée sans fichier est écartée.
 
 ```php
-foreach ((array) Settings::get('photobooth.' . $cle, []) as $slug => $label) {
+foreach ((array) Settings::get('photobooth.stickers') as $slug => $label) {
     if ($this->path((string) $slug) === null) {
         continue;
     }
-    $entrees[] = ['slug' => $slug, 'label' => $label,
-                  'url'  => '/' . $dossier . '/' . $slug . '.png?v=' . $version];
+    $entrees[] = [
+        'slug'  => (string) $slug,
+        'label' => (string) $label,
+        'url'   => '/stickers/' . $slug . '.png?v=' . $version,
+    ];
 }
 ```
 
 `path()` est aussi le contrôle d'entrée côté serveur : un slug absent du
 catalogue rend `null`, et le montage est refusé.
 
-Les PNG sont produits par `scripts/stickers.py`, qui trace les motifs en SVG puis
+Les PNG sont produits par `scripts/draw/stickers.py`, qui trace les motifs en SVG puis
 les rend en PNG avec canal alpha. GD ne lit pas le SVG, d'où la double sortie.
 
 ## 3 : La scène
@@ -249,7 +252,7 @@ public function layers(string $json): array
     if ($brut === []) {
         return [];
     }
-    if (count($brut) > (int) Settings::get('photobooth.max_layers', 8)) {
+    if (count($brut) > (int) Settings::get('photobooth.max_layers')) {
         throw new RuntimeException('Too many overlays on this montage.');
     }
 
@@ -374,7 +377,7 @@ puis `unset($montage)` après l'écriture du JPEG.
 
 ```php
 $nom = bin2hex(random_bytes(16)) . '.jpg';
-$ecrit = imagejpeg($montage, $dossier . $nom, (int) Settings::get('photobooth.quality', 85));
+$ecrit = imagejpeg($montage, $dossier . $nom, (int) Settings::get('photobooth.quality'));
 ```
 
 Le nom est aléatoire, 32 caractères hexadécimaux : rien du nom d'origine n'est
@@ -424,8 +427,9 @@ if ($filename === '' || basename($filename) !== $filename) {
 
 ## 13 : Suppression
 
-`Image::delete($id, $userId)` filtre sur le propriétaire dans la requête, en
-transaction, et renvoie le nom du fichier supprimé, ou `null` si la ligne
+`Image::delete($id, $userId)` filtre sur le propriétaire dans la requête
+(`DELETE … RETURNING filename`), les likes, commentaires et signalements suivant
+par `ON DELETE CASCADE`, et renvoie le nom du fichier supprimé, ou `null` si la ligne
 n'appartient pas au demandeur. Le contrôleur passe ensuite le nom à
 `Montage::remove()`, qui efface le fichier.
 

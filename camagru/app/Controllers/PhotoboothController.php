@@ -21,8 +21,8 @@ final class PhotoboothController extends Controller
             'title'    => 'Photobooth',
             'overlays' => (new Overlays())->catalogue(),
             'montages' => (new Image())->forUser($this->userId()),
-            'largeur'  => (int) Settings::get('photobooth.width', 800),
-            'hauteur'  => (int) Settings::get('photobooth.height', 600),
+            'largeur'  => (int) Settings::get('photobooth.width'),
+            'hauteur'  => (int) Settings::get('photobooth.height'),
         ] + Flash::pull());
     }
 

@@ -38,7 +38,7 @@ $titres = [
 ];
 $titrePage = $titres[$view ?? ''] ?? null;
 
-$v = (int) \App\Core\Settings::get('assets.version', 1);
+$v = (int) \App\Core\Settings::get('assets.version');
 
 // one stylesheet per domain, loaded in @layer order (tokens fixes the cascade);
 // the page-specific ones travel only where they apply
@@ -75,7 +75,7 @@ $pastille = static function (int $nombre): string {
 };
 ?>
 <!DOCTYPE html>
-<html lang="<?= htmlspecialchars((string) \App\Core\Settings::get('app.lang', 'en')) ?>">
+<html lang="<?= htmlspecialchars((string) \App\Core\Settings::get('app.lang')) ?>">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -129,6 +129,9 @@ $pastille = static function (int $nombre): string {
     <?php endif; ?>
     <?php if (($view ?? '') === 'auth/register'): ?>
     <script src="/js/register.js?v=<?= $v ?>" defer></script>
+    <?php endif; ?>
+    <?php if (($view ?? '') === 'auth/reset'): ?>
+    <script src="/js/password-confirm.js?v=<?= $v ?>" defer></script>
     <?php endif; ?>
     <?php if (($view ?? '') === 'gallery'): ?>
     <script src="/js/gallery.js?v=<?= $v ?>" defer></script>

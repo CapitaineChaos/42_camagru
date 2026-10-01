@@ -101,7 +101,7 @@ $sien = $viewerId !== null && $viewerId === (int) $image['user_id'];
         <input type="hidden" name="page" value="<?= $page ?>">
         <p class="field flex-vt tight">
             <label for="comment-<?= $id ?>">Comment</label>
-            <textarea id="comment-<?= $id ?>" name="comment" rows="2"
+            <textarea id="comment-<?= $id ?>" name="comment" rows="2" required
                       maxlength="<?= $maxComment ?>"></textarea>
         </p>
         <p class="flex-hz"><button type="submit">Post</button></p>

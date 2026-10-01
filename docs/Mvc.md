@@ -120,7 +120,7 @@ final class HomeController extends Controller
 ```php
 protected function view(string $view, array $data = []): void
 {
-    $data += (new LayoutDataProvider())->fromSession($_SESSION);
+    $data += $this->layoutData();   // compte, avatar, demandes d'ami en attente
 
     extract($data, EXTR_SKIP);
 
@@ -202,7 +202,7 @@ le contrôleur.
 | Dossier | Contenu |
 |---------|---------|
 | `app/Core/` | Infrastructure : `Router`, `Controller`, `Model`, `Database`, `Session`, `Csrf`, `Flash`, `Mailer`, `Settings`, `Secret`. Indépendant du métier Camagru. |
-| `app/Services/` | Logique métier hors modèle et hors contrôleur : `Montage` (composition d'images), `Notifications` (emails), `Avatars`, `Overlays`, `LayoutDataProvider`. |
+| `app/Services/` | Logique métier hors modèle et hors contrôleur : `Montage` (composition d'images), `Notifications` (emails), `Avatars`, `Overlays`, `CurrentUser`. |
 
 La composition d'une image avec un overlay (`Montage`) n'accède pas à la base
 et ne produit pas de HTML : ce code est dans `Services/`, hors des contrôleurs.

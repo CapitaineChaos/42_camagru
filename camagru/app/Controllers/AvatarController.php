@@ -17,7 +17,7 @@ final class AvatarController extends Controller
         $currentUser = new CurrentUser();
         $id = (int) ($_GET['id'] ?? 0);
         $user = $id > 0 ? (new User())->findById($id) : $currentUser->fromSession($_SESSION);
-        $defaut = '/avatars/' . rawurlencode((string) Settings::get('avatars.default', 'generique.png'));
+        $defaut = '/avatars/' . rawurlencode((string) Settings::get('avatars.default'));
 
         if ($user === null) {
             $this->redirect($defaut);
@@ -35,7 +35,7 @@ final class AvatarController extends Controller
             $this->redirect($defaut);
         }
 
-        $autorises = (array) Settings::get('avatars.allowed_mime', []);
+        $autorises = (array) Settings::get('avatars.allowed_mime');
         $mime = mime_content_type($path) ?: 'application/octet-stream';
         if (!in_array($mime, $autorises, true)) {
             http_response_code(415);

@@ -18,7 +18,7 @@ DB_USER := $(shell cat $(SRC)/secrets/db_user 2>/dev/null)
 -include $(SRC)/.env
 PSQL    := psql -U $(DB_USER) -d $(DB_NAME)
 
-.PHONY: up down re logs ps psql shell clean fclean watch-apache watch-db dev seed venv draw secrets admin env php_error php_access php_log
+.PHONY: up down re logs ps psql shell clean fclean watch-apache watch-db dev seed venv secrets admin env php_error php_access php_log
 
 
 # --force-recreate : podman-compose ne recrée un conteneur que si sa

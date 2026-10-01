@@ -19,38 +19,15 @@ const PAS_MOLETTE = 1.09;
 // all as fractions of the scene
 const pieces = [];
 let cameraPrete = false;
-let gesteEnCours = false;
 
 const borne = (valeur, minimum, maximum) => Math.max(minimum, Math.min(maximum, valeur));
 
 const posee = (slug) => pieces.find((piece) => piece.slug === slug);
 
-const DEMI_POIGNEE = 9;   // half a handle: they straddle the corners
-const MARGE_BORD = 4;     // ... unless the piece runs past the scene, which clips them
-
 function placer(piece) {
     piece.el.style.left = (piece.x * 100).toFixed(3) + '%';
     piece.el.style.top = (piece.y * 100).toFixed(3) + '%';
     piece.el.style.width = (piece.w * 100).toFixed(3) + '%';
-    ancrer(piece);
-}
-
-/** Handles follow the piece, but never past the scene: overflow would clip them away. */
-function ancrer(piece) {
-    const cadre = scene.getBoundingClientRect();
-    const boite = piece.el.getBoundingClientRect();
-    const bords = {
-        left: Math.max(-DEMI_POIGNEE, cadre.left - boite.left + MARGE_BORD),
-        right: Math.max(-DEMI_POIGNEE, boite.right - cadre.right + MARGE_BORD),
-        top: Math.max(-DEMI_POIGNEE, cadre.top - boite.top + MARGE_BORD),
-        bottom: Math.max(-DEMI_POIGNEE, boite.bottom - cadre.bottom + MARGE_BORD),
-    };
-
-    for (const [coin, poignee] of Object.entries(piece.poignees)) {
-        const [vertical, horizontal] = coin.split('-');
-        poignee.style[vertical] = bords[vertical] + 'px';
-        poignee.style[horizontal] = bords[horizontal] + 'px';
-    }
 }
 
 /** The montage is composed server side: the form carries the geometry, not the pixels. */
@@ -75,11 +52,6 @@ function redimensionner(piece, facteur) {
 }
 
 function saisir(piece, depart, mode) {
-    if (gesteEnCours) {
-        return;
-    }
-    gesteEnCours = true;
-
     const boite = scene.getBoundingClientRect();
     const prise = {
         x: piece.x - (depart.clientX - boite.left) / boite.width,
@@ -103,40 +75,28 @@ function saisir(piece, depart, mode) {
         placer(piece);
     };
 
-    // Listeners on the window, and both event families: pointer capture behaves
-    // unevenly across browsers, and pointer events can be turned off outright.
-    // gesteEnCours keeps the duplicated mouse events from starting a second drag.
+    // on the window: the pointer may leave the piece during the gesture
     const lacher = () => {
-        for (const type of ['pointermove', 'mousemove']) {
-            window.removeEventListener(type, suivre);
-        }
-        for (const type of ['pointerup', 'pointercancel', 'mouseup']) {
-            window.removeEventListener(type, lacher);
-        }
+        window.removeEventListener('pointermove', suivre);
+        window.removeEventListener('pointerup', lacher);
+        window.removeEventListener('pointercancel', lacher);
         piece.el.classList.remove('grabbed');
-        gesteEnCours = false;
         synchroniser();
     };
 
     piece.el.classList.add('grabbed');
-    for (const type of ['pointermove', 'mousemove']) {
-        window.addEventListener(type, suivre);
-    }
-    for (const type of ['pointerup', 'pointercancel', 'mouseup']) {
-        window.addEventListener(type, lacher);
-    }
+    window.addEventListener('pointermove', suivre);
+    window.addEventListener('pointerup', lacher);
+    window.addEventListener('pointercancel', lacher);
 }
 
 /** One square per corner: they show the piece can be resized, and do the resizing. */
 function poignees(element) {
-    const carres = {};
     for (const coin of ['top-left', 'top-right', 'bottom-left', 'bottom-right']) {
         const carre = document.createElement('span');
         carre.className = 'handle handle-' + coin;
-        carres[coin] = carre;
         element.append(carre);
     }
-    return carres;
 }
 
 function marquer(choix, pose) {
@@ -161,30 +121,24 @@ function ajouter(slug, url, choix) {
     image.draggable = false;
     element.append(image);
 
+    poignees(element);
     conteneur.append(element);
 
     // centred across, in the upper third
-    const piece = {
-        slug, choix, el: element, poignees: poignees(element),
-        x: 0.5, y: 1 / 3, w: LARGEUR_DEFAUT,
-    };
+    const piece = { slug, choix, el: element, x: 0.5, y: 1 / 3, w: LARGEUR_DEFAUT };
     pieces.push(piece);
     placer(piece);
-    // the height is unknown until the overlay is decoded: anchor the handles again
-    image.addEventListener('load', () => placer(piece), { once: true });
     marquer(choix, true);
     synchroniser();
 
-    for (const type of ['pointerdown', 'mousedown']) {
-        element.addEventListener(type, (evenement) => {
-            if (evenement.button > 0) {
-                return;
-            }
-            evenement.preventDefault();
-            saisir(piece, evenement,
-                   evenement.target.classList.contains('handle') ? 'taille' : 'deplacer');
-        });
-    }
+    element.addEventListener('pointerdown', (evenement) => {
+        if (evenement.button > 0) {
+            return;
+        }
+        evenement.preventDefault();
+        saisir(piece, evenement,
+               evenement.target.classList.contains('handle') ? 'taille' : 'deplacer');
+    });
 
     // Firefox starts its native image drag on pointerdown, which kills the gesture
     element.addEventListener('dragstart', (evenement) => evenement.preventDefault());
@@ -214,7 +168,7 @@ function direct() {
     prendre.hidden = false;
     reprendre.hidden = true;
     champCapture.value = '';
-    champFichier.value = '';
+    viderFichier();
     synchroniser();
 }
 
@@ -242,12 +196,18 @@ prendre.addEventListener('click', () => {
     pinceau.drawImage(flux, 0, 0);
 
     champCapture.value = toile.toDataURL('image/jpeg', 0.9);
-    champFichier.value = '';
+    viderFichier();
     afficher(champCapture.value);
     synchroniser();
 });
 
 reprendre.addEventListener('click', direct);
+
+/** Empties the file field, and the size error it may carry. */
+function viderFichier() {
+    champFichier.value = '';
+    champFichier.setCustomValidity('');
+}
 
 champFichier.addEventListener('change', () => {
     const fichier = champFichier.files[0];
@@ -255,6 +215,18 @@ champFichier.addEventListener('change', () => {
         direct();
         return;
     }
+
+    // checked before sending, and again by the server: an invalid field blocks
+    // the submit with this message
+    const maximum = Number(champFichier.dataset.max);
+    if (fichier.size > maximum) {
+        champFichier.setCustomValidity('Image too large: '
+            + Math.floor(maximum / 1048576) + ' MiB at most.');
+        champFichier.reportValidity();
+        return;
+    }
+    champFichier.setCustomValidity('');
+
     champCapture.value = '';
     afficher(URL.createObjectURL(fichier));
     synchroniser();

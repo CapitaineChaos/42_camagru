@@ -33,7 +33,7 @@ l'envoi.
         <label for="password">Password</label>
         <input type="password" id="password" name="password"
                autocomplete="new-password" required
-               minlength="<?= (int) \App\Core\Settings::get('auth.password_min_length', 8) ?>">
+               minlength="<?= (int) \App\Core\Settings::get('auth.password_min_length') ?>">
     </p>
     <p class="flex-hz"><button type="submit">Sign up</button></p>
 </form>

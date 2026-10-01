@@ -48,8 +48,8 @@ final class AuthController extends Controller
             return;
         }
 
-        $ttl   = (int) Settings::get('auth.verification_ttl', 86400);
-        $token = bin2hex(random_bytes((int) Settings::get('auth.token_bytes', 32)));
+        $ttl   = (int) Settings::get('auth.verification_ttl');
+        $token = bin2hex(random_bytes((int) Settings::get('auth.token_bytes')));
         $users->create($username, $email, password_hash($password, PASSWORD_DEFAULT), $token, $ttl);
 
         $link = APP_URL . '/verify?token=' . $token;

@@ -41,6 +41,6 @@ final class Password
 
     public static function minimum(): int
     {
-        return (int) Settings::get('auth.password_min_length', 8);
+        return (int) Settings::get('auth.password_min_length');
     }
 }

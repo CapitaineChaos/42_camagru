@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """Cut the sticker sheets into motifs, vectorise each one, rasterise the result.
 
-Sources are the sheets in scripts/sources. Each motif is traced by vectoriser.py,
+Sources are the sheets in scripts/draw/sources. Each motif is traced by vectoriser.py,
 kept as an editable SVG in assets/stickers, then rendered to the PNG the photobooth
 superimposes (GD reads no SVG). Slugs match the catalogue in config/settings.php.
 
-    ./scripts/stickers.py              # the whole sheet set
-    ./scripts/stickers.py cat-ears
+    scripts/.venv/bin/python scripts/draw/stickers.py             # the whole sheet set
+    scripts/.venv/bin/python scripts/draw/stickers.py cat-ears
+
+Needs numpy: pip install -r scripts/draw/requirements.txt
 """
 
 import subprocess

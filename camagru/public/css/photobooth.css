@@ -74,15 +74,11 @@
         box-shadow: 0 1px 4px rgba(4, 30, 56, .45);
     }
 
-    .handle-top-left,
-    .handle-bottom-right {
-        cursor: nwse-resize;
-    }
-
-    .handle-top-right,
-    .handle-bottom-left {
-        cursor: nesw-resize;
-    }
+    /* half outside each corner */
+    .handle-top-left     { top: -9px;    left: -9px;  cursor: nwse-resize; }
+    .handle-top-right    { top: -9px;    right: -9px; cursor: nesw-resize; }
+    .handle-bottom-left  { bottom: -9px; left: -9px;  cursor: nesw-resize; }
+    .handle-bottom-right { bottom: -9px; right: -9px; cursor: nwse-resize; }
 
     .stickers {
         display: flex;

@@ -18,7 +18,7 @@ final class GalleryController extends Controller
     public function gallery(): void
     {
         $images  = new Image();
-        $parPage = max(1, (int) Settings::get('gallery.per_page', 6));
+        $parPage = max(1, (int) Settings::get('gallery.per_page'));
         $total   = $images->count();
         $pages   = max(1, (int) ceil($total / $parPage));
         $page    = min(max(1, (int) ($_GET['page'] ?? 1)), $pages);
@@ -35,7 +35,7 @@ final class GalleryController extends Controller
             'pages'        => $pages,
             'total'        => $total,
             'viewerId'     => $this->viewerId(),
-            'maxComment'   => (int) Settings::get('comments.max_length', 500),
+            'maxComment'   => (int) Settings::get('comments.max_length'),
         ] + Flash::pull());
     }
 
@@ -69,7 +69,7 @@ final class GalleryController extends Controller
     {
         $id      = (int) ($_POST['id'] ?? 0);
         $texte   = trim((string) ($_POST['comment'] ?? ''));
-        $maximum = (int) Settings::get('comments.max_length', 500);
+        $maximum = (int) Settings::get('comments.max_length');
         $image   = $this->cible($id);
 
         if ($image === null) {

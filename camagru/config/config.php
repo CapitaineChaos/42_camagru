@@ -3,27 +3,11 @@
 // Strict scalar types: no implicit conversion of arguments
 declare(strict_types=1);
 
-// Load the .env file when it is readable (CLI, php -S).
-// In Docker the variables are already in the environment (env_file), which wins.
-$file = dirname(__DIR__, 2) . '/.env';
-if (is_readable($file)) {
-    foreach (file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
-        $line = trim($line);
-        if ($line === '' || $line[0] === '#' || !str_contains($line, '=')) {
-            continue;
-        }
-        [$key, $value] = explode('=', $line, 2);
-        $key = trim($key);
-        if (getenv($key) === false) {
-            putenv($key . '=' . trim(trim($value), "\"'"));
-        }
-    }
-}
-
 // The autoloader is set up after this file: the secret reader is required by hand
 require_once dirname(__DIR__) . '/app/Core/Secret.php';
 
-// Reads a required environment variable: missing or empty stops the boot
+// Reads a required variable of .env, put in the container environment by env_file:
+// missing or empty stops the boot
 $env = static function (string $key): string {
     $value = getenv($key);
     if ($value === false || $value === '') {

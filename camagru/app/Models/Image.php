@@ -6,7 +6,6 @@ namespace App\Models;
 
 use App\Core\Model;
 use PDO;
-use Throwable;
 
 final class Image extends Model
 {
@@ -101,42 +100,24 @@ final class Image extends Model
     }
 
     /**
-     * Likes, comments and reports are deleted explicitly although the foreign
-     * keys cascade, so the deletion does not depend on the schema in place.
+     * Likes, comments and reports go with the row: their foreign keys cascade.
      *
      * @param int|null $userId restricts the deletion to that owner; null lifts the check
      */
     private function drop(int $id, ?int $userId): ?string
     {
-        $this->db->beginTransaction();
-
-        try {
-            $possession = $userId === null ? '' : ' AND user_id = :user_id';
+        if ($userId === null) {
+            $stmt = $this->db->prepare('DELETE FROM images WHERE id = :id RETURNING filename');
+            $stmt->execute(['id' => $id]);
+        } else {
             $stmt = $this->db->prepare(
-                'SELECT filename FROM images WHERE id = :id' . $possession . ' FOR UPDATE'
+                'DELETE FROM images WHERE id = :id AND user_id = :user_id RETURNING filename'
             );
-            $stmt->execute(
-                $userId === null ? ['id' => $id] : ['id' => $id, 'user_id' => $userId]
-            );
-            $filename = $stmt->fetchColumn();
-
-            if ($filename === false) {
-                $this->db->rollBack();
-                return null;
-            }
-
-            foreach (['likes', 'comments', 'reports', 'images'] as $table) {
-                $colonne = $table === 'images' ? 'id' : 'image_id';
-                $this->db->prepare("DELETE FROM {$table} WHERE {$colonne} = :id")
-                    ->execute(['id' => $id]);
-            }
-
-            $this->db->commit();
-
-            return (string) $filename;
-        } catch (Throwable $e) {
-            $this->db->rollBack();
-            throw $e;
+            $stmt->execute(['id' => $id, 'user_id' => $userId]);
         }
+
+        $filename = $stmt->fetchColumn();
+
+        return $filename === false ? null : (string) $filename;
     }
 }

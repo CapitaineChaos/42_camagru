@@ -16,20 +16,6 @@ CREATE TABLE IF NOT EXISTS users (
     created_at  TIMESTAMPTZ  NOT NULL DEFAULT now()
 );
 
--- kept live, not commented out: they carry an existing database over
-ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_comment        BOOLEAN NOT NULL DEFAULT TRUE;
-ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_friend_request BOOLEAN NOT NULL DEFAULT TRUE;
-ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_friend_accepted BOOLEAN NOT NULL DEFAULT TRUE;
-ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_friend_removed BOOLEAN NOT NULL DEFAULT TRUE;
-ALTER TABLE users ADD COLUMN IF NOT EXISTS suspended             BOOLEAN NOT NULL DEFAULT FALSE;
-
--- ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar VARCHAR(255);
--- ALTER TABLE users ADD COLUMN IF NOT EXISTS modele BOOLEAN NOT NULL DEFAULT TRUE;
--- ALTER TABLE users ADD COLUMN IF NOT EXISTS verified BOOLEAN NOT NULL DEFAULT FALSE;
--- ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_token VARCHAR(64);
--- ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_expires_at TIMESTAMPTZ;
--- ALTER TABLE users ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT now();
-
 CREATE TABLE IF NOT EXISTS password_resets (
     id          SERIAL PRIMARY KEY,
     user_id     INTEGER      NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -60,7 +46,7 @@ CREATE INDEX IF NOT EXISTS images_recent_idx ON images (created_at DESC);
 CREATE TABLE IF NOT EXISTS comments (
     id          SERIAL PRIMARY KEY,
     image_id    INTEGER REFERENCES images(id) ON DELETE CASCADE,
-    user_id     INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    user_id     INTEGER REFERENCES users(id) ON DELETE SET NULL,   -- the comment outlives its author
     comment     TEXT         NOT NULL,
     created_at  TIMESTAMPTZ  NOT NULL DEFAULT now()
 );
@@ -94,7 +80,6 @@ CREATE TABLE IF NOT EXISTS friendships (
     CHECK (requester_id <> addressee_id)
 );
 
--- one row per pair, whichever way round the request went
 CREATE UNIQUE INDEX IF NOT EXISTS friendships_pair_idx
     ON friendships (least(requester_id, addressee_id), greatest(requester_id, addressee_id));
 

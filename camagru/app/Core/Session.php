@@ -11,13 +11,13 @@ final class Session
         $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
             || (int) ($_SERVER['SERVER_PORT'] ?? 0) === 443;
 
-        session_name((string) Settings::get('session.name', 'camagru_session'));
-        ini_set('session.gc_maxlifetime', (string) (int) Settings::get('session.lifetime', 7200));
+        session_name((string) Settings::get('session.name'));
+        ini_set('session.gc_maxlifetime', (string) (int) Settings::get('session.lifetime'));
         session_set_cookie_params([
-            'lifetime' => (int) Settings::get('session.cookie_lifetime', 0),
+            'lifetime' => (int) Settings::get('session.cookie_lifetime'),
             'path'     => '/',
             'httponly' => true,
-            'samesite' => (string) Settings::get('session.samesite', 'Lax'),
+            'samesite' => (string) Settings::get('session.samesite'),
             'secure'   => $secure,
         ]);
 
@@ -30,7 +30,7 @@ final class Session
     /** gc_maxlifetime collection is opportunistic. */
     private static function expireInactive(): void
     {
-        $duree  = (int) Settings::get('session.lifetime', 7200);
+        $duree  = (int) Settings::get('session.lifetime');
         $dernier = (int) ($_SESSION['last_activity'] ?? 0);
 
         if ($duree > 0 && $dernier !== 0 && time() - $dernier > $duree) {
@@ -44,7 +44,7 @@ final class Session
 
     private static function rotateId(): void
     {
-        $delai = (int) Settings::get('session.regenerate', 0);
+        $delai = (int) Settings::get('session.regenerate');
         if ($delai <= 0) {
             return;
         }

@@ -111,9 +111,9 @@ Trois sources :
 Aucun credential dans `.env`, aucun dans le schéma SQL. Le compte admin est créé
 par `database/admin.php` (`make admin`) à partir des secrets.
 
-`config.php` charge `.env` quand le fichier est lisible, ce qui couvre les
-exécutions CLI depuis l'hôte ; dans les conteneurs les variables sont déjà dans
-l'environnement et l'emportent.
+`config.php` lit les variables de `.env` dans l'environnement du conteneur, où
+`env_file` les a placées ; une variable absente ou vide arrête le démarrage. PHP
+ne s'exécute que dans les conteneurs.
 
 ## 5 : Chemin d'une requête
 
@@ -144,8 +144,11 @@ fichier, et de poser les en-têtes (`Content-Type`, `Cache-Control`).
 
 ## 7 : Génération des assets
 
-Les images du thème sont produites par des scripts Python, lancés
-ponctuellement et jamais pendant l'exécution du site :
+Les images du thème sont produites par les scripts Python de `scripts/draw/`,
+lancés à la main et jamais pendant l'exécution du site, avec le Python du venv
+(`scripts/.venv/bin/python`). Le venv est créé une fois, par `make seed` ou
+`make venv`, à partir de `scripts/requirements.txt`, et n'est réinstallé que si
+ce fichier change.
 
 | Script | Entrée | Sortie |
 |--------|--------|--------|

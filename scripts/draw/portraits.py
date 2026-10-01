@@ -7,8 +7,8 @@ portraits.json: where the skull, the eyes and the face sit in each image, in
 fractions of its width and height. seed.py reads that to drop a crown on a head
 rather than in a corner.
 
-    ./scripts/portraits.py            # the whole set
-    ./scripts/portraits.py -n 24      # more of them
+    scripts/.venv/bin/python scripts/draw/portraits.py          # the whole set
+    scripts/.venv/bin/python scripts/draw/portraits.py -n 24    # more of them
 """
 
 import argparse

@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace App\Core;
 
-use App\Services\LayoutDataProvider;
+use App\Models\Friendship;
+use App\Services\CurrentUser;
 
 abstract class Controller
 {
     /** @param array<string, mixed> $data */
     protected function view(string $view, array $data = []): void
     {
-        $data += (new LayoutDataProvider())->fromSession($_SESSION);
+        $data += $this->layoutData();
 
         extract($data, EXTR_SKIP);
 
@@ -20,6 +21,19 @@ abstract class Controller
         $content = ob_get_clean();
 
         require BASE_PATH . '/app/Views/layout.php';
+    }
+
+    /** What the layout shows on every page: the account, its avatar, pending friend requests. */
+    private function layoutData(): array
+    {
+        $comptes = new CurrentUser();
+        $user = $comptes->fromSession($_SESSION);
+
+        return [
+            'currentUser'          => $user,
+            'currentUserAvatarUrl' => $user !== null ? $comptes->avatarUrl($user) : null,
+            'pendingRequests'      => $user !== null ? (new Friendship())->pendingCount((int) $user['id']) : 0,
+        ];
     }
 
     /** @param array<string, mixed> $data */

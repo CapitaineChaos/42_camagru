@@ -6,7 +6,9 @@ colours are few and the edges are clean. Marching squares gives the outlines of 
 colour mask, Ramer-Douglas-Peucker drops the staircase, and a Catmull-Rom pass turns
 the polyline into curves while keeping the sharp corners sharp.
 
-    ./scripts/vectoriser.py motif.png motif.svg
+    scripts/.venv/bin/python scripts/draw/vectoriser.py motif.png motif.svg
+
+Needs numpy: pip install -r scripts/draw/requirements.txt
 """
 
 import math
