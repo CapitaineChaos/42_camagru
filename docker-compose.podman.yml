@@ -1,0 +1,20 @@
+# keep-id : l'uid de l'utilisateur hôte est le même dans les conteneurs. Sous
+# podman rootless, tout autre uid devient un subuid que le NFS des postes 42
+# refuse. Un pod podman ne peut pas porter keep-id, d'où in_pod: false.
+x-podman:
+  in_pod: false
+
+services:
+  web:
+    userns_mode: keep-id
+    # le maître apache démarre en root pour écouter sur le port 80, puis ses
+    # workers passent sous www-data, aligné sur l'uid hôte par le Dockerfile
+    user: root
+
+  db:
+    userns_mode: keep-id
+    # postgres tourne sous l'uid hôte. Le volume neuf reprend le propriétaire de
+    # l'image (uid 70) en 1777 : initdb ne peut pas en changer les droits, mais
+    # peut créer PGDATA dans un sous-dossier, qui appartient alors à l'uid hôte.
+    environment:
+      PGDATA: /var/lib/postgresql/data/pgdata

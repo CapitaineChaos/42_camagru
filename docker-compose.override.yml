@@ -1,12 +1,9 @@
-# Développement (make dev) : le code est lu depuis le dépôt, une modification
-# est visible sans reconstruire l'image. La base est joignable depuis l'hôte.
 services:
   web:
     volumes:
       - ./camagru/public:/var/www/html/public
       - ./camagru/app:/var/www/html/app
       - ./camagru/config:/var/www/html/config
-      - ./camagru/database:/var/www/html/database
 
   db:
     ports:

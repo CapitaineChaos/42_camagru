@@ -68,13 +68,12 @@ Ajouts au squelette dans l'état actuel du dépôt :
 
 | Ajout | Contenu |
 |-------|---------|
-| `app/Core/` étendu | `Session`, `Csrf`, `Flash`, `Mailer`, `Settings`, `Secret`, `Svg`, `Text`, `Pg` |
+| `app/Core/` étendu | `Session`, `Csrf`, `Flash`, `Mailer`, `Settings`, `Svg`, `Text`, `Pg` |
 | `app/Services/` | logique métier hors modèle et hors contrôleur : `Montage`, `Notifications`, `Avatars`, `Overlays`, `CurrentUser` |
 | `storage/` (conteneur) | fichiers écrits par l'application : `avatars/`, `images/` (montages), hors `DocumentRoot` ; créé par le Dockerfile, monté sur des volumes nommés |
 | `public/css/` | une douzaine de feuilles par domaine, au lieu de `style.css` |
 | `public/js/` | scripts de page : photobooth, galerie, ornements |
 | `public/images/` | thème, lettrages SVG |
-| `database/admin.php` | création du compte admin depuis les secrets |
-| `secrets/` | un credential par fichier, hors dépôt |
+| `database/admin.sh` | création du compte admin à l'initialisation de la base, depuis `.env` (`ADMIN_*`) |
 | `docker/`, `docker-compose.yml`, `Makefile` | exécution : Apache + PHP, PostgreSQL, MailHog |
 | `scripts/` | génération des assets et peuplement de l'instance |

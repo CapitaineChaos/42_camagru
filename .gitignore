@@ -1,6 +1,5 @@
 .env
 _old/
-secrets/
 __pycache__/
 
 scripts/.venv/

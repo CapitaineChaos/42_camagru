@@ -30,14 +30,11 @@ RUN apt-get update \
 
 # www-data takes the host uid/gid (keep-id in docker-compose.yml): Apache reads the
 # code and writes storage/ as the host user. -o accepts an id already taken.
-ARG UID=1000
-ARG GID=1000
+ARG UID
+ARG GID
 RUN groupmod -o -g $GID www-data && usermod -o -u $UID -g $GID www-data
 
-# Points de montage des volumes images-data et avatars-data : un volume neuf
-# reprend les droits du dossier de l'image. chown vers l'uid hôte est impossible
-# au build (uid hors de la plage de l'espace de noms de construction), d'où
-# 1777 : www-data y écrit.
+# Points de montage des volumes
 RUN mkdir -p /var/www/html/storage/images /var/www/html/storage/avatars \
     && chmod 1777 /var/www/html/storage/images /var/www/html/storage/avatars
 
@@ -46,11 +43,9 @@ COPY docker/web/000-default.conf /etc/apache2/sites-available/000-default.conf
 
 COPY docker/web/uploads.ini /usr/local/etc/php/conf.d/uploads.ini
 
-# Répertoire de travail
 WORKDIR /var/www/html
 
 # Le code en dernier : une modification ne reconstruit que ces couches
 COPY camagru/public public
 COPY camagru/app app
 COPY camagru/config config
-COPY camagru/database database

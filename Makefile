@@ -1,37 +1,30 @@
 MAKEFLAGS += --no-print-directory
 
 SRC     := $(CURDIR)
-DFILES   := -f docker-compose.yml
+PODMAN  := $(shell docker --version 2>/dev/null | grep -qi podman && echo 1)
+DFILES   := -f docker-compose.yml $(if $(PODMAN),-f docker-compose.podman.yml)
 COMPOSE  = docker compose -p camagru $(DFILES)
 
 export CAMAGRU_UID := $(shell id -u)
 export CAMAGRU_GID := $(shell id -g)
 
-WEB     := camagru-web
-DB      := camagru-db
-
 VENV    := $(SRC)/scripts/.venv
 PY      := $(VENV)/bin/python
 
-DB_USER := $(shell cat $(SRC)/secrets/db_user 2>/dev/null)
-# .env est en NOM=valeur : make le lit comme des affectations (DB_NAME, ...)
 -include $(SRC)/.env
-PSQL    := psql -U $(DB_USER) -d $(DB_NAME)
 
-.PHONY: up down re logs ps psql shell clean fclean watch-apache watch-db dev seed venv secrets admin env php_error php_access php_log
+.PHONY: up down re logs ps psql shell clean fclean watch-apache watch-db dev seed venv env php_error php_access php_log
 
-
-# --force-recreate : podman-compose ne recrée un conteneur que si sa
-# configuration compose change
-up: env secrets
+# --force-recreate : sinon podman-compose garderait un conteneur dont seule l'image a changé
+up: env
 	$(COMPOSE) up -d --build --force-recreate
-	@$(MAKE) admin
 	@echo "[up] Conteneurs démarrés"
 	@echo "  Camagru -> http://localhost:8080/"
 	@echo "  MailHog -> http://localhost:8025/"
 
 env:
-	@test -f $(SRC)/.env || { echo "[env] .env absent" >&2; exit 1; }
+	$(if $(wildcard $(SRC)/.env),,$(error .env absent : cp .env.example .env puis le remplir))
+	$(foreach v,WEB_CONTAINER DB_CONTAINER MAILHOG_CONTAINER DB_USER DB_PASSWORD ADMIN_USER ADMIN_EMAIL ADMIN_PASSWORD,$(if $($(v)),,$(error $(v) vide dans .env)))
 
 down:
 	$(COMPOSE) down
@@ -39,10 +32,10 @@ down:
 re: down fclean up
 
 watch-apache:
-	@./scripts/watch.sh --apache $(WEB)
+	@./scripts/watch.sh --apache $(WEB_CONTAINER)
 
 watch-db:
-	@./scripts/watch.sh --db $(DB) $(SRC)/camagru/database
+	@./scripts/watch.sh --db $(DB_CONTAINER) $(SRC)/camagru/database
 
 dev: DFILES += -f docker-compose.override.yml
 dev: up
@@ -55,13 +48,7 @@ ps:
 	$(COMPOSE) ps
 
 psql:
-	$(COMPOSE) exec db $(PSQL)
-
-secrets:
-	@./scripts/credentials.py $(ARGS)
-
-admin:
-	@./scripts/admin.sh $(WEB) $(DB)
+	$(COMPOSE) exec db psql -U $(DB_USER) -d $(DB_NAME)
 
 $(VENV): scripts/requirements.txt
 	python3 -m venv $(VENV)

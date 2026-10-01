@@ -201,7 +201,7 @@ le contrôleur.
 
 | Dossier | Contenu |
 |---------|---------|
-| `app/Core/` | Infrastructure : `Router`, `Controller`, `Model`, `Database`, `Session`, `Csrf`, `Flash`, `Mailer`, `Settings`, `Secret`. Indépendant du métier Camagru. |
+| `app/Core/` | Infrastructure : `Router`, `Controller`, `Model`, `Database`, `Session`, `Csrf`, `Flash`, `Mailer`, `Settings`. Indépendant du métier Camagru. |
 | `app/Services/` | Logique métier hors modèle et hors contrôleur : `Montage` (composition d'images), `Notifications` (emails), `Avatars`, `Overlays`, `CurrentUser`. |
 
 La composition d'une image avec un overlay (`Montage`) n'accède pas à la base

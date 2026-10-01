@@ -40,7 +40,6 @@ final class PhotoboothController extends Controller
 
             Flash::notice('Montage saved.');
         } catch (RuntimeException $e) {
-            error_log('Montage rejected: ' . $e->getMessage());
             Flash::errors([$e->getMessage()]);
         } catch (Throwable $e) {
             error_log('Montage failed: ' . $e->getMessage());

@@ -1,36 +1,17 @@
-# Déploiement : le code est dans l'image, les données dans des volumes nommés.
-# docker-compose.override.yml ajoute les montages du code pour le développement.
-
-# keep-id : l'uid de l'utilisateur hôte est le même dans les conteneurs. Sous
-# podman rootless, tout autre uid devient un subuid que le NFS des postes 42
-# refuse. Un pod podman ne peut pas porter keep-id, d'où in_pod: false.
-x-podman:
-  in_pod: false
-
 services:
   web:
     build:
       context: .
       dockerfile: docker/web/Dockerfile
       args:
-        UID: ${CAMAGRU_UID:-1000}
-        GID: ${CAMAGRU_GID:-1000}
-    container_name: camagru-web
-    userns_mode: keep-id
-    # le maître apache démarre en root pour écouter sur le port 80, puis ses
-    # workers passent sous www-data, aligné sur l'uid hôte par le Dockerfile
-    user: root
+        UID: ${CAMAGRU_UID}
+        GID: ${CAMAGRU_GID}
+    container_name: ${WEB_CONTAINER}
     ports:
       - "8080:80"
     volumes:
       - images-data:/var/www/html/storage/images
       - avatars-data:/var/www/html/storage/avatars
-    secrets:
-      - db_user
-      - db_password
-      - admin_user
-      - admin_email
-      - admin_password
     env_file: .env
     depends_on:
       - db
@@ -38,45 +19,26 @@ services:
 
   db:
     image: docker.io/library/postgres:16-alpine
-    container_name: camagru-db
-    # postgres tourne sous l'uid hôte. Le volume neuf reprend le propriétaire de
-    # l'image (uid 70) en 1777 : initdb ne peut pas en changer les droits, mais
-    # peut créer PGDATA dans un sous-dossier, qui appartient alors à l'uid hôte.
-    userns_mode: keep-id
+    container_name: ${DB_CONTAINER}
     environment:
       POSTGRES_DB: ${DB_NAME}
-      PGDATA: /var/lib/postgresql/data/pgdata
-      # the entrypoint reads these files itself: the password never lands in the
-      # container environment, where a docker inspect would print it
-      POSTGRES_USER_FILE: /run/secrets/db_user
-      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      ADMIN_USER: ${ADMIN_USER}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+    # initdb.d : joués par ordre de nom, seulement sur une base vide
     volumes:
       - db-data:/var/lib/postgresql/data
-      - ./camagru/database/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
-    secrets:
-      - db_user
-      - db_password
+      - ./camagru/database/schema.sql:/docker-entrypoint-initdb.d/10-schema.sql:ro
+      - ./camagru/database/admin.sh:/docker-entrypoint-initdb.d/20-admin.sh:ro
 
   mailhog:
     image: docker.io/mailhog/mailhog:latest
-    container_name: camagru-mailhog
+    container_name: ${MAILHOG_CONTAINER}
     ports:
       - "1025:1025"   # SMTP app
       - "8025:8025"   # Interface web : http://localhost:8025
-
-# montés en lecture seule sous /run/secrets/<nom>, pour les seuls services qui
-# les déclarent
-secrets:
-  db_user:
-    file: ./secrets/db_user
-  db_password:
-    file: ./secrets/db_password
-  admin_user:
-    file: ./secrets/admin_user
-  admin_email:
-    file: ./secrets/admin_email
-  admin_password:
-    file: ./secrets/admin_password
 
 volumes:
   db-data:

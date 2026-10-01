@@ -4,48 +4,43 @@ Deux familles de credentials :
 
 | Famille | Contenu | Emplacement |
 |---------|---------|-------------|
-| Infrastructure | rôle PostgreSQL, compte admin d'installation | `secrets/`, un fichier par valeur |
+| Infrastructure | rôle PostgreSQL, compte admin d'installation | `.env`, ignoré par git |
 | Utilisateur | mots de passe des comptes, jetons de mail | table `users`, table `password_resets` |
 
-Aucun credential n'est écrit dans `.env`, dans `config/settings.php`, ni dans
-`database/schema.sql`.
+Aucun credential n'est écrit dans le dépôt : ni dans `.env.example`, où ils sont
+laissés vides, ni dans `config/settings.php`, ni dans `database/schema.sql`. La
+feuille d'évaluation exige qu'ils soient dans `.env`.
 
-## 1 : Secrets d'infrastructure
+## 1 : Credentials d'infrastructure
 
-Un fichier par valeur, sous `secrets/`, ignoré par git :
+| Variable de `.env` | Usage |
+|--------------------|-------|
+| `DB_USER`, `DB_PASSWORD` | rôle PostgreSQL avec lequel l'application se connecte |
+| `ADMIN_USER`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` | compte admin Camagru, sans rapport avec le rôle PostgreSQL |
 
-| Fichier | Usage |
-|---------|-------|
-| `db_user`, `db_password` | rôle PostgreSQL avec lequel l'application se connecte |
-| `admin_user`, `admin_email`, `admin_password` | compte admin Camagru, sans rapport avec le rôle PostgreSQL |
+`make up` refuse de démarrer si `.env` manque ou si l'une de ces cinq variables
+est vide.
 
-Lecture par `Core/Secret::read()`, qui lit `/run/secrets/<nom>`, rejette un nom
-hors `[a-z0-9_]`, coupe le
-retour à la ligne final et lève une exception si le fichier manque ou est vide.
+`web` reçoit tout `.env` dans son environnement (`env_file`) ; `config.php` lit
+les variables par `getenv()` et arrête le démarrage sur une variable absente ou
+vide :
 
 ```php
-define('DB_USER', \App\Core\Secret::read('db_user'));
-define('DB_PASS', \App\Core\Secret::read('db_password'));
+define('DB_USER', $env('DB_USER'));
+define('DB_PASS', $env('DB_PASSWORD'));
 ```
 
-`docker-compose.yml` déclare chaque fichier dans sa clé `secrets:`. Un service
-ne reçoit que les secrets qu'il liste, en lecture seule sous
-`/run/secrets/<nom>` : `web` les cinq, `db` seulement `db_user` et
-`db_password`. PostgreSQL lit `POSTGRES_USER_FILE` et `POSTGRES_PASSWORD_FILE` :
-le mot de passe n'apparaît pas dans l'environnement du conteneur, donc pas dans
-un `inspect`.
+`db` ne reçoit que `POSTGRES_DB`, `POSTGRES_USER` et `POSTGRES_PASSWORD`,
+interpolés par compose depuis `DB_NAME`, `DB_USER` et `DB_PASSWORD`. Ces valeurs
+sont visibles dans l'environnement des conteneurs, donc dans un `docker inspect`.
 
-`make secrets` (`scripts/credentials.py`) demande les identifiants et tire les
-deux mots de passe avec le module `secrets` de Python : lettres et chiffres,
-32 caractères pour `db_password`, 24 pour `admin_password`. Un fichier déjà
-rempli n'est pas remplacé.
-
-Permissions : 600 pour tous les fichiers. PostgreSQL et PHP tournent sous l'uid
-de l'utilisateur hôte (`userns_mode: keep-id`).
-
-Le compte admin est créé par `database/admin.php` (`make admin`), qui hashe le
-mot de passe côté PHP et fait un `ON CONFLICT (email) DO UPDATE` : relancer le
-script change le mot de passe au lieu d'échouer.
+Le compte admin est créé une seule fois, à l'initialisation de la base, par
+`database/admin.sh`, que l'entrypoint PostgreSQL joue après le schéma.
+`db` reçoit pour cela `ADMIN_USER`, `ADMIN_EMAIL` et `ADMIN_PASSWORD`. Le script
+insère le compte, vérifié, et sa ligne dans `admins` ; pgcrypto hache le mot de
+passe en bcrypt (`crypt(…, gen_salt('bf', 10))`, préfixe `$2a$`), que
+`password_verify` vérifie comme un hash de `password_hash`. Changer `ADMIN_*`
+ensuite demande de recréer la base (`make clean`, puis `make up`).
 
 ## 2 : Politique de mot de passe
 
@@ -195,7 +190,5 @@ comprenne le refus ; elle confirme en contrepartie qu'une adresse est inscrite.
   attente. Portée limitée : le jeton devient `NULL` à la vérification.
 - Aucune limitation du nombre de tentatives de connexion. Rien ne ralentit un
   essai automatisé sur `/login`, hors le coût de bcrypt.
-- `make hash PASS='...'` fait passer un mot de passe en clair par la ligne de
-  commande, donc par l'historique du shell.
 - Le coût bcrypt est celui de `PASSWORD_DEFAULT`, soit 10. Le relever se fait
   par un troisième argument de `password_hash`.

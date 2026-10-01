@@ -86,6 +86,7 @@ $pastille = static function (int $nombre): string {
     <?php endforeach; ?>
 </head>
 <body class="<?= $accueil ? 'home' : 'inner' ?>">
+    <header class="site-header">
     <nav class="<?= $accueil ? 'home-menu' : 'side-menu' ?>" aria-label="Main">
         <input type="checkbox" id="burger" class="hamburger">
         <label for="burger"<?= $attente > 0 ? ' data-pip="' . $attente . '"' : '' ?>><span></span></label>
@@ -114,6 +115,7 @@ $pastille = static function (int $nombre): string {
         </form>
     </div>
     <?php endif; ?>
+    </header>
     <?php if ($titrePage): ?>
         <h1 class="page-title"><?= \App\Core\Svg::inline('titres/' . $titrePage[0]) ?></h1>
     <?php endif; ?>

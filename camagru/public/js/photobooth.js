@@ -249,7 +249,8 @@ if (demande === undefined) {
 } else {
     demande.then((camera) => {
         flux.srcObject = camera;
-        flux.play();
+        // a play() cut short by a new load rejects; there is nothing to report
+        flux.play().catch(() => {});
         // shooting before the metadata arrives would grab a canvas of zero pixels
         flux.addEventListener('loadedmetadata', () => {
             cameraPrete = true;

@@ -58,7 +58,7 @@ case "$1" in
     [ $# -eq 3 ] || usage
     # le dossier plutôt que le fichier : un éditeur qui enregistre par renommage
     # remplace le fichier, et inotifywait perdrait sa cible. Le rôle et la base
-    # sont lus dans le conteneur : son secret db_user et son POSTGRES_DB.
+    # sont lus dans le conteneur : POSTGRES_USER et POSTGRES_DB, venus de .env.
     command -v inotifywait >/dev/null \
         || { echo "[watch-db] inotifywait absent (paquet inotify-tools)" >&2; exit 1; }
     [ -f "$3/schema.sql" ] || { echo "[watch-db] $3/schema.sql introuvable" >&2; exit 1; }
@@ -69,7 +69,7 @@ case "$1" in
         # ON_ERROR_STOP : la première erreur SQL arrête psql en code non nul ;
         # sans lui, psql continue et sort en 0. Un échec est signalé, la
         # surveillance continue pour la prochaine correction.
-        if docker exec -i "$2" sh -c 'psql -q -v ON_ERROR_STOP=1 -U "$(cat /run/secrets/db_user)" -d "$POSTGRES_DB"' < "$3/schema.sql"; then
+        if docker exec -i "$2" sh -c 'psql -q -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB"' < "$3/schema.sql"; then
             echo "[watch-db] schema.sql rejoué $(date +%H:%M:%S)"
         else
             echo "[watch-db] ÉCHEC du rejeu de schema.sql $(date +%H:%M:%S), erreur ci-dessus" >&2

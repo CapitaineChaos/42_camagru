@@ -45,9 +45,9 @@ tables et des relations entre elles.
 
 ## 2 : Se connecter et inspecter la base
 
-Base PostgreSQL exposée par le service `db` (conteneur `camagru-db`). Le nom de
-la base est dans `.env` (`DB_NAME`), le rôle dans `secrets/db_user` : le
-Makefile lit les deux pour construire la commande.
+Base PostgreSQL exposée par le service `db` (conteneur `camagru-db`, nom fixé par `DB_CONTAINER` dans `.env`). Le nom de
+la base et le rôle viennent de `.env` (`DB_NAME`, `DB_USER`) ; dans le conteneur,
+ils sont dans `POSTGRES_DB` et `POSTGRES_USER`.
 
 ### A : Connexion
 
@@ -61,7 +61,7 @@ make psql
 
 ```sh
 # Connexion locale dans le conteneur : aucun mot de passe demandé
-docker exec -it camagru-db psql -U "$(cat secrets/db_user)" -d camagru
+docker exec -it camagru-db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
 ```
 
 Invite `camagru=#` : session ouverte. `\q` pour quitter.
@@ -93,7 +93,7 @@ SELECT id, username, email, verified FROM users ORDER BY id LIMIT 20;
 En une ligne sans ouvrir de session (`-c` exécute puis rend la main) :
 
 ```sh
-docker exec camagru-db psql -U "$(cat secrets/db_user)" -d camagru -c "SELECT id, username FROM users;"
+docker exec camagru-db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT id, username FROM users;"'
 ```
 
 ## 3 : Lire et écrire depuis une page

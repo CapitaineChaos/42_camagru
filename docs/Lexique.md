@@ -110,14 +110,13 @@
 | Privilège admin | Droit supplémentaire porté par la table `admins`, vérifié à chaque requête sensible. |
 | Principe du moindre privilège | N'accorder que les droits strictement nécessaires. |
 
-## Secrets et configuration
+## Credentials et configuration
 
 | Terme | Définition |
 |-------|------------|
 | Variable d'environnement | Valeur fournie au processus par son environnement d'exécution, hors du code source. |
-| `.env` | Fichier de configuration de déploiement (URL, hôte, port) chargé au démarrage ; ne contient aucun credential. |
-| Secret | Credential stocké dans un fichier dédié sous `secrets/`, ignoré par git. |
-| `/run/secrets` | Emplacement où les fichiers de `secrets/` sont montés en lecture seule dans les conteneurs. |
-| `POSTGRES_PASSWORD_FILE` | Variable lue par l'image PostgreSQL : le mot de passe est pris dans un fichier au lieu de l'environnement du conteneur. |
+| `.env` | Fichier de configuration (URL, hôte, port) et des credentials, ignoré par git ; `.env.example` en donne le modèle, credentials vides. |
+| `env_file` | Clé compose qui place toutes les variables d'un fichier dans l'environnement d'un conteneur. |
+| `POSTGRES_USER` / `POSTGRES_PASSWORD` | Variables lues par l'image PostgreSQL à l'initialisation pour créer le rôle. |
 | Credential en dur | Identifiant ou mot de passe écrit dans le code ou le schéma SQL, donc publié avec le dépôt. |
-| Rotation | Remplacement périodique d'un secret, ou après suspicion de fuite. |
+| Rotation | Remplacement périodique d'un credential, ou après suspicion de fuite. |

@@ -7,10 +7,10 @@ mails.
 
 ## Prérequis
 
-- podman et podman-compose : `docker-compose.yml` utilise `userns_mode: keep-id`,
-  propre à podman ;
+- Docker et docker compose, ou podman et podman-compose ; sous podman, le
+  Makefile ajoute `docker-compose.podman.yml` (`userns_mode: keep-id`) ;
 - make ;
-- python3, pour `make secrets` et les scripts de `scripts/`.
+- python3, pour `make seed`.
 
 ## Lancement
 
@@ -19,9 +19,10 @@ cp .env.example .env
 make up
 ```
 
-Au premier lancement, `make up` demande le rôle PostgreSQL et le compte admin,
-puis tire les mots de passe ; les valeurs sont écrites dans `secrets/`, hors
-git.
+Avant `make up`, remplir dans `.env` le rôle PostgreSQL (`DB_USER`,
+`DB_PASSWORD`) et le compte admin (`ADMIN_USER`, `ADMIN_EMAIL`,
+`ADMIN_PASSWORD`). `make up` refuse de démarrer tant qu'une de ces valeurs est
+vide. `.env` est ignoré par git.
 
 | Service | Adresse |
 |---------|---------|

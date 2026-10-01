@@ -66,7 +66,6 @@ final class UserController extends Controller
             $this->replace((new Avatars())->fromMontage($fichier), false);
             Flash::notice('Avatar updated.');
         } catch (RuntimeException $e) {
-            error_log('Avatar rejected: ' . $e->getMessage());
             Flash::errors([$e->getMessage()]);
         }
     }
