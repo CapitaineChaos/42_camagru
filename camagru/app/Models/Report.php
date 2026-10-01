@@ -34,13 +34,11 @@ final class Report extends Model
     public function pending(): array
     {
         return $this->db->query(
-            'SELECT i.id, i.filename, i.created_at, u.username,
-                    count(r.id)     AS reports,
-                    max(r.created_at) AS last_report
+            'SELECT i.id, i.filename, u.username, count(r.id) AS reports
              FROM reports r
              JOIN images i ON i.id = r.image_id
              JOIN users u  ON u.id = i.user_id
-             GROUP BY i.id, i.filename, i.created_at, u.username
+             GROUP BY i.id, i.filename, u.username
              ORDER BY count(r.id) DESC, max(r.created_at) DESC'
         )->fetchAll();
     }

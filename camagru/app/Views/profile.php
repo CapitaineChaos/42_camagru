@@ -18,7 +18,7 @@ $since = static fn (string $horodatage): string
 <p class="error"><?= htmlspecialchars($erreur) ?></p>
 <?php endforeach; ?>
 
-<section class="card card-identity">
+<section class="card">
     <h2>Account</h2>
     <div class="identity flex-hz">
         <img class="avatar-large" src="<?= htmlspecialchars((string) $currentUserAvatarUrl) ?>"
@@ -62,7 +62,7 @@ $since = static fn (string $horodatage): string
             <img class="media" src="<?= htmlspecialchars(\App\Services\Montage::url($image)) ?>" loading="lazy"
                  alt="Montage of <?= htmlspecialchars($since((string) $image['created_at'])) ?>">
             <div class="thumb-footer flex-hz between">
-                <span class="counts"><?= \App\Core\Text::plural((int) $image['likes'], 'like') ?>, <?= \App\Core\Text::plural((int) $image['comments'], 'comment') ?></span>
+                <span><?= \App\Core\Text::plural((int) $image['likes'], 'like') ?>, <?= \App\Core\Text::plural((int) $image['comments'], 'comment') ?></span>
                 <form method="post" action="/profile/avatar">
                     <?= \App\Core\Csrf::field() ?>
                     <button type="submit" name="montage" value="<?= $id ?>" class="button-quiet">Use as avatar</button>

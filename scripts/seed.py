@@ -6,7 +6,7 @@ confirmation link out of MailHog, logs in, uploads a portrait to the photobooth
 with its overlays, then likes, comments, befriends and reports the way a reader
 would. What it leaves behind is therefore exactly what the application allows.
 
-The portraits come from assets/seed, drawn by scripts/portraits.py, and their
+The portraits come from assets/seed, drawn by scripts/draw/portraits.py, and their
 portraits.json says where each face sits, so an overlay lands on the head.
 
     ./scripts/seed.py                 # five people on http://localhost:8080
@@ -370,7 +370,7 @@ def main():
     options.nombre = max(1, min(options.nombre, len(PERSONNES)))
 
     if not (SEED / 'portraits.json').is_file():
-        sys.exit('No portrait in assets/seed: run scripts/portraits.py first.')
+        sys.exit('No portrait in assets/seed: run scripts/draw/portraits.py first.')
     if not attendre(options.url):
         sys.exit(f'{options.url} does not answer: is make up done?')
     if not attendre(options.mailhog + '/api/v2/messages'):

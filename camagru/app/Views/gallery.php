@@ -3,7 +3,6 @@
 /** @var array<int, list<array<string, mixed>>> $commentaires */
 /** @var int $page */
 /** @var int $pages */
-/** @var int $total */
 /** @var int|null $viewerId */
 /** @var int $maxComment */
 /** @var string|null $notice */
@@ -33,7 +32,7 @@ $quand = static fn (string $horodatage): string
 </p>
 <?php endif; ?>
 
-<div class="feed" id="feed" data-page="<?= $page ?>" data-pages="<?= $pages ?>">
+<div id="feed" data-page="<?= $page ?>" data-pages="<?= $pages ?>">
 <?php foreach ($images as $image): ?>
 <?php
 $id = (int) $image['id'];
@@ -57,7 +56,7 @@ $sien = $viewerId !== null && $viewerId === (int) $image['user_id'];
             <button type="submit"><?= (int) $image['liked'] === 1 ? 'Unlike' : 'Like' ?></button>
         </form>
         <?php endif; ?>
-        <span class="counts"><?= \App\Core\Text::plural((int) $image['likes'], 'like') ?>, <?= \App\Core\Text::plural((int) $image['comments'], 'comment') ?></span>
+        <span><?= \App\Core\Text::plural((int) $image['likes'], 'like') ?>, <?= \App\Core\Text::plural((int) $image['comments'], 'comment') ?></span>
         <?php if ($viewerId !== null && !$sien): ?>
             <?php if ((int) $image['reported'] === 1): ?>
         <span class="reported">Reported</span>

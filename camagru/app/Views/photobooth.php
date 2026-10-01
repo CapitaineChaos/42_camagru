@@ -13,12 +13,11 @@
 <p class="error"><?= htmlspecialchars($erreur) ?></p>
 <?php endforeach; ?>
 
-<div class="booth">
 <div class="booth-grid">
 <div class="booth-main">
 <section class="card">
     <h2>Capture</h2>
-    <form class="montage" id="montage" method="post" action="/photobooth/capture"
+    <form method="post" action="/photobooth/capture"
           enctype="multipart/form-data">
         <?= \App\Core\Csrf::field() ?>
         <input type="hidden" name="capture" id="capture">
@@ -74,7 +73,7 @@
         <li class="tile flex-vt">
             <img class="media" src="<?= htmlspecialchars(\App\Services\Montage::url($image)) ?>" alt="Montage of <?= htmlspecialchars(date('j M Y', strtotime((string) $image['created_at']))) ?>" loading="lazy">
             <div class="thumb-footer flex-hz between">
-                <span class="counts"><?= \App\Core\Text::plural((int) $image['likes'], 'like') ?>, <?= \App\Core\Text::plural((int) $image['comments'], 'comment') ?></span>
+                <span><?= \App\Core\Text::plural((int) $image['likes'], 'like') ?>, <?= \App\Core\Text::plural((int) $image['comments'], 'comment') ?></span>
                 <form method="post" action="/photo/delete" class="delete-form">
                     <?= \App\Core\Csrf::field() ?>
                     <input type="hidden" name="id" value="<?= (int) $image['id'] ?>">
@@ -86,5 +85,4 @@
     </ul>
     <?php endif; ?>
 </aside>
-</div>
 </div>

@@ -51,7 +51,7 @@ $minimum = (int) \App\Core\Settings::get('auth.password_min_length');
         <p class="field flex-hz">
             <input type="checkbox" id="<?= $colonne ?>" name="<?= $colonne ?>"
                    <?= !empty($reglages[$colonne]) ? 'checked' : '' ?>>
-            <label for="<?= $colonne ?>" class="normal"><?= htmlspecialchars($libelle) ?></label>
+            <label for="<?= $colonne ?>"><?= htmlspecialchars($libelle) ?></label>
         </p>
         <?php endforeach; ?>
         <p class="flex-hz"><button type="submit">Save</button></p>
@@ -71,7 +71,7 @@ $minimum = (int) \App\Core\Settings::get('auth.password_min_length');
         </p>
         <p class="field flex-hz">
             <input type="checkbox" id="confirm" name="confirm" required>
-            <label for="confirm" class="normal">Delete my account for good</label>
+            <label for="confirm">Delete my account for good</label>
         </p>
         <p class="flex-hz"><button type="submit" class="button-danger">Delete</button></p>
     </form>

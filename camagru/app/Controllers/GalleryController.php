@@ -33,7 +33,6 @@ final class GalleryController extends Controller
             ),
             'page'         => $page,
             'pages'        => $pages,
-            'total'        => $total,
             'viewerId'     => $this->viewerId(),
             'maxComment'   => (int) Settings::get('comments.max_length'),
         ] + Flash::pull());

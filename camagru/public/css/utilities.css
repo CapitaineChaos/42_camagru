@@ -14,7 +14,6 @@
 .tight   { gap: .3rem; }
 .between { justify-content: space-between; }
 .end     { justify-content: flex-end; }
-.grow    { flex: 1 1 auto; min-width: 0; }
 
 .tile {
     padding: .5rem .7rem;

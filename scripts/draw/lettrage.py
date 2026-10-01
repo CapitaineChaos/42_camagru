@@ -57,7 +57,7 @@ OUVERTURE_TITRE = 29.87
 ACCUEIL = [
     ('Gallery', 'gallery', 24), ('Photobooth', 'photobooth', 14), ('Friends', 'friends', -16),
     ('Preferences', 'preferences', 13), ('Profile', 'profile', -22), ('Admin', 'admin', 18),
-    ('Login', 'login', 20), ('Sign up', 'signup', -14), ('Logout', 'logout', 15),
+    ('Login', 'login', 20), ('Sign up', 'signup', -14),
 ]
 
 

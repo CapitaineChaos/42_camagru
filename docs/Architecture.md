@@ -18,18 +18,13 @@
 ├── .env                  configuration et credentials, hors git (modèle : .env.example)
 ├── assets/               sources : stickers SVG, portraits de seed, planche de glyphes, fichiers GIMP
 ├── scripts/              outils Python de génération et de peuplement
-├── docs/                 cette documentation
-└── composer.json         mapping PSR-4, pour l'IDE et l'analyse statique
+└── docs/                 cette documentation
 ```
 
 La racine de l'application est `camagru/`. Le reste du dépôt est de
 l'outillage, que le serveur web n'expose pas. `storage/` n'existe que dans le
 conteneur : le Dockerfile le crée, et les volumes `images-data` et
 `avatars-data` y sont montés.
-
-`composer.json` déclare `App\` → `camagru/app/`, mais il n'y a pas de `vendor/` :
-le chargement se fait par l'autoloader écrit dans `public/index.php`. Le fichier
-ne sert qu'aux outils qui lisent le mapping.
 
 ## 2 : Configuration
 

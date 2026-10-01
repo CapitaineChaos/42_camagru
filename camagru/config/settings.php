@@ -49,7 +49,7 @@ return [
         'max_scale'    => 2.0,
         'max_source'   => 6291456,      // bytes, decoded source image
         'allowed_mime' => ['image/jpeg', 'image/png', 'image/gif'],
-        // slug => label; files are public/stickers/<slug>.png, drawn by scripts/stickers.py
+        // slug => label; files are public/stickers/<slug>.png, drawn by scripts/draw/stickers.py
         'stickers'     => [
             'cat-ears'      => 'Cat ears',
             'kitten-ears'   => 'Kitten ears',

@@ -21,7 +21,7 @@ $quand = static fn (string $horodatage): string
             <img class="media" src="<?= htmlspecialchars(\App\Services\Montage::url($signal)) ?>" loading="lazy"
                  alt="Montage by <?= htmlspecialchars((string) $signal['username']) ?>">
             <div class="thumb-footer flex-hz between">
-                <span class="counts"><?= htmlspecialchars((string) $signal['username']) ?>,
+                <span><?= htmlspecialchars((string) $signal['username']) ?>,
                     <?= \App\Core\Text::plural((int) $signal['reports'], 'report') ?></span>
             </div>
             <div class="thumb-footer flex-hz between">
