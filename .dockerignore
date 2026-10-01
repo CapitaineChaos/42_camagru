@@ -1,4 +1,4 @@
-# Très important sinon tout serait envoyé dans chaque build
+# Très important sinon tout (contexte du yml) serait envoyé dans chaque build
 # Et ça ferait beaucoup...
 
 *

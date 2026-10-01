@@ -31,74 +31,7 @@ conteneur : le Dockerfile le crée, et les volumes `images-data` et
 le chargement se fait par l'autoloader écrit dans `public/index.php`. Le fichier
 ne sert qu'aux outils qui lisent le mapping.
 
-## 2 : Conteneurs
-
-| Service | Image | Ports | Rôle |
-|---------|-------|-------|------|
-| `web` | `php:8.3-apache`, étendue par `docker/web/Dockerfile` | 8080 → 80 | Apache + PHP, extensions `pdo_pgsql` et `gd` |
-| `db` | `postgres:16-alpine` | 5432, avec `make dev` seulement | Base de données |
-| `mailhog` | `mailhog/mailhog` | 1025 SMTP, 8025 web | Boîte de réception de développement |
-
-Sous podman (le Makefile le détecte par `docker --version`), `make` ajoute
-`docker-compose.podman.yml` ; avec Docker, seul `docker-compose.yml` est lu.
-Dans ce fichier, `web` et `db` tournent en `userns_mode: keep-id` : l'uid de
-l'utilisateur hôte est le même dans le conteneur. Sous podman rootless, tout autre uid devient un
-subuid, que le serveur NFS des postes 42 refuse. PostgreSQL tourne directement
-sous cet uid. Le maître Apache démarre en root pour écouter sur le port 80, et
-ses workers passent sous `www-data`, dont le Dockerfile aligne l'uid sur
-`CAMAGRU_UID`/`CAMAGRU_GID` (passés par le Makefile). Le code et les données se
-lisent et s'écrivent donc sous l'uid hôte, NFS compris. Un pod podman ne peut pas
-porter `keep-id` : le fichier désactive les pods (`x-podman: in_pod: false`).
-Docker refuse `keep-id`, d'où la séparation.
-
-Les mails restent dans MailHog (`MAIL_HOST=mailhog` dans `.env`) et se lisent
-sur `http://localhost:8025`.
-
-## 3 : Code et volumes
-
-`docker-compose.yml` décrit le déploiement. Le Dockerfile de `web` copie
-`camagru/{public,app,config}` dans l'image ; le contexte de build est
-la racine du dépôt, et `.dockerignore` n'y laisse passer que ces dossiers et
-`docker/web/`, si bien que `.env` n'entre jamais dans l'image.
-Une modification du code demande donc une reconstruction (`make up`) ; seules
-les couches de copie du code sont refaites.
-
-`docker-compose.override.yml` sert au développement (`make dev`) : il monte ces
-trois dossiers depuis le dépôt par-dessus ceux de l'image, et une modification
-est visible sans reconstruire. Il publie aussi le port 5432 de `db` sur l'hôte.
-`make up` passe `-f docker-compose.yml` seul et ignore ce fichier.
-
-| Montage | Type | Contenu |
-|---------|------|---------|
-| `db-data` | volume nommé | données PostgreSQL |
-| `images-data` → `storage/images` | volume nommé | les montages |
-| `avatars-data` → `storage/avatars` | volume nommé | les avatars découpés dans un montage |
-| `camagru/database/schema.sql`, `admin.sh` | bind lecture seule | joués par l'entrypoint Postgres à la première initialisation, sous les noms `10-schema.sql` et `20-admin.sh` |
-
-Les volumes nommés sont gérés par podman, sous `/goinfre/$USER/containers/volumes`
-(disque local), et préfixés du nom de projet : `camagru_db-data`,
-`camagru_images-data`, `camagru_avatars-data`. `make clean` et `make fclean` les
-suppriment.
-
-Un volume neuf reprend le propriétaire et les droits du point de montage dans
-l'image. Pour `db-data`, c'est l'uid 70 en 1777 : PostgreSQL, qui tourne sous
-l'uid hôte, ne peut pas en changer les droits, et `initdb` échoue sur la racine
-du volume. Sous podman, `PGDATA` pointe donc sur un sous-dossier, `data/pgdata`,
-que l'entrypoint crée et qui appartient à l'uid hôte. podman-compose ne transmet pas
-l'option `:U`, qui aurait réglé le propriétaire du volume. `images-data` et
-`avatars-data` reprennent les droits des points de montage créés dans le
-Dockerfile, en 1777 : un `chown` vers l'uid hôte échoue pendant la construction
-de l'image, qui tourne dans un espace de noms où cet uid n'existe pas.
-
-L'entrypoint de l'image PostgreSQL n'exécute `/docker-entrypoint-initdb.d/` que
-si `PGDATA` est vide : il lance `initdb`, puis les scripts. Si le répertoire
-contient déjà une base, ils sont ignorés. `schema.sql`, puis `admin.sh`, ne
-sont donc joués qu'à l'initialisation du répertoire de données, pas à chaque
-démarrage du conteneur. Sur une base existante, `make watch-db` rejoue
-`schema.sql` à chaque modification de `database/`. Pour repasser par
-l'initialisation : `make clean`, qui supprime les volumes.
-
-## 4 : Configuration
+## 2 : Configuration
 
 Deux sources :
 
@@ -115,7 +48,7 @@ par `database/admin.sh`, à partir de `ADMIN_*`.
 `env_file` les a placées ; une variable absente ou vide arrête le démarrage. PHP
 ne s'exécute que dans les conteneurs.
 
-## 5 : Chemin d'une requête
+## 3 : Chemin d'une requête
 
 ```
 navigateur → Apache (DocumentRoot = public/, réécriture vers index.php)
@@ -129,7 +62,7 @@ navigateur → Apache (DocumentRoot = public/, réécriture vers index.php)
 Seul `public/` est exposé. `app/`, `config/`, `database/` et `storage/` sont un
 niveau au-dessus du `DocumentRoot`, donc hors d'atteinte d'une URL.
 
-## 6 : Fichiers servis
+## 4 : Fichiers servis
 
 Les fichiers écrits par l'application ne sont pas dans `public/` :
 
@@ -142,7 +75,7 @@ Les fichiers écrits par l'application ne sont pas dans `public/` :
 Passer par un contrôleur permet de vérifier les droits avant d'émettre le
 fichier, et de poser les en-têtes (`Content-Type`, `Cache-Control`).
 
-## 7 : Génération des assets
+## 5 : Génération des assets
 
 Les images du thème sont produites par les scripts Python de `scripts/draw/`,
 lancés à la main et jamais pendant l'exécution du site, avec le Python du venv
@@ -167,12 +100,12 @@ slugs produits correspondent au catalogue `photobooth.stickers` de
 confirmation dans MailHog, se connecte, dépose des montages, puis like, commente
 et envoie des demandes d'ami.
 
-## 8 : Cycle de vie
+## 6 : Cycle de vie
 
 | Commande | Effet |
 |----------|-------|
-| `make up` | vérifie `.env` (credentials remplis), construit et démarre avec `docker-compose.yml` seul |
-| `make dev` | idem avec `docker-compose.override.yml` (code monté depuis le dépôt), puis rejeu du schéma à chaque modification de `database/` |
+| `make up` | vérifie `.env`, reconstruit l'image et recrée les conteneurs, code dans l'image |
+| `make dev` | idem, avec le code monté depuis le dépôt (`docker-compose.override.yml`) |
 | `make watch-apache` | suit les logs du conteneur `web`, erreurs et accès colorés |
 | `make watch-db` | rejoue `schema.sql` dans `db` à chaque modification de `database/` |
 | `make seed` | peuple l'instance (`ARGS="-n 3"`) |

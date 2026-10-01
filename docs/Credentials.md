@@ -39,8 +39,7 @@ Le compte admin est créé une seule fois, à l'initialisation de la base, par
 `db` reçoit pour cela `ADMIN_USER`, `ADMIN_EMAIL` et `ADMIN_PASSWORD`. Le script
 insère le compte, vérifié, et sa ligne dans `admins` ; pgcrypto hache le mot de
 passe en bcrypt (`crypt(…, gen_salt('bf', 10))`, préfixe `$2a$`), que
-`password_verify` vérifie comme un hash de `password_hash`. Changer `ADMIN_*`
-ensuite demande de recréer la base (`make clean`, puis `make up`).
+`password_verify` vérifie comme un hash de `password_hash`.
 
 ## 2 : Politique de mot de passe
 
