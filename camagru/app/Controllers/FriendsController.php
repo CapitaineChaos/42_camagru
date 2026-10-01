@@ -140,9 +140,4 @@ final class FriendsController extends Controller
             $utilisateurs
         );
     }
-
-    private function viewerId(): int
-    {
-        return (int) $_SESSION['user']['id'];
-    }
 }

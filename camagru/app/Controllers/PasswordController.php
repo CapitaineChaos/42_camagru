@@ -51,10 +51,7 @@ final class PasswordController extends Controller
         $token = (string) ($_GET['token'] ?? '');
 
         if ($this->demand($token) === null) {
-            $this->view('auth/forgot', [
-                'title'  => 'Lost password',
-                'errors' => ['Reset link invalid, expired or already used. Ask for a new one.'],
-            ]);
+            $this->linkExpired();
             return;
         }
 
@@ -69,10 +66,7 @@ final class PasswordController extends Controller
 
         $demand = $this->demand($token);
         if ($demand === null) {
-            $this->view('auth/forgot', [
-                'title'  => 'Lost password',
-                'errors' => ['Reset link invalid, expired or already used. Ask for a new one.'],
-            ]);
+            $this->linkExpired();
             return;
         }
 
@@ -103,6 +97,14 @@ final class PasswordController extends Controller
         ]);
     }
 
+    private function linkExpired(): void
+    {
+        $this->view('auth/forgot', [
+            'title'  => 'Lost password',
+            'errors' => ['Reset link invalid, expired or already used. Ask for a new one.'],
+        ]);
+    }
+
     /** @return array<string, mixed>|null la demande ouverte que porte ce lien */
     private function demand(string $token): ?array
     {
@@ -120,13 +122,12 @@ final class PasswordController extends Controller
 
         (new PasswordReset())->create($userId, hash('sha256', $token), $ttl);
 
-        $link = APP_URL . '/reset-password?token=' . $token;
         Mailer::sendOrLog(
             $email,
+            $username,
             'Reset your Camagru password',
-            'Hi ' . htmlspecialchars($username) . ',<br><br>'
-            . 'Click this link to choose a new password:<br>'
-            . '<a href="' . $link . '">' . $link . '</a><br><br>'
+            'Click this link to choose a new password:<br>'
+            . Mailer::link('/reset-password?token=' . $token) . '<br><br>'
             . 'The link expires in ' . $this->lifetimeInWords($ttl) . '. '
             . 'If you did not ask for it, ignore this message.'
         );

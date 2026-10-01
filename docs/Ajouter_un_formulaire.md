@@ -9,13 +9,11 @@ différentes :
 
 ```php
 // config/routes.php
-$router->get('/preferences', [PrefsController::class, 'prefs']);
-$router->post('/preferences/account', [PrefsController::class, 'account']);
-$router->requireAuth('GET', '/preferences');
-$router->requireAuth('POST', '/preferences/account');
+$router->get('/preferences', [PrefsController::class, 'prefs'], Router::AUTH);
+$router->post('/preferences/account', [PrefsController::class, 'account'], Router::AUTH);
 ```
 
-`requireAuth` se déclare sur les deux : protéger l'affichage ne protège pas
+`Router::AUTH` se déclare sur les deux : protéger l'affichage ne protège pas
 l'envoi.
 
 ## 2 : Le balisage
@@ -200,7 +198,7 @@ Un corps JSON laisse `$_POST['csrf_token']` vide et la requête est rejetée en
 
 | Étape | Fichier |
 |-------|---------|
-| Routes GET + POST, `requireAuth` | `config/routes.php` |
+| Routes GET + POST, `Router::AUTH` | `config/routes.php` |
 | Balisage, `Csrf::field()`, `$old` | `app/Views/xxx.php` |
 | Partiel de messages | `app/Views/partials/messages.php` |
 | Lecture, validation, action | `app/Controllers/XxxController.php` |

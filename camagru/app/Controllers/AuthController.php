@@ -52,13 +52,12 @@ final class AuthController extends Controller
         $token = bin2hex(random_bytes((int) Settings::get('auth.token_bytes')));
         $users->create($username, $email, password_hash($password, PASSWORD_DEFAULT), $token, $ttl);
 
-        $link = APP_URL . '/verify?token=' . $token;
         Mailer::sendOrLog(
             $email,
+            $username,
             'Confirm your Camagru account',
-            'Hi ' . htmlspecialchars($username) . ',<br><br>'
-            . 'Click this link to activate your account:<br>'
-            . '<a href="' . $link . '">' . $link . '</a><br><br>'
+            'Click this link to activate your account:<br>'
+            . Mailer::link('/verify?token=' . $token) . '<br><br>'
             . 'The link expires in ' . $this->lifetimeInWords($ttl) . '.'
         );
 
@@ -100,21 +99,14 @@ final class AuthController extends Controller
     {
         Mailer::sendOrLog(
             $email,
+            $username,
             'Your Camagru account is active',
-            'Hi ' . htmlspecialchars($username) . ',<br><br>'
-            . 'Your account is confirmed, under the name '
+            'Your account is confirmed, under the name '
             . '<strong>' . htmlspecialchars($username) . '</strong>:<br>'
-            . $this->lien('/login') . '<br><br>'
+            . Mailer::link('/login') . '<br><br>'
             . 'Email notifications are on; they are yours to switch off:<br>'
-            . $this->lien('/preferences')
+            . Mailer::link('/preferences')
         );
-    }
-
-    private function lien(string $chemin): string
-    {
-        $url = APP_URL . $chemin;
-
-        return '<a href="' . $url . '">' . $url . '</a>';
     }
 
     /**
@@ -147,30 +139,23 @@ final class AuthController extends Controller
         $username = trim($_POST['username'] ?? '');
         $password = (string) ($_POST['password'] ?? '');
 
-        $user = (new User())->findByUsername($username);
+        $users = new User();
+        $user  = $users->findByUsername($username);
 
-        if ($user === null || !password_verify($password, $user['password'])) {
+        $erreur = match (true) {
+            $user === null || !password_verify($password, $user['password'])
+                => 'Invalid credentials.',
+            !Pg::bool($user['verified'])
+                => 'Account not verified. Check your email to activate it.',
+            Pg::bool($user['suspended'] ?? null)
+                => 'This account is suspended.',
+            default => null,
+        };
+
+        if ($erreur !== null) {
             $this->view('auth/login', [
                 'title'  => 'Login',
-                'errors' => ['Invalid credentials.'],
-                'old'    => ['username' => $username],
-            ]);
-            return;
-        }
-
-        if (!Pg::bool($user['verified'])) {
-            $this->view('auth/login', [
-                'title'  => 'Login',
-                'errors' => ['Account not verified. Check your email to activate it.'],
-                'old'    => ['username' => $username],
-            ]);
-            return;
-        }
-
-        if (Pg::bool($user['suspended'] ?? null)) {
-            $this->view('auth/login', [
-                'title'  => 'Login',
-                'errors' => ['This account is suspended.'],
+                'errors' => [$erreur],
                 'old'    => ['username' => $username],
             ]);
             return;
@@ -181,7 +166,7 @@ final class AuthController extends Controller
         $_SESSION['user'] = [
             'id'       => $userId,
             'username' => $user['username'],
-            'is_admin' => (new User())->isAdmin($userId),
+            'is_admin' => $users->isAdmin($userId),
         ];
         $this->redirect('/');
     }

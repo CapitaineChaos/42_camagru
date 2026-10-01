@@ -104,23 +104,21 @@ désignent la même route.
 
 ## 4 : Protection
 
-Une route est publique tant qu'elle n'est pas déclarée protégée. La protection
-se déclare à part, pour une méthode et un chemin exacts :
+Une route est publique sauf si sa déclaration porte un niveau d'accès en
+troisième argument :
 
 ```php
-$router->requireAuth('GET', '/exemple');
-$router->requireAuth('POST', '/exemple/envoyer');
+$router->get('/exemple', [ExempleController::class, 'exemple'], Router::AUTH);
+$router->post('/exemple/envoyer', [ExempleController::class, 'envoyer'], Router::AUTH);
 ```
 
-| Déclaration | Effet si la condition manque |
-|-------------|------------------------------|
-| `requireAuth` | redirection vers `/login` quand aucune session n'est ouverte |
-| `requireAdmin` | réponse 403 quand le compte n'a pas le rang d'admin |
+| Niveau | Effet si la condition manque |
+|--------|------------------------------|
+| `Router::AUTH` | redirection vers `/login` quand aucune session n'est ouverte |
+| `Router::ADMIN` | redirection vers `/login` sans session, réponse 403 sans le rang d'admin |
 
 Protéger le `GET` d'une page ne protège pas le `POST` qui la traite : chaque
-route reçoit sa propre déclaration. Une route d'administration porte
-`requireAuth` et `requireAdmin`, pour qu'un visiteur sans session soit redirigé
-vers `/login` au lieu de recevoir un 403.
+route porte son propre niveau.
 
 ## 5 : Route POST
 
@@ -156,9 +154,9 @@ contrôleur :
 | Ordre | Contrôle | Réponse en cas d'échec |
 |-------|----------|------------------------|
 | 1 | jeton CSRF, pour toute requête POST | 403 |
-| 2 | `requireAuth` | redirection vers `/login` |
-| 3 | `requireAdmin` | 403 |
-| 4 | route existante pour cette méthode et ce chemin | 404 |
+| 2 | route existante pour cette méthode et ce chemin | 404 |
+| 3 | `Router::AUTH` ou `Router::ADMIN` : session ouverte | redirection vers `/login` |
+| 4 | `Router::ADMIN` : rang d'admin | 403 |
 
 Un POST vers un chemin inexistant reçoit donc un 403 s'il n'a pas de jeton
 valide, et un 404 sinon.

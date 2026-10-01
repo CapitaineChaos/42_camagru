@@ -23,7 +23,7 @@ final class GalleryController extends Controller
         $pages   = max(1, (int) ceil($total / $parPage));
         $page    = min(max(1, (int) ($_GET['page'] ?? 1)), $pages);
 
-        $liste = $images->page($parPage, ($page - 1) * $parPage, $this->viewerId());
+        $liste = $images->page($parPage, ($page - 1) * $parPage, $this->viewerId() ?: null);
 
         $this->view('gallery', [
             'title'        => 'Gallery',
@@ -33,7 +33,7 @@ final class GalleryController extends Controller
             ),
             'page'         => $page,
             'pages'        => $pages,
-            'viewerId'     => $this->viewerId(),
+            'viewerId'     => $this->viewerId() ?: null,
             'maxComment'   => (int) Settings::get('comments.max_length'),
         ] + Flash::pull());
     }
@@ -43,7 +43,7 @@ final class GalleryController extends Controller
         $id = (int) ($_POST['id'] ?? 0);
 
         if ($this->cible($id) !== null) {
-            (new Like())->toggle($id, (int) $_SESSION['user']['id']);
+            (new Like())->toggle($id, $this->viewerId());
         }
 
         $this->redirect($this->retour($id));
@@ -54,7 +54,7 @@ final class GalleryController extends Controller
         $id = (int) ($_POST['id'] ?? 0);
 
         if ($this->cible($id) !== null) {
-            if ((new Report())->create($id, (int) $_SESSION['user']['id'])) {
+            if ((new Report())->create($id, $this->viewerId())) {
                 Flash::notice('Montage reported. An admin will look at it.');
             } else {
                 Flash::errors(['You already reported this montage.']);
@@ -80,7 +80,7 @@ final class GalleryController extends Controller
         } elseif (mb_strlen($texte) > $maximum) {
             Flash::errors(['Comment too long: ' . $maximum . ' characters at most.']);
         } else {
-            (new Comment())->create($id, (int) $_SESSION['user']['id'], $texte);
+            (new Comment())->create($id, $this->viewerId(), $texte);
             (new Notifications())->comment(
                 (int) $image['user_id'],
                 (string) $_SESSION['user']['username'],
@@ -118,10 +118,5 @@ final class GalleryController extends Controller
         $page = max(1, (int) ($_POST['page'] ?? 1));
 
         return '/gallery?page=' . $page . ($id > 0 ? '#montage-' . $id : '');
-    }
-
-    private function viewerId(): ?int
-    {
-        return isset($_SESSION['user']['id']) ? (int) $_SESSION['user']['id'] : null;
     }
 }

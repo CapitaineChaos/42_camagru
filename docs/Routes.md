@@ -96,13 +96,15 @@ La correspondance est une lecture de tableau, sans expression régulière :
 
 ## 4 : Résolution
 
-`Router::dispatch()` applique trois filtres avant d'instancier quoi que ce soit.
+`Router::dispatch()` applique quatre contrôles avant d'instancier quoi que ce
+soit.
 
-| Ordre | Filtre | Condition | Réponse |
-|-------|--------|-----------|---------|
+| Ordre | Contrôle | Condition | Réponse |
+|-------|----------|-----------|---------|
 | 1 | CSRF | méthode `POST`, jeton absent ou invalide | 403 avec message |
-| 2 | Authentification | route en `requireAuth`, `$_SESSION['user']` vide | redirection vers `/login` |
-| 3 | Droits | route en `requireAdmin`, `is_admin` absent | 403 |
+| 2 | Existence | aucune route pour cette méthode et ce chemin | 404 |
+| 3 | Authentification | route en `AUTH` ou `ADMIN`, `$_SESSION['user']` vide | redirection vers `/login` |
+| 4 | Droits | route en `ADMIN`, `is_admin` absent | 403 |
 
 ```php
 if ($httpMethod === 'POST' && !Csrf::check($_POST['csrf_token'] ?? null)) {
@@ -110,35 +112,35 @@ if ($httpMethod === 'POST' && !Csrf::check($_POST['csrf_token'] ?? null)) {
     return;
 }
 
-if (!empty($this->protectedRoutes[$httpMethod][$normalizedPath]) && empty($_SESSION['user'])) {
-    header('Location: /login');
-    exit;
-}
-if (!empty($this->adminRoutes[$httpMethod][$normalizedPath]) && empty($_SESSION['user']['is_admin'])) {
-    (new ErrorController())->forbidden();
-    return;
-}
+$route = $this->routes[$httpMethod][$this->normalize($path)] ?? null;
 
-$action = $this->routes[$httpMethod][$normalizedPath] ?? null;
-
-if ($action === null) {
+if ($route === null) {
     (new ErrorController())->notFound();
     return;
 }
 
-[$controller, $method] = $action;
+[[$controller, $method], $access] = $route;
+
+if ($access !== self::OPEN && empty($_SESSION['user'])) {
+    header('Location: /login');
+    exit;
+}
+if ($access === self::ADMIN && empty($_SESSION['user']['is_admin'])) {
+    (new ErrorController())->forbidden();
+    return;
+}
+
 (new $controller())->{$method}();
 ```
 
-Les filtres s'appliquent avant la recherche de la route. Une route protégée
-redirige vers `/login` et une route inexistante répond 404, mais le jeton CSRF
-est exigé sur tout POST, y compris vers un chemin qui n'existe pas.
+Le jeton CSRF est exigé sur tout POST, y compris vers un chemin qui n'existe
+pas.
 
 Le contrôleur est instancié sans argument et la méthode appelée sans paramètre.
 Tout ce dont elle a besoin vient de `$_GET`, `$_POST` et `$_SESSION`.
 
 Un seul contrôleur est instancié par requête, celui que la table désigne. Les
-trois filtres sont des conditions dans `dispatch()` ; il n'y a ni chaîne de
+contrôles sont des conditions dans `dispatch()` ; il n'y a ni chaîne de
 contrôleurs ni pile de middlewares.
 
 Les `use App\Controllers\…` en tête de `config/routes.php` ne chargent rien : un
@@ -150,43 +152,28 @@ sont jamais chargés pour cette requête.
 
 ## 5 : Protection
 
-Trois tables distinctes, remplies par trois méthodes :
+Le niveau d'accès est le troisième argument de `get()` et `post()`, rangé avec
+la cible dans la même entrée de la table :
 
-| Méthode | Table | Effet |
-|---------|-------|-------|
-| `get()` / `post()` | `routes` | déclare la cible |
-| `requireAuth()` | `protectedRoutes` | exige une session ouverte |
-| `requireAdmin()` | `adminRoutes` | exige `is_admin` |
-
-```php
-public function requireAuth(string $method, string $path): void
-{
-    $this->protectedRoutes[$method][$this->normalize($path)] = true;
-}
-```
-
-Les deux protections se déclarent par méthode HTTP et par chemin, séparément de
-la route :
+| Niveau | Exige | Sinon |
+|--------|-------|-------|
+| `Router::OPEN` (par défaut) | rien | — |
+| `Router::AUTH` | une session ouverte | redirection vers `/login` |
+| `Router::ADMIN` | une session ouverte avec `is_admin` | `/login` sans session, 403 sans le rang |
 
 ```php
-$router->requireAuth('GET', '/preferences');
-$router->requireAuth('POST', '/preferences/account');
+$router->get('/preferences', [PrefsController::class, 'prefs'], Router::AUTH);
+$router->post('/preferences/account', [PrefsController::class, 'account'], Router::AUTH);
+$router->get('/admin', [AdminController::class, 'admin'], Router::ADMIN);
 ```
 
-Protéger l'affichage ne protège pas l'envoi : une page en `GET` et son
-traitement en `POST` demandent deux déclarations.
+Chaque route porte son propre niveau : protéger l'affichage en `GET` ne protège
+pas le traitement en `POST` du même chemin.
 
-`requireAdmin` ne remplace pas `requireAuth`. Les routes d'administration
-portent les deux, pour qu'un visiteur anonyme soit redirigé vers `/login` au
-lieu de recevoir un 403 :
+`ADMIN` inclut `AUTH` : un visiteur anonyme sur une route d'administration est
+redirigé vers `/login` au lieu de recevoir un 403.
 
-```php
-$router->requireAuth('GET', '/admin');
-$router->requireAdmin('GET', '/admin');
-```
-
-Une route non déclarée dans `protectedRoutes` est publique. L'oubli est
-silencieux : rien ne signale qu'une route sensible n'a pas été protégée.
+Une route déclarée sans troisième argument est publique.
 
 ## 6 : Convention de nommage
 
@@ -227,17 +214,16 @@ trouve pas d'entrée, `ErrorController::notFound()` répond.
 ## 8 : Ajouter une route
 
 1. Importer le contrôleur en tête de `config/routes.php`.
-2. Déclarer la route avec `get()` ou `post()`.
-3. Déclarer `requireAuth` si la route n'est pas publique, sur la méthode et le
-   chemin exacts.
-4. Déclarer `requireAdmin` en plus si elle est réservée aux administrateurs.
-5. Pour un `POST`, placer `Csrf::field()` dans le formulaire et terminer la
+2. Déclarer la route avec `get()` ou `post()`, avec `Router::AUTH` si elle
+   n'est pas publique, `Router::ADMIN` si elle est réservée aux
+   administrateurs.
+3. Pour un `POST`, placer `Csrf::field()` dans le formulaire et terminer la
    méthode par une redirection.
 
 ## Points d'attention
 
 - Une route POST sans `Csrf::field()` dans son formulaire répond 403.
-- `requireAuth('GET', ...)` ne couvre pas le `POST` du même chemin.
+- `Router::AUTH` sur le `GET` d'un chemin ne couvre pas son `POST`.
 - Les chemins sont comparés à l'identique après normalisation : une faute de
   frappe produit un 404, pas une erreur au démarrage.
 - Une action qui modifie l'état ne se déclare pas en `GET` : ces routes ne sont

@@ -260,7 +260,7 @@ $total   = $images->count();
 $pages   = max(1, (int) ceil($total / $parPage));
 $page    = min(max(1, (int) ($_GET['page'] ?? 1)), $pages);
 
-$liste = $images->page($parPage, ($page - 1) * $parPage, $this->viewerId());
+$liste = $images->page($parPage, ($page - 1) * $parPage, $this->viewerId() ?: null);
 ```
 
 `$_GET['page']` est borné des deux côtés : une valeur absurde donne la première
@@ -290,11 +290,12 @@ montages des autres restent, sans auteur : `comments.user_id` est en
 La propriété est vérifiée dans la clause `WHERE` de la requête :
 
 ```php
-public function delete(int $id, int $userId): ?string
+public function delete(int $id, ?int $userId = null): ?string
 ```
 
 Sans ligne correspondante, la requête ne renvoie rien et la méthode rend `null`.
-Le contrôleur ne compare pas lui-même de `user_id`.
+Le contrôleur ne compare pas lui-même de `user_id`. Seul le bureau d'admin
+appelle la méthode sans `$userId`, ce qui lève le contrôle de propriété.
 
 ### K : Erreurs
 

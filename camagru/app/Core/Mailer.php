@@ -10,16 +10,27 @@ use Throwable;
 /** SMTP client without auth or TLS. */
 final class Mailer
 {
-    /** Sends and swallows: a mail that fails must not undo the action it follows. */
-    public static function sendOrLog(string $to, string $subject, string $htmlBody): bool
+    /**
+     * Sends and swallows: a mail that fails must not undo the action it follows.
+     * Every mail opens on the same greeting, escaped here.
+     */
+    public static function sendOrLog(string $to, string $username, string $subject, string $htmlBody): bool
     {
         try {
-            self::send($to, $subject, $htmlBody);
+            self::send($to, $subject, 'Hi ' . htmlspecialchars($username) . ',<br><br>' . $htmlBody);
             return true;
         } catch (Throwable $e) {
             error_log('Mail "' . $subject . '" not sent: ' . $e->getMessage());
             return false;
         }
+    }
+
+    /** An absolute link to a page of the site, written out in full. */
+    public static function link(string $path): string
+    {
+        $url = APP_URL . $path;
+
+        return '<a href="' . $url . '">' . $url . '</a>';
     }
 
     /** @throws RuntimeException */

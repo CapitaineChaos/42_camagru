@@ -48,7 +48,7 @@ ne s'exécute que dans les conteneurs.
 ```
 navigateur → Apache (DocumentRoot = public/, réécriture vers index.php)
            → index.php : config, autoloader, Session::start()
-           → Router::dispatch() : CSRF, requireAuth, requireAdmin
+           → Router::dispatch() : CSRF, route, AUTH, ADMIN
            → Controller → Models (PDO) / Services
            → View → layout.php
            → HTML

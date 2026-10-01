@@ -69,15 +69,15 @@ routes distinctes, vers deux méthodes distinctes.
 
 ## 4 : Protéger la route
 
-Dans le même fichier, après les déclarations :
+Le niveau d'accès est le troisième argument de la déclaration :
 
 ```php
-$router->requireAuth('GET', '/gallery');        // connexion exigée
-$router->requireAdmin('GET', '/admin');         // droit admin exigé
+$router->get('/profile', [UserController::class, 'profile'], Router::AUTH);   // connexion exigée
+$router->get('/admin', [AdminController::class, 'admin'], Router::ADMIN);     // droit admin exigé
 ```
 
-Sans connexion, `requireAuth` redirige vers `/login` ; sans `is_admin`,
-`requireAdmin` répond 403.
+Sans connexion, les deux redirigent vers `/login` ; sans `is_admin`,
+`Router::ADMIN` répond 403. Sans troisième argument, la route est publique.
 
 ## 5 : Entrée de menu
 
@@ -140,8 +140,7 @@ dédiés :
 
 ```php
 // config/routes.php
-$router->post('/gallery/like', [GalleryController::class, 'like']);
-$router->requireAuth('POST', '/gallery/like');
+$router->post('/gallery/like', [GalleryController::class, 'like'], Router::AUTH);
 ```
 
 Le formulaire porte le jeton CSRF, sinon le routeur répond 403 avant d'atteindre
@@ -202,7 +201,7 @@ Il lit `$notice` et `$errors`, et les échappe.
 | Contrôleur | `app/Controllers/XxxController.php` |
 | Vue | `app/Views/xxx.php` |
 | Route + `use` | `config/routes.php` |
-| Protection | `config/routes.php` (`requireAuth`, `requireAdmin`) |
+| Protection | `config/routes.php` (`Router::AUTH`, `Router::ADMIN`) |
 | Entrée de menu | `app/Views/layout.php` (`$liens`) + 2 SVG de lettrage |
 | Titre | `app/Views/layout.php` (`$titres`) + 1 SVG de titre |
 | CSS dédié | `app/Views/layout.php` (`$specifiques`) + `public/css/xxx.css` |

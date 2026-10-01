@@ -10,13 +10,13 @@ final class Settings
     private static ?array $valeurs = null;
 
     /** @param string $chemin dotted key, such as 'auth.password_reset_ttl' */
-    public static function get(string $chemin, mixed $defaut = null): mixed
+    public static function get(string $chemin): mixed
     {
         $noeud = self::all();
 
         foreach (explode('.', $chemin) as $cle) {
             if (!is_array($noeud) || !array_key_exists($cle, $noeud)) {
-                return $defaut;
+                return null;
             }
             $noeud = $noeud[$cle];
         }

@@ -41,7 +41,7 @@ final class AdminController extends Controller
     public function deleteMontage(): void
     {
         $id = (int) ($_POST['id'] ?? 0);
-        $filename = $id > 0 ? (new Image())->remove($id) : null;
+        $filename = $id > 0 ? (new Image())->delete($id) : null;
 
         if ($filename === null) {
             Flash::errors(['This montage no longer exists.']);
@@ -80,10 +80,5 @@ final class AdminController extends Controller
 
         Flash::notice($cible['username'] . ($suspendu ? ' is suspended.' : ' can log in again.'));
         $this->redirect('/admin');
-    }
-
-    private function viewerId(): int
-    {
-        return (int) $_SESSION['user']['id'];
     }
 }

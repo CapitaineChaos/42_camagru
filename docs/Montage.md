@@ -196,7 +196,7 @@ public function capture(): void
         // passed inline: compose() holds the only reference and frees the
         // full-size source as soon as it is cropped
         $nom = $montage->compose($this->source($montage), $calques);
-        (new Image())->create($this->userId(), $nom);
+        (new Image())->create($this->viewerId(), $nom);
 
         Flash::notice('Montage saved.');
     } catch (RuntimeException $e) {
@@ -386,7 +386,7 @@ Le fichier va dans `storage/images/`, hors `DocumentRoot`, donc inatteignable
 par URL directe. La base ne garde que le nom :
 
 ```php
-(new Image())->create($this->userId(), $nom);
+(new Image())->create($this->viewerId(), $nom);
 ```
 
 ## 12 : Restitution
@@ -441,7 +441,7 @@ galerie.
 
 | Point | Contrôle |
 |-------|----------|
-| Accès | `requireAuth` sur `GET /photobooth` et `POST /photobooth/capture` |
+| Accès | `Router::AUTH` sur `GET /photobooth` et `POST /photobooth/capture` |
 | Requête forgée | jeton CSRF vérifié par le routeur |
 | Overlay inconnu | `Overlays::path()` rend `null`, montage refusé |
 | Nombre de calques | `photobooth.max_layers` ; zéro est permis |

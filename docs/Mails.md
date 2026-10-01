@@ -69,8 +69,9 @@ l'auteur d'un commentaire) passe par `htmlspecialchars`, comme dans une page :
 un pseudo contenant du HTML s'affiche comme du texte dans le client de
 messagerie.
 
-Les liens du corps sont absolus. Ils sont construits à partir de `APP_URL`
-(`http://localhost:8080`), puisqu'un lien relatif n'a pas de sens hors du site.
+Les liens du corps sont absolus. `Mailer::link()` les construit à partir de
+`APP_URL` (`http://localhost:8080`), puisqu'un lien relatif n'a pas de sens hors
+du site.
 
 ## 4 : Échec d'envoi
 
@@ -116,33 +117,33 @@ dépend de l'existence du compte.
 
 ## 7 : Envoyer un mail depuis le code
 
-`Core\Mailer` expose deux méthodes statiques. Les deux lisent `MAIL_HOST`,
-`MAIL_PORT` et `MAIL_FROM`, constantes que `config/config.php` définit à partir
-de `.env`.
+`Core\Mailer` expose trois méthodes statiques. Les deux méthodes d'envoi lisent
+`MAIL_HOST`, `MAIL_PORT` et `MAIL_FROM`, constantes que `config/config.php`
+définit à partir de `.env`.
 
-| Méthode | Échec |
-|---------|-------|
-| `Mailer::sendOrLog(string $to, string $subject, string $htmlBody): bool` | écrit une ligne dans le log et renvoie `false` |
-| `Mailer::send(string $to, string $subject, string $htmlBody): void` | lève une `RuntimeException` |
+| Méthode | Rôle | Échec |
+|---------|------|-------|
+| `Mailer::sendOrLog(string $to, string $username, string $subject, string $htmlBody): bool` | ajoute la formule d'appel `Hi <pseudo>,` avant le corps, puis envoie | écrit une ligne dans le log et renvoie `false` |
+| `Mailer::send(string $to, string $subject, string $htmlBody): void` | envoie le corps tel quel | lève une `RuntimeException` |
+| `Mailer::link(string $path): string` | lien absolu `<a>` vers une page du site | — |
 
 `sendOrLog` convient à un mail qui accompagne une action : l'action est faite
 avant l'appel, et l'échec de l'envoi ne la remet pas en cause. `send` sert quand
 l'appelant doit réagir à l'échec.
 
 Le corps est du HTML : les valeurs venues d'un utilisateur passent par
-`htmlspecialchars`, et les liens sont absolus, construits avec `APP_URL`.
+`htmlspecialchars`. `sendOrLog` échappe lui-même le pseudo de la formule
+d'appel.
 
 ```php
 use App\Core\Mailer;
 
-$lien = APP_URL . '/gallery#montage-' . $imageId;
-
 Mailer::sendOrLog(
     $email,
+    $username,
     'New comment',
-    'Hi ' . htmlspecialchars($username) . ',<br><br>'
-    . htmlspecialchars($auteur) . ' commented one of your montages:<br>'
-    . '<a href="' . $lien . '">' . $lien . '</a>'
+    htmlspecialchars($auteur) . ' commented one of your montages:<br>'
+    . Mailer::link('/gallery#montage-' . $imageId)
 );
 ```
 
@@ -159,9 +160,9 @@ préférences. `Services\Notifications` vérifie la préférence avant chaque en
    notify_like BOOLEAN NOT NULL DEFAULT TRUE,
    ```
 
-2. Déclarer la colonne dans `Services/Notifications.php`, à deux endroits :
-   `REGLAGES`, qui associe la colonne au libellé de la case à cocher affichée
-   sur la page des préférences, et `COLONNES`, la liste des colonnes que
+2. Déclarer la colonne dans `REGLAGES`, dans `Services/Notifications.php`.
+   La constante associe la colonne au libellé de la case à cocher affichée sur
+   la page des préférences ; ses clés sont aussi la liste des colonnes que
    l'enregistrement des préférences accepte de modifier.
 
    ```php
@@ -169,17 +170,12 @@ préférences. `Services\Notifications` vérifie la préférence avant chaque en
        // ...
        'notify_like' => 'Email me when someone likes one of my montages',
    ];
-
-   public const COLONNES = [
-       // ...
-       'notify_like',
-   ];
    ```
 
 3. Ajouter une méthode publique qui appelle `send()` avec l'id du destinataire,
    le nom de la colonne, l'objet et le corps. `send()` relit le compte, n'envoie
-   rien si la colonne vaut `FALSE`, et ajoute la formule d'appel
-   (`Hi <pseudo>,`) avant le corps.
+   rien si la colonne vaut `FALSE`, et passe le pseudo à `sendOrLog`, qui ajoute
+   la formule d'appel (`Hi <pseudo>,`) avant le corps.
 
    ```php
    public function like(int $ownerId, string $auteur, int $imageId): void
@@ -189,7 +185,7 @@ préférences. `Services\Notifications` vérifie la préférence avant chaque en
            'notify_like',
            'New like',
            htmlspecialchars($auteur) . ' liked one of your montages:<br>'
-           . $this->lien('/gallery#montage-' . $imageId)
+           . Mailer::link('/gallery#montage-' . $imageId)
        );
    }
    ```

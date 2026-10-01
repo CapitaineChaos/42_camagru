@@ -80,9 +80,4 @@ final class UserController extends Controller
         $users->updateAvatar($userId, $avatar, $modele);
         (new Avatars())->discard($ancien);
     }
-
-    private function viewerId(): int
-    {
-        return (int) $_SESSION['user']['id'];
-    }
 }

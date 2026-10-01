@@ -36,61 +36,34 @@ return static function (Router $router): void {
 
     $router->post('/logout', [AuthController::class, 'logout']);
 
-    $router->get('/avatar', [AvatarController::class, 'show']);
+    $router->get('/avatar', [AvatarController::class, 'show'], Router::AUTH);
 
-    $router->get('/preferences', [PrefsController::class, 'prefs']);
-    $router->post('/preferences/account', [PrefsController::class, 'account']);
-    $router->post('/preferences/notifications', [PrefsController::class, 'notifications']);
-    $router->post('/preferences/delete', [PrefsController::class, 'deleteAccount']);
+    $router->get('/preferences', [PrefsController::class, 'prefs'], Router::AUTH);
+    $router->post('/preferences/account', [PrefsController::class, 'account'], Router::AUTH);
+    $router->post('/preferences/notifications', [PrefsController::class, 'notifications'], Router::AUTH);
+    $router->post('/preferences/delete', [PrefsController::class, 'deleteAccount'], Router::AUTH);
 
     $router->get('/gallery', [GalleryController::class, 'gallery']);
-    $router->post('/gallery/like', [GalleryController::class, 'like']);
-    $router->post('/gallery/comment', [GalleryController::class, 'comment']);
-    $router->post('/gallery/report', [GalleryController::class, 'report']);
+    $router->post('/gallery/like', [GalleryController::class, 'like'], Router::AUTH);
+    $router->post('/gallery/comment', [GalleryController::class, 'comment'], Router::AUTH);
+    $router->post('/gallery/report', [GalleryController::class, 'report'], Router::AUTH);
 
-    $router->get('/photobooth', [PhotoboothController::class, 'photobooth']);
-    $router->post('/photobooth/capture', [PhotoboothController::class, 'capture']);
+    $router->get('/photobooth', [PhotoboothController::class, 'photobooth'], Router::AUTH);
+    $router->post('/photobooth/capture', [PhotoboothController::class, 'capture'], Router::AUTH);
 
     $router->get('/photo', [PhotoController::class, 'show']);
-    $router->post('/photo/delete', [PhotoController::class, 'delete']);
+    $router->post('/photo/delete', [PhotoController::class, 'delete'], Router::AUTH);
 
-    $router->get('/profile', [UserController::class, 'profile']);
-    $router->post('/profile/avatar', [UserController::class, 'avatar']);
+    $router->get('/profile', [UserController::class, 'profile'], Router::AUTH);
+    $router->post('/profile/avatar', [UserController::class, 'avatar'], Router::AUTH);
 
-    $router->get('/friends', [FriendsController::class, 'friends']);
-    $router->post('/friends/request', [FriendsController::class, 'request']);
-    $router->post('/friends/accept', [FriendsController::class, 'accept']);
-    $router->post('/friends/remove', [FriendsController::class, 'remove']);
+    $router->get('/friends', [FriendsController::class, 'friends'], Router::AUTH);
+    $router->post('/friends/request', [FriendsController::class, 'request'], Router::AUTH);
+    $router->post('/friends/accept', [FriendsController::class, 'accept'], Router::AUTH);
+    $router->post('/friends/remove', [FriendsController::class, 'remove'], Router::AUTH);
 
-    $router->get('/admin', [AdminController::class, 'admin']);
-    $router->post('/admin/suspend', [AdminController::class, 'suspend']);
-    $router->post('/admin/report/dismiss', [AdminController::class, 'dismiss']);
-    $router->post('/admin/montage/delete', [AdminController::class, 'deleteMontage']);
-
-    $router->requireAuth('GET', '/preferences');
-    $router->requireAuth('GET', '/avatar');
-    $router->requireAuth('POST', '/preferences/account');
-    $router->requireAuth('POST', '/preferences/notifications');
-    $router->requireAuth('POST', '/preferences/delete');
-    $router->requireAuth('GET', '/photobooth');
-    $router->requireAuth('POST', '/photobooth/capture');
-    $router->requireAuth('POST', '/photo/delete');
-    $router->requireAuth('POST', '/gallery/like');
-    $router->requireAuth('POST', '/gallery/comment');
-    $router->requireAuth('POST', '/gallery/report');
-    $router->requireAuth('GET', '/profile');
-    $router->requireAuth('POST', '/profile/avatar');
-    $router->requireAuth('GET', '/friends');
-    $router->requireAuth('POST', '/friends/request');
-    $router->requireAuth('POST', '/friends/accept');
-    $router->requireAuth('POST', '/friends/remove');
-    $router->requireAuth('GET', '/admin');
-    $router->requireAuth('POST', '/admin/suspend');
-    $router->requireAuth('POST', '/admin/report/dismiss');
-    $router->requireAuth('POST', '/admin/montage/delete');
-
-    $router->requireAdmin('GET', '/admin');
-    $router->requireAdmin('POST', '/admin/suspend');
-    $router->requireAdmin('POST', '/admin/report/dismiss');
-    $router->requireAdmin('POST', '/admin/montage/delete');
+    $router->get('/admin', [AdminController::class, 'admin'], Router::ADMIN);
+    $router->post('/admin/suspend', [AdminController::class, 'suspend'], Router::ADMIN);
+    $router->post('/admin/report/dismiss', [AdminController::class, 'dismiss'], Router::ADMIN);
+    $router->post('/admin/montage/delete', [AdminController::class, 'deleteMontage'], Router::ADMIN);
 };

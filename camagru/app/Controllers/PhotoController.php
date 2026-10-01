@@ -35,8 +35,7 @@ final class PhotoController extends Controller
     public function delete(): void
     {
         $id = (int) ($_POST['id'] ?? 0);
-        $userId = (int) ($_SESSION['user']['id'] ?? 0);
-        $filename = $id > 0 ? (new Image())->delete($id, $userId) : null;
+        $filename = $id > 0 ? (new Image())->delete($id, $this->viewerId()) : null;
 
         if ($filename === null) {
             Flash::errors(['This montage is not yours, or no longer exists.']);

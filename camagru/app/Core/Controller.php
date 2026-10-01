@@ -43,6 +43,12 @@ abstract class Controller
         echo json_encode($data, JSON_THROW_ON_ERROR);
     }
 
+    /** The logged-in reader's id, 0 when logged out. */
+    protected function viewerId(): int
+    {
+        return (int) ($_SESSION['user']['id'] ?? 0);
+    }
+
     protected function redirect(string $path): void
     {
         header('Location: ' . $path);

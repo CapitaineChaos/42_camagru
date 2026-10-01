@@ -8,74 +8,50 @@ use App\Controllers\ErrorController;
 
 final class Router
 {
-    /** @var array<string, array<string, array{0: class-string, 1: string}>> */
+    public const OPEN  = 'open';
+    public const AUTH  = 'auth';    // an open session, else a redirect to /login
+    public const ADMIN = 'admin';   // an open session with is_admin, else 403
+
+    /** @var array<string, array<string, array{0: array{0: class-string, 1: string}, 1: string}>> method => path => [action, access] */
     private array $routes = [];
 
-    /**
-     * Associative array where the keys are HTTP methods and the values
-     * are arrays mapping normalized paths to a boolean indicating protection.
-     * @var array<string, array<string, bool>>
-     */
-    private array $protectedRoutes = [];
-
-    private array $adminRoutes = [];
-
     /** @param array{0: class-string, 1: string} $action */
-    public function get(string $path, array $action): void
+    public function get(string $path, array $action, string $access = self::OPEN): void
     {
-        $this->routes['GET'][$this->normalize($path)] = $action;
-    }
-
-    /**
-     * Require authentication for a specific route, registering it as protected.
-     *
-     * @param string $method The HTTP method
-     * @param string $path The route path
-     * @return void
-     */
-    public function requireAuth(string $method, string $path): void
-    {
-        $this->protectedRoutes[$method][$this->normalize($path)] = true;
-    }
-
-    public function requireAdmin(string $method, string $path): void
-    {
-        $this->adminRoutes[$method][$this->normalize($path)] = true;
+        $this->routes['GET'][$this->normalize($path)] = [$action, $access];
     }
 
     /** @param array{0: class-string, 1: string} $action */
-    public function post(string $path, array $action): void
+    public function post(string $path, array $action, string $access = self::OPEN): void
     {
-        $this->routes['POST'][$this->normalize($path)] = $action;
+        $this->routes['POST'][$this->normalize($path)] = [$action, $access];
     }
 
     public function dispatch(string $httpMethod, string $path): void
     {
-        $normalizedPath = $this->normalize($path);
-
         if ($httpMethod === 'POST' && !Csrf::check($_POST['csrf_token'] ?? null)) {
             (new ErrorController())->forbidden('Security token invalid or expired. Reload the page and try again.');
             return;
         }
 
-        if (!empty($this->protectedRoutes[$httpMethod][$normalizedPath]) && empty($_SESSION['user'])) {
-            header('Location: /login');
-            exit;
-        }
-        if (!empty($this->adminRoutes[$httpMethod][$normalizedPath]) && empty($_SESSION['user']['is_admin'])) {
-            (new ErrorController())->forbidden();
-            return;
-        }
+        $route = $this->routes[$httpMethod][$this->normalize($path)] ?? null;
 
-        // null when no route matches
-        $action = $this->routes[$httpMethod][$normalizedPath] ?? null;
-
-        if ($action === null) {
+        if ($route === null) {
             (new ErrorController())->notFound();
             return;
         }
 
-        [$controller, $method] = $action;
+        [[$controller, $method], $access] = $route;
+
+        if ($access !== self::OPEN && empty($_SESSION['user'])) {
+            header('Location: /login');
+            exit;
+        }
+        if ($access === self::ADMIN && empty($_SESSION['user']['is_admin'])) {
+            (new ErrorController())->forbidden();
+            return;
+        }
+
         (new $controller())->{$method}();
     }
 

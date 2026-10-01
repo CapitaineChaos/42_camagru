@@ -24,7 +24,7 @@ final class PrefsController extends Controller
         $user = $this->user();
 
         $reglages = [];
-        foreach (Notifications::COLONNES as $colonne) {
+        foreach (array_keys(Notifications::REGLAGES) as $colonne) {
             $reglages[$colonne] = Pg::bool($user[$colonne] ?? null);
         }
 
@@ -125,9 +125,9 @@ final class PrefsController extends Controller
     {
         Mailer::sendOrLog(
             $email,
+            $username,
             'Your Camagru account has been deleted',
-            'Hi ' . htmlspecialchars($username) . ',<br><br>'
-            . 'Your account is gone, along with '
+            'Your account is gone, along with '
             . Text::plural($montages, 'montage') . '.<br>'
             . 'The comments you left on other montages stay there, without your name.'
         );
@@ -136,7 +136,7 @@ final class PrefsController extends Controller
     public function notifications(): void
     {
         $reglages = [];
-        foreach (Notifications::COLONNES as $colonne) {
+        foreach (array_keys(Notifications::REGLAGES) as $colonne) {
             $reglages[$colonne] = isset($_POST[$colonne]);
         }
 
@@ -162,10 +162,5 @@ final class PrefsController extends Controller
         }
 
         return $user;
-    }
-
-    private function viewerId(): int
-    {
-        return (int) $_SESSION['user']['id'];
     }
 }

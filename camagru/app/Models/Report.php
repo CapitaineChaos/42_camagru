@@ -21,11 +21,6 @@ final class Report extends Model
         return $stmt->rowCount() === 1;
     }
 
-    public function count(): int
-    {
-        return (int) $this->db->query('SELECT count(DISTINCT image_id) FROM reports')->fetchColumn();
-    }
-
     /**
      * Flagged montages, the most reported first.
      *

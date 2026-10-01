@@ -19,12 +19,6 @@ final class Notifications
         'notify_friend_removed'  => 'Email me when someone removes me from their friends',
     ];
 
-    /** @var list<string> */
-    public const COLONNES = [
-        'notify_comment', 'notify_friend_request',
-        'notify_friend_accepted', 'notify_friend_removed',
-    ];
-
     public function comment(int $ownerId, string $auteur, int $imageId): void
     {
         $this->send(
@@ -32,7 +26,7 @@ final class Notifications
             'notify_comment',
             'New comment on your montage',
             htmlspecialchars($auteur) . ' commented one of your montages:<br>'
-            . $this->lien('/gallery#montage-' . $imageId)
+            . Mailer::link('/gallery#montage-' . $imageId)
         );
     }
 
@@ -43,7 +37,7 @@ final class Notifications
             'notify_friend_request',
             'New friend request',
             htmlspecialchars($demandeur) . ' wants to be your friend:<br>'
-            . $this->lien('/friends')
+            . Mailer::link('/friends')
         );
     }
 
@@ -54,7 +48,7 @@ final class Notifications
             'notify_friend_accepted',
             'Friend request accepted',
             htmlspecialchars($accepteur) . ' accepted your friend request:<br>'
-            . $this->lien('/friends')
+            . Mailer::link('/friends')
         );
     }
 
@@ -76,17 +70,6 @@ final class Notifications
             return;
         }
 
-        Mailer::sendOrLog(
-            (string) $user['email'],
-            $sujet,
-            'Hi ' . htmlspecialchars((string) $user['username']) . ',<br><br>' . $corps
-        );
-    }
-
-    private function lien(string $chemin): string
-    {
-        $url = APP_URL . $chemin;
-
-        return '<a href="' . $url . '">' . $url . '</a>';
+        Mailer::sendOrLog((string) $user['email'], (string) $user['username'], $sujet, $corps);
     }
 }

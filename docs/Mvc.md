@@ -77,25 +77,25 @@ Table de routes déclarée dans `config/routes.php` :
 
 ```php
 $router->get('/gallery', [GalleryController::class, 'gallery']);
-$router->post('/gallery/like', [GalleryController::class, 'like']);
-$router->requireAuth('POST', '/gallery/like');
+$router->post('/gallery/like', [GalleryController::class, 'like'], Router::AUTH);
 ```
 
 Une route associe méthode HTTP + chemin à une méthode de contrôleur. `GET /login`
 et `POST /login` sont deux routes : affichage du formulaire, traitement.
 
-`Router::dispatch()` applique trois filtres avant l'appel :
+`Router::dispatch()` applique quatre contrôles avant l'appel :
 
-| Filtre | Condition | Réponse |
-|--------|-----------|---------|
+| Contrôle | Condition | Réponse |
+|----------|-----------|---------|
 | CSRF | tout `POST` sans jeton valide | 403 |
-| Authentification | route en `requireAuth`, session vide | redirection `/login` |
-| Droits | route en `requireAdmin`, `is_admin` absent | 403 |
+| Existence | aucune route pour cette méthode et ce chemin | 404 |
+| Authentification | route en `Router::AUTH` ou `Router::ADMIN`, session vide | redirection `/login` |
+| Droits | route en `Router::ADMIN`, `is_admin` absent | 403 |
 
 Puis :
 
 ```php
-[$controller, $method] = $action;
+[[$controller, $method], $access] = $route;
 (new $controller())->{$method}();
 ```
 
@@ -225,7 +225,7 @@ Vue, un formulaire POST portant le jeton CSRF :
 Le libellé vient de `liked`, calculé par le contrôleur.
 
 Routeur : `POST /gallery/like`, jeton vérifié, session vérifiée
-(`requireAuth`), appel de `GalleryController::like()`.
+(`Router::AUTH`), appel de `GalleryController::like()`.
 
 Contrôleur :
 
@@ -253,7 +253,7 @@ un rafraîchissement ne redéclenche pas le POST (Post/Redirect/Get).
 2. Méthode dans le modèle concerné, ou nouveau modèle.
 3. Méthode du contrôleur.
 4. Vue ou fragment de vue.
-5. Route dans `config/routes.php`, avec `requireAuth` / `requireAdmin`.
+5. Route dans `config/routes.php`, avec `Router::AUTH` ou `Router::ADMIN` si elle n'est pas publique.
 
 ## Points d'attention
 

@@ -20,7 +20,7 @@ final class PhotoboothController extends Controller
         $this->view('photobooth', [
             'title'    => 'Photobooth',
             'overlays' => (new Overlays())->catalogue(),
-            'montages' => (new Image())->forUser($this->userId()),
+            'montages' => (new Image())->forUser($this->viewerId()),
             'largeur'  => (int) Settings::get('photobooth.width'),
             'hauteur'  => (int) Settings::get('photobooth.height'),
         ] + Flash::pull());
@@ -36,7 +36,7 @@ final class PhotoboothController extends Controller
             // passed inline: compose() holds the only reference and frees the
             // full-size source as soon as it is cropped
             $nom = $montage->compose($this->source($montage), $calques);
-            (new Image())->create($this->userId(), $nom);
+            (new Image())->create($this->viewerId(), $nom);
 
             Flash::notice('Montage saved.');
         } catch (RuntimeException $e) {
@@ -63,10 +63,5 @@ final class PhotoboothController extends Controller
         }
 
         return $montage->fromDataUrl($capture);
-    }
-
-    private function userId(): int
-    {
-        return (int) ($_SESSION['user']['id'] ?? 0);
     }
 }

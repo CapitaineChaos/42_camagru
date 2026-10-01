@@ -10,7 +10,6 @@ use PDO;
 
 final class User extends Model
 {
-
     public function isAdmin(int $userId): bool
     {
         $stmt = $this->db->prepare('SELECT 1 FROM admins WHERE user_id = :id');
@@ -146,7 +145,7 @@ final class User extends Model
      */
     public function updateNotifications(int $id, array $reglages): void
     {
-        $colonnes = array_intersect_key($reglages, array_flip(Notifications::COLONNES));
+        $colonnes = array_intersect_key($reglages, Notifications::REGLAGES);
         if ($colonnes === []) {
             return;
         }

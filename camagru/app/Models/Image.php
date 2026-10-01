@@ -84,27 +84,14 @@ final class Image extends Model
     }
 
     /**
-     * Drop a montage and everything hanging from it, the owner only.
+     * Drops a montage; likes, comments and reports go with the row, their
+     * foreign keys cascade.
      *
-     * @return string|null filename of the deleted montage, null when it is not the owner's
+     * @param int|null $userId restricts the deletion to that owner; null lifts the
+     *                         check, for the admin desk
+     * @return string|null filename of the deleted montage, null when nothing matched
      */
-    public function delete(int $id, int $userId): ?string
-    {
-        return $this->drop($id, $userId);
-    }
-
-    /** Same without the owner check: the admin desk deletes reported montages. */
-    public function remove(int $id): ?string
-    {
-        return $this->drop($id, null);
-    }
-
-    /**
-     * Likes, comments and reports go with the row: their foreign keys cascade.
-     *
-     * @param int|null $userId restricts the deletion to that owner; null lifts the check
-     */
-    private function drop(int $id, ?int $userId): ?string
+    public function delete(int $id, ?int $userId = null): ?string
     {
         if ($userId === null) {
             $stmt = $this->db->prepare('DELETE FROM images WHERE id = :id RETURNING filename');
