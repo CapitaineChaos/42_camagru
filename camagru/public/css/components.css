@@ -205,7 +205,6 @@ button:disabled {
 .pagination a:hover,
 .pagination a:focus-visible {
     background: var(--violet-fonce);
-    color: #fff;
 }
 
 .pagination span {
@@ -234,10 +233,7 @@ button:disabled {
     gap: .35rem;
 }
 
-.badge {
-    position: relative;
-    display: block;
-}
+.badge { position: relative; }
 
 .account .avatar {
     width: 64px;

@@ -3,6 +3,7 @@
     display: block;
     width: 100%;
     height: auto;
+    overflow: visible;
 }
 
 .logo {
@@ -18,7 +19,6 @@
 .home-menu ul,
 .side-menu ul {
     list-style: none;
-    padding: 0;
     display: flex;
 }
 
@@ -204,7 +204,6 @@
     }
 
     .menu-panel ul {
-        list-style-type: none;
         margin-top: 6rem;
     }
 
@@ -219,8 +218,6 @@
     }
 
     .menu-panel a {
-        font-size: 1.25rem;
-        color: white;
         opacity: 0;
         visibility: hidden;
     }
