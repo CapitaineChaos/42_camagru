@@ -1,9 +1,9 @@
 MAKEFLAGS += --no-print-directory
 
-SRC     := $(CURDIR)
-PODMAN  := $(shell docker --version 2>/dev/null | grep -qi podman && echo 1)
+SRC      := $(CURDIR)
+PODMAN   := $(shell docker --version 2>/dev/null | grep -qi podman && echo 1)
 DFILES   := -f docker-compose.yml $(if $(PODMAN),-f docker-compose.podman.yml)
-COMPOSE  = docker compose -p camagru $(DFILES)
+COMPOSE   = docker compose -p camagru $(DFILES)
 
 export CAMAGRU_UID := $(shell id -u)
 export CAMAGRU_GID := $(shell id -g)
@@ -23,8 +23,7 @@ up: env
 	@echo "  MailHog -> http://localhost:8025/"
 
 env:
-	$(if $(wildcard $(SRC)/.env),,$(error .env absent : cp .env.example .env puis le remplir))
-	$(foreach v,WEB_CONTAINER DB_CONTAINER MAILHOG_CONTAINER DB_USER DB_PASSWORD ADMIN_USER ADMIN_EMAIL ADMIN_PASSWORD,$(if $($(v)),,$(error $(v) vide dans .env)))
+	@./scripts/check-env.sh $(SRC)/.env
 
 down:
 	$(COMPOSE) down

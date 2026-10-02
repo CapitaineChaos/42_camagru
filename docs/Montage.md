@@ -276,8 +276,7 @@ sur rien et écrit la source recadrée.
 
 Le JSON peut être forgé sans passer par la page ; son contenu est donc vérifié.
 Le slug doit exister dans le catalogue, le nombre de calques est plafonné, et
-les coordonnées hors bornes sont ramenées dans leurs bornes au lieu d'être
-refusées.
+les coordonnées hors bornes sont ramenées dans leurs bornes.
 
 ## 9 : Décodage de la source
 
@@ -290,8 +289,7 @@ if (!preg_match('#^data:image/(?:jpeg|png);base64,#', $dataUrl, $entete)) {
 $binaire = base64_decode(substr($dataUrl, strlen($entete[0])), true);
 ```
 
-Le troisième argument de `base64_decode` à `true` refuse les caractères hors
-alphabet au lieu de les ignorer.
+Le troisième argument de `base64_decode` à `true` fait échouer le décodage sur un caractère hors alphabet ; par défaut, ces caractères sont ignorés.
 
 Pour un envoi de fichier, le code d'erreur est lu avant tout, et
 `is_uploaded_file()` confirme que le chemin vient bien d'un envoi HTTP :
@@ -361,8 +359,7 @@ imagecopyresampled(
 );
 ```
 
-`imagealphablending($montage, true)` fait composer les pixels transparents avec
-le fond au lieu de les écraser. Sans lui, l'overlay poserait un rectangle opaque.
+`imagealphablending($montage, true)` fait composer chaque pixel de l'overlay avec le fond selon sa transparence. Sans lui, l'overlay poserait un rectangle opaque.
 
 La hauteur est déduite de la largeur : les proportions de l'overlay sont
 conservées, et seul `w` est transmis.

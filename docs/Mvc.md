@@ -1,126 +1,74 @@
 # MVC
 
+Modèle-Vue-Contrôleur (MVC) répartit le code d'une application web en trois
+rôles : l'accès aux données, la production de l'affichage, et le traitement de
+la requête qui relie les deux.
+
 ## 1 : Découpage
 
 | Rôle | Dossier | Responsabilité | Exclu |
 |------|---------|----------------|-------|
-| Modèle | `app/Models/` | Lire et écrire en base. | Affichage, lecture de `$_POST`. |
-| Vue | `app/Views/` | Produire le HTML à partir de données reçues. | Requêtes SQL, règles métier. |
-| Contrôleur | `app/Controllers/` | Lire la requête, appeler les modèles, choisir la vue. | SQL, génération de HTML. |
+| Modèle | `app/Models/` | Lire et écrire en base. | Affichage, lecture de `$_GET` et `$_POST`. |
+| Vue | `app/Views/` | Produire le HTML à partir des données reçues. | Requêtes SQL, règles métier, lecture de la requête. |
+| Contrôleur | `app/Controllers/` | Lire la requête, appeler les modèles, choisir la réponse. | SQL, génération de HTML. |
 
 Le contrôleur appelle les modèles et les vues. Les modèles et les vues ne
 s'appellent pas entre eux. Une vue qui exécute un `SELECT` ou un modèle qui fait
 un `echo` sort du découpage.
 
+Deux dossiers complètent les trois rôles :
+
+| Dossier | Contenu |
+|---------|---------|
+| `app/Core/` | Infrastructure indépendante du métier : routeur, classes de base, connexion, session, jeton CSRF, messages flash, envoi de mails, réglages. |
+| `app/Services/` | Logique métier qui n'est ni un accès à une table ni un traitement de requête : composition d'images, notifications, avatars. |
+
+`Services/` reçoit les traitements qui dépassent la lecture d'une requête sans
+accéder à la base ni produire de HTML.
+
 ## 2 : Trajet d'une requête
 
 ```
 navigateur
-    │  GET /gallery?page=2
     ▼
-Apache (000-default.conf)       DocumentRoot = public/, réécriture vers index.php
+Apache                     DocumentRoot = public/, réécriture vers index.php
     ▼
-public/index.php                autoloader, Session::start(), construction du routeur
+public/index.php           autoloader, Session::start(), table des routes
     ▼
-Core/Router::dispatch()         CSRF, authentification, droits admin, résolution de route
+Router::dispatch()         CSRF, existence de la route, AUTH, ADMIN
     ▼
-Controllers/GalleryController   lecture de $_GET, appel des modèles, préparation des données
+XxxController::xxx()       lecture de $_GET / $_POST / $_SESSION
     ▼
-Models/Image, Models/Comment    requêtes préparées PDO
+Models, Services           requêtes préparées, traitements
     ▼
-Views/gallery.php               HTML de la page, échappé
-    ▼
-Views/layout.php                en-tête, menu, pied de page autour du contenu
-    ▼
-navigateur
+réponse                    view(), redirect() ou json()
 ```
 
-`public/index.php` est le front controller. `DocumentRoot` pointe sur `public/`,
-le reste du code est un niveau au-dessus et n'est atteignable par aucune URL.
+`public/index.php` est le point d'entrée unique (front controller). Le
+`DocumentRoot` pointe sur `public/` : le reste du code est un niveau au-dessus
+et aucune URL ne l'atteint.
 
-## 3 : Point d'entrée
+L'autoloader enregistré par `index.php` associe l'espace de noms au chemin :
+`App\Models\Xxx` est chargé depuis `app/Models/Xxx.php`, au premier usage de la
+classe. Aucun `require` de classe n'est écrit ailleurs.
 
-```php
-// public/index.php
-define('BASE_PATH', dirname(__DIR__));
-require BASE_PATH . '/config/config.php';
+## 3 : Contrôleur
 
-spl_autoload_register(static function (string $class): void {
-    $prefix = 'App\\';
-    if (!str_starts_with($class, $prefix)) {
-        return;
-    }
-    $relative = substr($class, strlen($prefix));
-    $file = BASE_PATH . '/app/' . str_replace('\\', '/', $relative) . '.php';
-    if (is_file($file)) {
-        require $file;
-    }
-});
+Un contrôleur hérite de `Core\Controller`. Chaque méthode appelée par une route
+est publique, sans argument, et se termine par l'une des trois réponses :
 
-Session::start();
+| Méthode | Réponse |
+|---------|---------|
+| `view('nom', [...])` | page HTML, vue rendue dans le layout |
+| `redirect('/chemin')` | en-tête `Location`, puis fin du script |
+| `json([...])` | corps JSON |
 
-$router = new Router();
-(require BASE_PATH . '/config/routes.php')($router);
-
-$router->dispatch(
-    $_SERVER['REQUEST_METHOD'],
-    parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?: '/'
-);
-```
-
-L'autoloader mappe le namespace sur le chemin : `App\Models\Image` est chargé
-depuis `app/Models/Image.php`. Aucun `require` n'est écrit ailleurs.
-
-## 4 : Routeur
-
-Table de routes déclarée dans `config/routes.php` :
-
-```php
-$router->get('/gallery', [GalleryController::class, 'gallery']);
-$router->post('/gallery/like', [GalleryController::class, 'like'], Router::AUTH);
-```
-
-Une route associe méthode HTTP + chemin à une méthode de contrôleur. `GET /login`
-et `POST /login` sont deux routes : affichage du formulaire, traitement.
-
-`Router::dispatch()` applique quatre contrôles avant l'appel :
-
-| Contrôle | Condition | Réponse |
-|----------|-----------|---------|
-| CSRF | tout `POST` sans jeton valide | 403 |
-| Existence | aucune route pour cette méthode et ce chemin | 404 |
-| Authentification | route en `Router::AUTH` ou `Router::ADMIN`, session vide | redirection `/login` |
-| Droits | route en `Router::ADMIN`, `is_admin` absent | 403 |
-
-Puis :
-
-```php
-[[$controller, $method], $access] = $route;
-(new $controller())->{$method}();
-```
-
-Les filtres étant dans le routeur, une nouvelle route POST est couverte par la
-vérification CSRF sans code supplémentaire.
-
-## 5 : Contrôleur
-
-```php
-// Controllers/HomeController.php
-final class HomeController extends Controller
-{
-    public function index(): void
-    {
-        $this->view('home', ['title' => 'Home']);
-    }
-}
-```
-
-`Controller::view()` rend en deux temps :
+`view()` procède en deux temps :
 
 ```php
 protected function view(string $view, array $data = []): void
 {
-    $data += $this->layoutData();   // compte, avatar, demandes d'ami en attente
+    $data += $this->layoutData();
 
     extract($data, EXTR_SKIP);
 
@@ -132,135 +80,56 @@ protected function view(string $view, array $data = []): void
 }
 ```
 
-`extract()` convertit les clés du tableau en variables : `['images' => ...]`
-devient `$images` dans la vue. `ob_start()` / `ob_get_clean()` capturent le HTML
-de la vue dans `$content`. `layout.php` est inclus ensuite et place `$content`
-entre le menu et le pied de page ; la vue ne contient donc pas de `<html>`.
+`layoutData()` ajoute les données affichées sur toutes les pages : le compte
+connecté, son avatar, le nombre de demandes d'ami en attente. `extract()`
+transforme chaque clé du tableau en variable ; `EXTR_SKIP` empêche une clé de
+remplacer une variable déjà définie, comme `$view`. `ob_start()` et
+`ob_get_clean()` capturent la sortie de la vue dans `$content`, que
+`layout.php` place entre le menu et le pied de page.
 
-La vue est rendue avant le layout : une variable définie dans `layout.php`
-(`$v`, par exemple) n'existe pas dans la vue.
+La vue est rendue avant le layout : les variables définies dans `layout.php`
+n'existent pas dans la vue.
 
-## 6 : Modèle
+## 4 : Modèle
 
-```php
-abstract class Model
-{
-    protected PDO $db;
+Un modèle hérite de `Core\Model`, dont le constructeur récupère la connexion
+PDO partagée dans `$this->db`. Une classe correspond à une table ou à une
+entité.
 
-    public function __construct()
-    {
-        $this->db = Database::pdo();
-    }
-}
-```
+Une méthode de modèle porte un nom métier (`create`, `findByUsername`,
+`toggle`), reçoit des valeurs déjà lues et typées par le contrôleur, et renvoie
+un résultat simple : tableau associatif, liste, entier, booléen, ou `null` en
+l'absence de résultat. Le SQL, les contraintes et leur traitement
+(`ON CONFLICT`, `RETURNING`) restent dans la méthode ; le contrôleur ne voit que
+le résultat.
 
-Les méthodes exposées sont nommées en termes métier. `Like::toggle()` :
+Toute valeur passe par une requête préparée, avec des marqueurs nommés.
 
-```php
-// Models/Like.php
-public function toggle(int $imageId, int $userId): bool
-{
-    $stmt = $this->db->prepare(
-        'INSERT INTO likes (image_id, user_id) VALUES (:image_id, :user_id)
-         ON CONFLICT (image_id, user_id) DO NOTHING'
-    );
-    $stmt->execute(['image_id' => $imageId, 'user_id' => $userId]);
+## 5 : Vue
 
-    if ($stmt->rowCount() === 1) {
-        return true;
-    }
+Une vue reçoit ses données sous forme de variables et produit du HTML. Ses
+conditions et ses boucles portent sur ces variables. Toute valeur issue de la
+base ou d'une saisie est échappée par `htmlspecialchars()`.
 
-    $this->db->prepare('DELETE FROM likes WHERE image_id = :image_id AND user_id = :user_id')
-        ->execute(['image_id' => $imageId, 'user_id' => $userId]);
+Un fragment réutilisé par plusieurs vues se place dans `app/Views/partials/` et
+s'inclut par `require BASE_PATH . '/app/Views/partials/xxx.php'`. Il voit les
+variables de la vue qui l'inclut.
 
-    return false;
-}
-```
+## 6 : Ajouter une fonctionnalité
 
-Le contrôleur appelle `toggle()` et reçoit un booléen ; la contrainte d'unicité
-et le `ON CONFLICT` restent dans le modèle. Toutes les valeurs passent par des
-marqueurs nommés.
-
-## 7 : Vue
-
-```php
-<!-- Views/partials/messages.php -->
-<?php if (!empty($notice)): ?>
-    <p class="notice"><?= htmlspecialchars($notice) ?></p>
-<?php endif; ?>
-<?php foreach ($errors ?? [] as $erreur): ?>
-    <p class="error"><?= htmlspecialchars($erreur) ?></p>
-<?php endforeach; ?>
-```
-
-Toute valeur issue de l'utilisateur ou de la base est échappée par
-`htmlspecialchars()`. Les conditions portent sur des variables préparées par
-le contrôleur.
-
-## 8 : Core et Services
-
-| Dossier | Contenu |
-|---------|---------|
-| `app/Core/` | Infrastructure : `Router`, `Controller`, `Model`, `Database`, `Session`, `Csrf`, `Flash`, `Mailer`, `Settings`. Indépendant du métier Camagru. |
-| `app/Services/` | Logique métier hors modèle et hors contrôleur : `Montage` (composition d'images), `Notifications` (emails), `Avatars`, `Overlays`, `CurrentUser`. |
-
-La composition d'une image avec un overlay (`Montage`) n'accède pas à la base
-et ne produit pas de HTML : ce code est dans `Services/`, hors des contrôleurs.
-
-## 9 : Aller-retour complet
-
-Exemple : un « j'aime » sur un montage.
-
-Vue, un formulaire POST portant le jeton CSRF :
-
-```php
-<form method="post" action="/gallery/like">
-    <?= \App\Core\Csrf::field() ?>
-    <input type="hidden" name="id" value="<?= $id ?>">
-    <input type="hidden" name="page" value="<?= $page ?>">
-    <button type="submit"><?= (int) $image['liked'] === 1 ? 'Unlike' : 'Like' ?></button>
-</form>
-```
-
-Le libellé vient de `liked`, calculé par le contrôleur.
-
-Routeur : `POST /gallery/like`, jeton vérifié, session vérifiée
-(`Router::AUTH`), appel de `GalleryController::like()`.
-
-Contrôleur :
-
-```php
-public function like(): void
-{
-    $id = (int) ($_POST['id'] ?? 0);
-
-    if ($this->cible($id) !== null) {
-        (new Like())->toggle($id, (int) $_SESSION['user']['id']);
-    }
-
-    $this->redirect($this->retour($id));
-}
-```
-
-Modèle : `Like::toggle()` ajoute ou retire la ligne.
-
-Réponse : aucune vue rendue, un en-tête `Location:`. Le navigateur refait un `GET` ;
-un rafraîchissement ne redéclenche pas le POST (Post/Redirect/Get).
-
-## 10 : Ajouter une fonctionnalité
-
-1. Table dans `database/schema.sql` si nécessaire.
+1. Table ou colonne dans `database/schema.sql`, si nécessaire.
 2. Méthode dans le modèle concerné, ou nouveau modèle.
-3. Méthode du contrôleur.
-4. Vue ou fragment de vue.
-5. Route dans `config/routes.php`, avec `Router::AUTH` ou `Router::ADMIN` si elle n'est pas publique.
+3. Méthode de contrôleur.
+4. Vue, ou modification d'une vue existante.
+5. Route dans `config/routes.php`, avec son niveau d'accès.
+
+
 
 ## Points d'attention
 
-- Du SQL dans un contrôleur : à déplacer dans un modèle.
-- Une méthode de contrôleur qui dépasse une trentaine de lignes : candidate à un
-  service dans `app/Services/`.
+- Du SQL dans un contrôleur se déplace dans un modèle.
+- Une méthode de contrôleur longue, qui enchaîne des traitements sans lien avec
+  la requête, se découpe vers un service de `app/Services/`.
 - Une vue ne lit ni `$_POST` ni `$_GET`.
-- Une action modifiant l'état se fait en POST et se termine par une redirection.
-- `$this->view()` rend la vue avant le layout : les variables du layout ne sont
-  pas disponibles dans la vue.
+- Une action qui modifie des données se fait en POST et se termine par une
+  redirection.

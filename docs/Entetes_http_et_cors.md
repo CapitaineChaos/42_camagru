@@ -43,8 +43,8 @@ Lus dans `$_SERVER`, préfixe `HTTP_`, tirets en underscores :
 | `Origin` | Origine de la page émettrice sur les requêtes cross-site. Base du CORS. |
 | `User-Agent` | Navigateur, tel que le client le déclare. |
 
-`Referer`, `Origin` et `User-Agent` viennent du client : utilisables pour
-l'ergonomie, jamais comme preuve.
+`Referer`, `Origin` et `User-Agent` viennent du client, qui peut les modifier :
+ils servent à l'ergonomie et ne prouvent rien.
 
 ## 3 : En-têtes de réponse
 
@@ -56,26 +56,46 @@ l'ergonomie, jamais comme preuve.
 | `Set-Cookie` | Dépose un cookie et ses attributs `HttpOnly`, `SameSite`, `Secure`. |
 | `Cache-Control` | Politique et durée de cache. |
 
-## 4 : Dans Camagru
+## 4 : Émettre un en-tête en PHP
+
+`header()` ajoute un en-tête à la réponse ; `http_response_code()` fixe le code
+de statut. Les deux s'appellent avant tout envoi de corps : un `echo`, du HTML
+hors des balises PHP ou une espace avant `<?php` déclenchent l'envoi des
+en-têtes, et un appel ultérieur échoue avec l'avertissement
+`headers already sent`.
 
 ```php
-// Controller::redirect
-header('Location: ' . $path);
+http_response_code(404);
+header('Content-Type: application/json; charset=utf-8');
+header('Cache-Control: no-store');
+```
 
-// PhotoController : servir un montage stocké hors du DocumentRoot
+Un second `header()` portant le même nom remplace le premier. Le second argument
+à `false` ajoute une ligne supplémentaire, ce qui sert aux en-têtes
+répétables comme `Set-Cookie`.
+
+`header('Location: /chemin')` fixe aussi le statut à 302 si aucun code 3xx n'a
+été posé. Le script continue après l'appel : `Controller::redirect()` le
+termine par `exit`.
+
+Un contrôleur qui sert un fichier stocké hors du `DocumentRoot` émet lui-même
+les en-têtes qu'Apache poserait pour un fichier statique, après avoir vérifié
+les droits du demandeur :
+
+```php
 header('Content-Type: image/jpeg');
 header('Content-Length: ' . (string) filesize($fichier));
 header('Cache-Control: public, max-age=604800, immutable');
+readfile($fichier);
 ```
 
-`/photo?id=12` ne porte pas d'extension : le `Content-Type` détermine le
-rendu. Les fichiers sont dans `storage/`, hors `DocumentRoot`, donc
-inatteignables par URL directe ; le contrôleur vérifie les droits avant
-d'émettre les en-têtes. `max-age=604800, immutable` : cache navigateur d'une
-semaine sans revalidation, un montage ne changeant pas après création.
+L'URL d'une route ne porte pas d'extension : le navigateur choisit le rendu
+d'après `Content-Type`. `max-age=604800` autorise le cache navigateur pendant une
+semaine ; `immutable` supprime la revalidation pendant cette durée. Ces deux
+valeurs conviennent à un contenu qui ne change jamais à URL constante.
 
-Le `Set-Cookie` de session n'est pas écrit à la main, `session_start()` le génère
-depuis `session_set_cookie_params()`.
+`session_start()` génère le `Set-Cookie` de la session à partir de
+`session_set_cookie_params()`.
 
 ## 5 : Same-origin policy
 
@@ -83,15 +103,16 @@ Origine = schéma + domaine + port. `http://localhost:8080` et
 `http://localhost:3000` sont deux origines.
 
 Le navigateur interdit à du JavaScript de lire la réponse d'une autre origine.
-La restriction porte sur la lecture, pas sur l'émission :
+Le navigateur laisse partir la requête et bloque la lecture de sa réponse :
 
 - Émission non bloquée : `<img src>`, `<form action>`, `<script src>` vers un
   autre domaine partent avec les cookies, ce qui rend le CSRF possible.
 - Lecture bloquée : la requête part, le serveur répond, le code appelant reçoit
-  une erreur au lieu du corps.
+  une erreur.
 
-La same-origin policy protège les données d'un site contre le JavaScript d'un
-autre site, pas le serveur contre les requêtes.
+La same-origin policy protège les données d'un site contre leur lecture par le
+JavaScript d'un autre site. Les requêtes reçues par le serveur se filtrent par
+ses propres contrôles : jeton CSRF, session.
 
 ## 6 : CORS
 
@@ -120,33 +141,33 @@ Contraintes :
   navigateur refuse la combinaison. Avec cookies, renvoyer l'origine exacte.
 - Renvoyer l'`Origin` reçue sans filtrage autorise tout le monde. Liste blanche,
   plus `Vary: Origin` pour les caches.
-- Un cookie ne part cross-origin qu'en `SameSite=None; Secure`, donc en HTTPS.
-  Le `SameSite=Lax` de Camagru l'interdit.
+- Une requête cross-origin ne porte les cookies que si `fetch()` reçoit
+  `credentials: 'include'`. `SameSite` compare les sites, c'est-à-dire le schéma et le domaine enregistrable,
+port exclu : le cookie de session, en `SameSite=Lax`,
+  accompagne une requête venue d'un autre port de `localhost`, et jamais une
+  requête `fetch()` venue d'un autre site. Un cookie destiné à un autre site doit
+  être en `SameSite=None; Secure`, donc servi en HTTPS.
 
-CORS est un assouplissement, pas une protection. Il s'applique dans le
+CORS assouplit la same-origin policy pour les origines choisies. Il s'applique dans le
 navigateur : `curl` et tout client non navigateur ignorent ces en-têtes.
 
-## 7 : Cas de Camagru
+## 7 : Nécessité du CORS
 
-Même origine pour les pages, le CSS, les images et le seul appel JavaScript :
+Une requête `fetch()` vers une URL relative vise l'origine de la page : aucun
+en-tête CORS n'intervient. Les requêtes du projet sont toutes dans ce cas, et la
+politique de sécurité de contenu (`default-src 'self'`) interdit en outre au
+JavaScript des pages de joindre une autre origine.
 
-```js
-// public/js/gallery.js
-const reponse = await fetch('/gallery?page=' + (derniere + 1), {
-    credentials: 'same-origin',
-});
-```
-
-URL relative, donc aucun en-tête CORS en jeu. `credentials: 'same-origin'` est
-le défaut de `fetch`, explicite ici pour la lisibilité.
-
-CORS deviendrait nécessaire avec un front servi ailleurs (dev server sur un
-autre port, application mobile, autre domaine consommant une API Camagru).
+CORS devient nécessaire quand une page servie depuis une autre origine lit les
+réponses de l'application : serveur de développement sur un autre port,
+interface sur un autre domaine.
 
 ## 8 : Mise en place
 
-Liste blanche, origine renvoyée telle quelle si elle en fait partie, preflight
-traité avant le routage, dans `public/index.php` :
+Les en-têtes CORS s'émettent dans `public/index.php`, avant le routage. L'origine
+reçue est comparée à une liste blanche et renvoyée telle quelle si elle en fait
+partie ; une requête `OPTIONS` reçoit sa réponse sans atteindre le routeur, qui
+ne connaît que `GET` et `POST` :
 
 ```php
 $autorisees = ['https://front.camagru.local'];
@@ -171,7 +192,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 Émis par le vhost (`docker/web/000-default.conf`), en `Header always set` :
 la directive couvre alors les réponses d'erreur, que `Header set` laisse nues.
-Les poser dans Apache plutôt qu'en PHP les met aussi sur les fichiers statiques,
+Posés dans Apache, ils s'appliquent aussi sur les fichiers statiques,
 servis sans passer par `index.php`.
 
 | En-tête | Effet |

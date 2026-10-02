@@ -23,8 +23,8 @@ final class AuthController extends Controller
 
     public function register(): void
     {
-        $username = trim($_POST['username'] ?? '');
-        $email    = trim($_POST['email'] ?? '');
+        $username = trim((string) ($_POST['username'] ?? ''));
+        $email    = Email::normalize((string) ($_POST['email'] ?? ''));
         $password = (string) ($_POST['password'] ?? '');
 
         $errors = [];
@@ -136,7 +136,7 @@ final class AuthController extends Controller
 
     public function login(): void
     {
-        $username = trim($_POST['username'] ?? '');
+        $username = trim((string) ($_POST['username'] ?? ''));
         $password = (string) ($_POST['password'] ?? '');
 
         $users = new User();

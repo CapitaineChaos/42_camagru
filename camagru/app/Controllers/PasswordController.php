@@ -23,7 +23,7 @@ final class PasswordController extends Controller
 
     public function sendReset(): void
     {
-        $email = trim($_POST['email'] ?? '');
+        $email = Email::normalize((string) ($_POST['email'] ?? ''));
 
         $errors = Email::errors($email);
         if ($errors !== []) {

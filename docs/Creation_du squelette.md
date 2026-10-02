@@ -57,10 +57,7 @@ camagru/
 7. Réponse au navigateur
 ```
 
-- Modèle : les données et les requêtes SQL. Exemple : `User.php`.
-- Vue : l'affichage. Exemple : `home.php`, `layout.php`.
-- Contrôleur : reçoit la requête, appelle les modèles, choisit la vue. Exemple :
-  `HomeController`, `AuthController`.
+
 
 ## 3 : Ajouts ultérieurs
 
@@ -71,7 +68,7 @@ Ajouts au squelette dans l'état actuel du dépôt :
 | `app/Core/` étendu | `Session`, `Csrf`, `Flash`, `Mailer`, `Settings`, `Svg`, `Text`, `Pg` |
 | `app/Services/` | logique métier hors modèle et hors contrôleur : `Montage`, `Notifications`, `Avatars`, `Overlays`, `CurrentUser` |
 | `storage/` (conteneur) | fichiers écrits par l'application : `avatars/`, `images/` (montages), hors `DocumentRoot` ; créé par le Dockerfile, monté sur des volumes nommés |
-| `public/css/` | une douzaine de feuilles par domaine, au lieu de `style.css` |
+| `public/css/` | une douzaine de feuilles par domaine, qui remplacent `style.css` |
 | `public/js/` | scripts de page : photobooth, galerie, ornements |
 | `public/images/` | thème, lettrages SVG |
 | `database/admin.sh` | création du compte admin à l'initialisation de la base, depuis `.env` (`ADMIN_*`) |

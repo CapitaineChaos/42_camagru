@@ -31,8 +31,8 @@ un 404.
 
 Les contrôleurs sont dans `camagru/app/Controllers/`, un fichier par classe, dans
 l'espace de noms `App\Controllers`. L'autoloader déduit le fichier du nom de la
-classe : `App\Controllers\GalleryController` est chargé depuis
-`app/Controllers/GalleryController.php`.
+classe : `App\Controllers\XxxController` est chargé depuis
+`app/Controllers/XxxController.php`.
 
 La méthode appelée par la route est publique, ne prend aucun argument et ne
 renvoie rien. Elle lit ses entrées dans `$_GET`, `$_POST` et `$_SESSION`, et
@@ -43,22 +43,6 @@ termine par l'une des trois réponses de `Core\Controller` :
 | `$this->view('nom', [...])` | rend `app/Views/nom.php` dans le layout ; les clés du tableau deviennent des variables de la vue |
 | `$this->redirect('/chemin')` | en-tête `Location` (code 302), puis fin du script |
 | `$this->json([...])` | corps JSON, avec `Content-Type: application/json` |
-
-Exemple, le « j'aime » de la galerie :
-
-```php
-// app/Controllers/GalleryController.php
-public function like(): void
-{
-    $id = (int) ($_POST['id'] ?? 0);
-
-    if ($this->cible($id) !== null) {
-        (new Like())->toggle($id, (int) $_SESSION['user']['id']);
-    }
-
-    $this->redirect($this->retour($id));
-}
-```
 
 Un nouveau contrôleur hérite de `Controller` et se déclare `final` :
 
@@ -71,11 +55,11 @@ namespace App\Controllers;
 
 use App\Core\Controller;
 
-final class ExempleController extends Controller
+final class XxxController extends Controller
 {
-    public function index(): void
+    public function xxx(): void
     {
-        $this->view('exemple', ['title' => 'Exemple']);
+        $this->view('xxx', ['title' => 'Xxx']);
     }
 }
 ```
@@ -83,23 +67,23 @@ final class ExempleController extends Controller
 ## 3 : Déclaration
 
 Dans `config/routes.php`, importer le contrôleur en tête de fichier. Sans cet
-import, `ExempleController::class` désigne `\ExempleController`, que
+import, `XxxController::class` désigne `\XxxController`, que
 l'autoloader ne charge pas : l'appel de la route échoue en erreur 500.
 
 ```php
-use App\Controllers\ExempleController;
+use App\Controllers\XxxController;
 ```
 
 Puis déclarer la route dans la fonction :
 
 ```php
-$router->get('/exemple', [ExempleController::class, 'index']);
-$router->post('/exemple/envoyer', [ExempleController::class, 'envoyer']);
+$router->get('/xxx', [XxxController::class, 'xxx']);
+$router->post('/xxx/action', [XxxController::class, 'action']);
 ```
 
 `GET /login` et `POST /login` sont deux routes distinctes, qui peuvent viser deux
 méthodes différentes. Les barres obliques de début et de fin sont retirées avant
-l'enregistrement et avant la recherche : `/exemple`, `/exemple/` et `exemple`
+l'enregistrement et avant la recherche : `/xxx`, `/xxx/` et `xxx`
 désignent la même route.
 
 ## 4 : Protection
@@ -108,8 +92,8 @@ Une route est publique sauf si sa déclaration porte un niveau d'accès en
 troisième argument :
 
 ```php
-$router->get('/exemple', [ExempleController::class, 'exemple'], Router::AUTH);
-$router->post('/exemple/envoyer', [ExempleController::class, 'envoyer'], Router::AUTH);
+$router->get('/xxx', [XxxController::class, 'xxx'], Router::AUTH);
+$router->post('/xxx/action', [XxxController::class, 'action'], Router::AUTH);
 ```
 
 | Niveau | Effet si la condition manque |
@@ -127,14 +111,14 @@ contrôleur ; un jeton absent ou invalide donne une réponse 403. Le formulaire
 porte donc le champ du jeton :
 
 ```php
-<form method="post" action="/gallery/like">
+<form method="post" action="/xxx/action">
     <?= \App\Core\Csrf::field() ?>
-    <input type="hidden" name="id" value="<?= $id ?>">
-    <button type="submit">Like</button>
+    <input type="hidden" name="id" value="<?= (int) $id ?>">
+    <button type="submit">Valider</button>
 </form>
 ```
 
-Une requête `fetch` envoie le jeton dans un corps au format formulaire
+Une requête `fetch()` envoie le jeton dans un corps au format formulaire
 (`FormData`) ; un corps JSON laisse `$_POST['csrf_token']` vide et la requête est
 refusée.
 

@@ -4,7 +4,7 @@ Une faille XSS survient quand une donnée fournie par un utilisateur (pseudo,
 commentaire, e-mail…) est renvoyée dans une page sans échappement : le
 navigateur d'un autre visiteur l'interprète comme du HTML ou du JavaScript.
 
-Défense du projet : échappement à l'affichage, dans les vues, avec
+La défense consiste à échapper la donnée à l'affichage, dans les vues, avec
 `htmlspecialchars`. La donnée est stockée telle quelle et neutralisée à chaque
 sortie.
 
@@ -13,7 +13,7 @@ sortie.
 Déroulé d'une XSS stockée, sur une version où un champ affiché n'est pas échappé
 (ici un commentaire de la galerie) :
 
-1. L'attaquant poste un « commentaire » qui contient du code au lieu de texte :
+1. L'attaquant poste un « commentaire » qui contient du code :
 
    ```html
    Super montage !<script>
@@ -96,8 +96,16 @@ lorsqu'une donnée est insérée :
 - dans un gestionnaire d'événement (`onclick=…`) ;
 - dans du CSS en ligne.
 
-Aucune donnée utilisateur n'est insérée dans ces contextes. Une URL fournie par
-l'utilisateur est validée (schéma `http`/`https` uniquement) avant affichage.
+Une donnée utilisateur ne s'insère dans aucun de ces contextes. Une URL fournie
+par un utilisateur et placée dans `href` ou `src` se valide d'abord par son
+schéma (`http` ou `https` uniquement).
+
+## Insertion par JavaScript
+
+Une valeur reçue par `fetch()` s'insère dans la page par `textContent`, qui la
+traite comme du texte. `innerHTML` l'interprète comme du balisage : une chaîne
+saisie par un utilisateur et transmise en JSON y redevient du HTML actif, car
+`json_encode()` n'échappe pas le HTML.
 
 ## Points d'attention
 
@@ -108,7 +116,8 @@ l'utilisateur est validée (schéma `http`/`https` uniquement) avant affichage.
   peut contourner l'échappement.
 - Content-Security-Policy posée par le vhost (`docker/web/000-default.conf`),
   en complément de l'échappement : un `<script>` injecté ne s'exécute pas,
-  faute de `'unsafe-inline'`. En conséquence, les vues ne contiennent aucun
-  script ni style inline ; le `onclick` de la déconnexion a été retiré et le
-  formulaire porte un bouton. `style-src-attr 'unsafe-inline'` reste ouvert pour le seul
-  attribut `style` du photomaton, dont la valeur vient de la configuration.
+  faute de `'unsafe-inline'`. Les vues ne contiennent donc aucun script en
+  ligne ni attribut de gestionnaire d'événement (`onclick`) ; une action se
+  déclenche par un formulaire ou par un script chargé depuis `public/js/`.
+  `style-src-attr 'unsafe-inline'` autorise l'attribut `style`, utilisé par le
+  photomaton avec une valeur issue de la configuration.

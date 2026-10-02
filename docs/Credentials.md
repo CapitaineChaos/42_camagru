@@ -18,8 +18,9 @@ feuille d'évaluation exige qu'ils soient dans `.env`.
 | `DB_USER`, `DB_PASSWORD` | rôle PostgreSQL avec lequel l'application se connecte |
 | `ADMIN_USER`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` | compte admin Camagru, sans rapport avec le rôle PostgreSQL |
 
-`make up` refuse de démarrer si `.env` manque ou si l'une de ces cinq variables
-est vide.
+`make up` lance d'abord `scripts/check-env.sh`, qui arrête la commande si `.env`
+manque ou si une variable requise est vide : noms des conteneurs, rôle
+PostgreSQL, compte admin.
 
 `web` reçoit tout `.env` dans son environnement (`env_file`) ; `config.php` lit
 les variables par `getenv()` et arrête le démarrage sur une variable absente ou
@@ -61,7 +62,7 @@ contraintes non satisfaites :
 | Règle | Contrôle |
 |-------|----------|
 | Longueur | `strlen($password) >= auth.password_min_length` |
-| Au moins une lettre | `preg_match('/\p{L}/u', $password)` |
+| Au moins une lettre | `preg_match('/[A-Za-z]/', $password)` |
 | Au moins un chiffre | `preg_match('/\d/', $password)` |
 
 ```php
@@ -73,9 +74,10 @@ $errors = array_merge($errors, Password::errors($password));
 `PrefsController::account` (qui n'appelle que si un nouveau mot de passe est
 fourni).
 
-Côté vue, `minlength` et un rappel de la règle sous le champ. L'attribut HTML ne
+Côté vue, `minlength`, `pattern` (généré par `Password::pattern()`, mêmes
+classes ASCII que le serveur) et un rappel de la règle sous le champ. L'attribut HTML ne
 vaut que pour l'affichage : un POST peut arriver sans passer par la page. La
-longueur est lue depuis `settings.php` des deux côtés, jamais écrite en dur,
+longueur est lue depuis `settings.php` des deux côtés,
 pour que le message affiché et le contrôle serveur ne divergent pas.
 
 Hors périmètre : liste de mots de passe interdits, historique, expiration.
@@ -86,17 +88,91 @@ Hors périmètre : liste de mots de passe interdits, historique, expiration.
 password_hash($password, PASSWORD_DEFAULT)
 ```
 
-`PASSWORD_DEFAULT` désigne bcrypt, coût 10, sel généré automatiquement et
-embarqué dans la chaîne produite. La colonne `users.password` est en
-`VARCHAR(255)` : assez large pour une sortie bcrypt de 60 caractères et pour un
-changement d'algorithme par défaut dans une version ultérieure de PHP.
+`PASSWORD_DEFAULT` désigne bcrypt. Le coût par défaut est 10 en PHP 8.3,
+version de l'image `web`, et 12 à partir de PHP 8.4.
+
+Chaque appel de `password_hash()` tire un sel aléatoire de 16 octets, propre au
+hash produit. Deux comptes ayant le même mot de passe obtiennent des hash
+différents, et un changement de mot de passe produit un nouveau sel.
+
+Le sel est écrit en clair dans la chaîne produite, avec l'algorithme et le
+coût, et l'ensemble est stocké dans `users.password`.
+
+```
+$2y$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy
+ 2y                      algorithme : bcrypt
+    10                   coût : 2^10 itérations
+       N9qo8uLOickgx2ZMRZoMye     sel, 22 caractères
+                             IjZAgcfl7p92ldGxad68LJZdL17lhWy   hash, 31 caractères
+```
+
+Le sel rend inutilisables les tables d'empreintes précalculées et oblige à
+attaquer chaque hash séparément. La résistance à la force brute vient du coût.
+
+### Coût
+
+bcrypt répète son calcul interne 2^coût fois : chaque point de coût double la
+durée d'un hash. Mesures sur un poste de 42, un cœur, PHP 8.5 :
+
+| Coût | Itérations | Durée d'un hash |
+|------|------------|-----------------|
+| 8 | 256 | 20 ms |
+| 10 | 1 024 | 47 ms |
+| 12 | 4 096 | 186 ms |
+| 14 | 16 384 | 745 ms |
+
+Le serveur calcule un hash par connexion : 47 ms passent inaperçus pour
+l'utilisateur.
+
+Un attaquant qui a copié la table `users` possède les hash. Un hash ne se
+déchiffre pas : l'attaquant prend un mot de passe candidat, le hache avec le sel
+et le coût lus dans la chaîne, compare le résultat au hash stocké, puis passe au
+candidat suivant. Chaque essai lui coûte la durée d'un hash. Pour un
+dictionnaire d'un milliard de candidats, sur un cœur :
+
+| Fonction | Durée d'un essai | Un milliard d'essais |
+|----------|------------------|----------------------|
+| SHA-256 | 0,14 µs | 2 min 20 s |
+| bcrypt, coût 10 | 47 ms | 1 an et 6 mois |
+| bcrypt, coût 12 | 186 ms | 5 ans et 11 mois |
+
+Ces durées valent pour un seul compte : le sel propre à chaque hash oblige à
+recommencer pour le compte suivant. Plusieurs machines ou des cartes graphiques
+les divisent ; bcrypt limite le gain des cartes graphiques par ses accès
+répétés à une table de 4 Kio en mémoire.
+
+Le coût se choisit le plus haut possible tant qu'une connexion reste rapide et
+que le serveur tient la charge. PHP l'a porté de 10 à 12 en version 8.4, pour
+suivre la vitesse des processeurs.
+
+Le coût est écrit dans chaque hash : `password_verify()` vérifie un ancien hash
+avec son propre coût, et relever le coût laisse les comptes existants
+fonctionner. `password_needs_rehash($hash, PASSWORD_DEFAULT)` indique, à la
+connexion, qu'un hash a été produit avec d'autres paramètres ; le mot de passe
+saisi permet alors de le recalculer.
+
+Une valeur secrète commune à tous les mots de passe, gardée hors de la base et
+ajoutée avant le hachage, s'appelle un poivre (*pepper*). Le projet n'en
+utilise pas.
+
+La colonne `users.password` est en `VARCHAR(255)` : assez large pour une sortie
+bcrypt de 60 caractères et pour un changement d'algorithme par défaut dans une
+version ultérieure de PHP.
 
 Le mot de passe en clair n'est jamais écrit, ni en base, ni en log, ni en
 session. La session ne porte que `id`, `username` et `is_admin`.
 
 ## 4 : Vérification à la connexion
 
-L'identifiant de connexion est le pseudo :
+L'identifiant de connexion est le pseudo. `findByUsername()` compare en
+minuscules (`lower(username) = lower(:username)`) : `Alice` se connecte aussi
+en tapant `alice`. Un index unique sur `lower(username)` interdit deux pseudos
+qui ne diffèrent que par la casse.
+
+Les règles du pseudo sont dans `Core/Username` : 3 à 50 caractères parmi
+`A-Z a-z 0-9 _ . -`, le premier étant une lettre ou un chiffre.
+`Username::errors()` les applique côté serveur (inscription, préférences,
+`/register/available`) et `Username::pattern()` en donne la version HTML.
 
 ```php
 $user = (new User())->findByUsername($username);
@@ -107,6 +183,9 @@ if ($user === null || !password_verify($password, $user['password'])) {
 ```
 
 L'adresse ne sert qu'aux envois de mail et à la demande de réinitialisation.
+`Email::normalize()` la passe en minuscules à chaque lecture d'un formulaire
+(inscription, préférences, mot de passe oublié) : une boîte mail correspond à un
+seul compte, quelle que soit la casse saisie.
 
 `password_verify` relit le sel et le coût depuis le hash stocké, et compare en
 temps constant. Un compte inexistant et un mot de passe faux produisent le même

@@ -112,9 +112,9 @@ self::$pdo = new PDO(DB_DSN, DB_USER, DB_PASS, [
 
 | Option | Effet |
 |--------|-------|
-| `ERRMODE_EXCEPTION` | une erreur SQL lève une `PDOException` au lieu de passer inaperçue |
-| `FETCH_ASSOC` | les lignes arrivent en tableaux associatifs, pas en doublons index + nom |
-| `EMULATE_PREPARES => false` | la préparation est faite par PostgreSQL, pas simulée par PHP |
+| `ERRMODE_EXCEPTION` | une erreur SQL lève une `PDOException` |
+| `FETCH_ASSOC` | les lignes arrivent en tableaux indexés par nom de colonne |
+| `EMULATE_PREPARES => false` | la préparation est faite par PostgreSQL |
 
 Aucun contrôleur ni aucune vue n'appelle `Database::pdo()` : le constructeur de
 `Core/Model` récupère la connexion, et les modèles en héritent.
@@ -142,30 +142,39 @@ $stmt->execute(['username' => $username]);
 ```
 
 Seules les valeurs sont paramétrables. Un nom de table ou de colonne ne peut pas
-l'être ; s'il varie, il vient d'une liste fermée écrite dans le code :
+l'être ; s'il varie, il est choisi dans une liste fermée écrite dans le code,
+jamais lu dans la requête HTTP :
 
 ```php
-foreach (['likes', 'comments', 'reports', 'images'] as $table) {
-    $colonne = $table === 'images' ? 'id' : 'image_id';
-    $this->db->prepare("DELETE FROM {$table} WHERE {$colonne} = :id")->execute(['id' => $id]);
-}
+$colonnes = ['created_at', 'username'];
+$tri = in_array($demande, $colonnes, true) ? $demande : 'created_at';
+$stmt = $this->db->prepare("SELECT ... ORDER BY {$tri} DESC");
 ```
 
-### C : `bindValue` et types
+### C : Types des paramètres
 
-`execute([...])` envoie tout en chaîne. PostgreSQL refuse une chaîne là où il
-attend un entier : `LIMIT` et `OFFSET` demandent donc `bindValue()` avec le
-type.
+`pdo_pgsql` transmet chaque paramètre sous forme de texte, sans type déclaré.
+PostgreSQL déduit le type du contexte (colonne comparée, `LIMIT`, `OFFSET`) et
+convertit le texte. Un entier passé à `execute()` arrive ainsi en `'6'` et
+devient un entier côté serveur, `LIMIT` et `OFFSET` compris ; `null` est
+transmis comme `NULL`.
+
+`execute([...])` lie chaque valeur en chaîne, sauf `null`. Un booléen PHP y
+devient `'1'` pour `true` et `''` pour `false` ; PostgreSQL accepte `'1'` comme
+booléen et refuse la chaîne vide. Un booléen se lie donc par `bindValue()` avec
+`PDO::PARAM_BOOL`, que le pilote transmet en `'t'` ou `'f'` :
 
 ```php
-$stmt->bindValue('viewer', $viewerId, $viewerId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
-$stmt->bindValue('limit', $limit, PDO::PARAM_INT);
-$stmt->bindValue('offset', $offset, PDO::PARAM_INT);
+$stmt->bindValue('actif', $actif, PDO::PARAM_BOOL);
+$stmt->bindValue('id', $id, PDO::PARAM_INT);
 $stmt->execute();
 ```
 
-Un paramètre qui peut être `null` se lie en `PARAM_NULL` : c'est le cas du
-lecteur anonyme dans la galerie.
+Avec `pdo_pgsql`, `PDO::PARAM_INT` et `PDO::PARAM_NULL` produisent le même envoi
+que `execute()` : ils indiquent le type attendu sans modifier la requête
+transmise. Une requête qui lie une valeur par `bindValue()` lie toutes les
+autres de la même façon, puis appelle `execute()` sans argument : un tableau
+passé à `execute()` remplace les liaisons faites auparavant.
 
 ### D : Récupérer le résultat
 
@@ -176,8 +185,8 @@ lecteur anonyme dans la galerie.
 | `fetchColumn()` | la première colonne de la première ligne | compte, identifiant, nom de fichier |
 | `rowCount()` | nombre de lignes touchées | savoir si un `INSERT`/`DELETE` a fait quelque chose |
 
-`fetch()` renvoie `false` et non `null` quand il n'y a rien : les modèles
-normalisent avant de rendre la main.
+`fetch()` renvoie `false` en l'absence de ligne ; les modèles convertissent
+cette valeur en `null` :
 
 ```php
 return $stmt->fetch() ?: null;
@@ -187,135 +196,170 @@ return $stmt->fetch() ?: null;
 
 ```php
 $stmt = $this->db->prepare(
-    'INSERT INTO images (user_id, filename) VALUES (:user_id, :filename) RETURNING id'
+    'INSERT INTO xxx (user_id, nom) VALUES (:user_id, :nom) RETURNING id'
 );
-$stmt->execute(['user_id' => $userId, 'filename' => $filename]);
+$stmt->execute(['user_id' => $userId, 'nom' => $nom]);
 
 return (int) $stmt->fetchColumn();
 ```
 
-### E : Booléens
+### E : Types des résultats
 
-`pdo_pgsql` rend les booléens sous forme de chaînes `'t'` et `'f'`. `'f'` est
-une chaîne non vide, donc vraie en PHP : un test direct est toujours vrai.
+En PHP 8.3, version de l'image `web`, `pdo_pgsql` convertit trois types de
+colonnes :
 
-```php
-if ($user['verified']) { ... }              // vrai même pour 'f'
-if (Pg::bool($user['verified'])) { ... }    // correct
-```
+| Type PostgreSQL | Valeur PHP |
+|-----------------|------------|
+| `boolean` | `bool` |
+| `smallint`, `integer`, `bigint` (PHP 64 bits) | `int` |
+| `bytea` | flux (`resource`) |
 
-`Core/Pg::bool()` accepte `true`, `'t'`, `'1'` et `1`.
+Les autres types (`text`, `varchar`, `numeric`, `timestamptz`) arrivent en
+chaînes. Un booléen se teste donc directement (`if ($user['verified'])`), et un
+`count(*)`, de type `bigint`, arrive en entier.
+
+`Core/Pg::bool()` accepte aussi `'t'` et `'1'`, formes que renvoient les
+fonctions `pg_fetch_*` de l'extension `pgsql`, mais que `pdo_pgsql` ne produit
+pas.
 
 ### F : Compteurs et drapeaux
 
-Les compteurs de la galerie sont des sous-requêtes, une par colonne, plutôt
-qu'un `GROUP BY` sur trois jointures :
+Un compteur associé à chaque ligne (nombre d'éléments liés) s'écrit en
+sous-requête corrélée, une par colonne :
 
 ```sql
-SELECT i.id, i.filename, i.created_at, i.user_id, u.username,
-       (SELECT count(*) FROM likes l WHERE l.image_id = i.id)    AS likes,
-       (SELECT count(*) FROM comments c WHERE c.image_id = i.id) AS comments,
-       CAST(EXISTS (SELECT 1 FROM likes l
-                    WHERE l.image_id = i.id
-                      AND l.user_id = :viewer) AS INTEGER)       AS liked
-FROM images i JOIN users u ON u.id = i.user_id
-ORDER BY i.created_at DESC, i.id DESC
-LIMIT :limit OFFSET :offset
+SELECT p.id, p.nom,
+       (SELECT count(*) FROM enfants e WHERE e.parent_id = p.id) AS nb_enfants
+FROM parents p
 ```
 
-`EXISTS` s'arrête à la première ligne trouvée, là où un `count(*)` les parcourt
-toutes. Le `CAST(... AS INTEGER)` évite le problème des booléens de la section
-précédente : la vue teste `(int) $image['liked'] === 1`.
+Avec plusieurs compteurs, un `GROUP BY` sur plusieurs jointures multiplie les
+lignes avant le comptage : chaque compteur est alors faux, sauf à écrire
+`count(DISTINCT ...)`. Les sous-requêtes restent indépendantes.
 
-`JOIN` quand la ligne liée est garantie, `LEFT JOIN` quand elle peut manquer.
-Un compte supprimé laisse ses commentaires derrière lui, sans auteur :
+Un drapeau (l'utilisateur courant a-t-il une ligne liée ?) s'écrit avec
+`EXISTS`, qui s'arrête à la première ligne trouvée là où `count(*)` les parcourt
+toutes. `EXISTS (...)` rend un `boolean`, reçu en `bool` PHP.
 
-```sql
-SELECT c.image_id, c.comment, c.created_at, u.username
-FROM comments c LEFT JOIN users u ON u.id = c.user_id
-WHERE c.image_id IN (?,?,?)
-```
+`JOIN` convient quand la ligne liée existe toujours, `LEFT JOIN` quand elle peut
+manquer, par exemple quand la clé étrangère est en `ON DELETE SET NULL` : les
+colonnes de la table jointe valent alors `NULL`.
 
 ### G : Liste d'identifiants
 
-`IN` ne prend pas un tableau : il faut autant de marqueurs que de valeurs,
-générés puis passés en positionnel.
+`IN` attend une liste de valeurs : la requête porte autant de marqueurs que de
+valeurs, générés puis passés en positionnel.
 
 ```php
-$marques = implode(',', array_fill(0, count($imageIds), '?'));
-$stmt = $this->db->prepare("... WHERE c.image_id IN ({$marques}) ...");
-$stmt->execute($imageIds);
+$marques = implode(',', array_fill(0, count($ids), '?'));
+$stmt = $this->db->prepare("SELECT ... WHERE parent_id IN ({$marques})");
+$stmt->execute($ids);
 ```
 
-Une seule requête par page de galerie ; les commentaires sont ensuite regroupés
-par image en PHP.
+Une liste vide produit `IN ()`, refusé par PostgreSQL : la méthode renvoie un
+tableau vide sans exécuter la requête.
+
+Une seule requête couvre ainsi tous les éléments d'une page. Le regroupement par élément se fait ensuite en PHP.
 
 ### H : Pagination
 
-Le modèle fournit le total et la tranche, le contrôleur calcule les bornes :
+Le modèle fournit le total (`count(*)`) et une tranche (`LIMIT`, `OFFSET`). Le
+contrôleur calcule les bornes et ramène le numéro de page demandé dans
+l'intervalle valide :
 
 ```php
-$parPage = max(1, (int) Settings::get('gallery.per_page'));
-$total   = $images->count();
+$parPage = max(1, (int) Settings::get('xxx.per_page'));
 $pages   = max(1, (int) ceil($total / $parPage));
 $page    = min(max(1, (int) ($_GET['page'] ?? 1)), $pages);
-
-$liste = $images->page($parPage, ($page - 1) * $parPage, $this->viewerId() ?: null);
+$offset  = ($page - 1) * $parPage;
 ```
 
-`$_GET['page']` est borné des deux côtés : une valeur absurde donne la première
-ou la dernière page, jamais une erreur SQL.
+Une valeur absurde dans `$_GET['page']` donne la première ou la dernière page,
+jamais une erreur SQL.
 
-Le tri porte sur deux colonnes, `ORDER BY i.created_at DESC, i.id DESC` : deux
-montages créés dans la même seconde auraient sinon un ordre indéterminé, et
-certaines lignes apparaîtraient deux fois d'une page à l'autre.
+Le tri d'une liste paginée porte sur une combinaison unique de colonnes, par
+exemple `ORDER BY created_at DESC, id DESC`. Avec un tri sur une seule colonne
+non unique, l'ordre des ex aequo est indéterminé, et une même ligne peut
+apparaître sur deux pages.
 
 ### I : Suppressions en cascade
 
-Les clés étrangères portent les suppressions dépendantes : supprimer un montage
-supprime ses likes, commentaires et signalements (`ON DELETE CASCADE`), et
-`RETURNING` rend le nom du fichier dans la même requête :
+Le comportement d'une suppression se déclare dans le schéma, sur chaque clé
+étrangère :
+
+| Clause | Effet sur les lignes qui référencent la ligne supprimée |
+|--------|-----------------------------------------------------------|
+| `ON DELETE CASCADE` | supprimées |
+| `ON DELETE SET NULL` | conservées, la colonne passe à `NULL` (colonne sans `NOT NULL`) |
+| aucune | la suppression échoue tant qu'il en reste |
+
+Le code PHP ne supprime donc pas lui-même les lignes dépendantes. `RETURNING`
+rend dans la même requête les colonnes de la ligne supprimée, par exemple un nom
+de fichier à effacer ensuite du disque :
 
 ```sql
-DELETE FROM images WHERE id = :id AND user_id = :user_id RETURNING filename
+DELETE FROM xxx WHERE id = :id RETURNING filename
 ```
-
-Supprimer un compte supprime ses montages, likes, signalements, amitiés,
-demandes de réinitialisation et son rang d'admin. Ses commentaires sur les
-montages des autres restent, sans auteur : `comments.user_id` est en
-`ON DELETE SET NULL`.
 
 ### J : Contrôle de propriété
 
-La propriété est vérifiée dans la clause `WHERE` de la requête :
+La propriété d'une ligne se vérifie dans la clause `WHERE` de la requête qui
+la modifie :
+
+```sql
+DELETE FROM xxx WHERE id = :id AND user_id = :user_id RETURNING filename
+```
+
+Si la ligne n'existe pas ou appartient à un autre compte, la requête ne touche
+rien et ne renvoie rien ; la méthode rend `null`. Le contrôleur ne compare pas
+lui-même de `user_id`, et aucune fenêtre ne sépare la vérification de
+l'écriture.
+
+### K : Index et contraintes particuliers
+
+Un index porte sur des colonnes, ou sur une expression calculée à partir
+d'elles. Déclaré `UNIQUE`, il interdit deux lignes qui donnent la même valeur.
+
+| Forme | Exemple | Effet |
+|-------|---------|-------|
+| index sur expression | `CREATE UNIQUE INDEX ON xxx (lower(nom))` | `Nom` et `nom` sont des doublons ; une requête en `WHERE lower(nom) = lower(:nom)` utilise l'index |
+| paire non ordonnée | `CREATE UNIQUE INDEX ON paires (least(a, b), greatest(a, b))` | `(1, 2)` et `(2, 1)` donnent la même clé : une seule ligne par paire, quel que soit le sens |
+| index partiel | `CREATE INDEX ON xxx (user_id) WHERE traite_le IS NULL` | ne contient que les lignes de la condition ; plus petit, utilisé par les requêtes qui reprennent la même condition |
+| contrainte `CHECK` | `CHECK (a <> b)` | refuse à l'écriture toute ligne qui ne vérifie pas l'expression |
+
+Une requête n'utilise un index sur expression que si elle contient la même
+expression : `WHERE nom = :nom` ne s'en sert pas.
+
+### L : Recherche par motif
+
+`LIKE` compare à un motif où `%` remplace une suite de caractères et `_` un seul
+caractère ; `ILIKE`, propre à PostgreSQL, ignore la casse. Une saisie
+utilisateur insérée dans un motif est d'abord échappée, sinon un `_` ou un `%`
+tapé par l'utilisateur agit comme joker :
 
 ```php
-public function delete(int $id, ?int $userId = null): ?string
+$motif = '%' . addcslashes($saisie, '\\%_') . '%';
+$stmt = $this->db->prepare('SELECT ... WHERE nom ILIKE :motif');
+$stmt->execute(['motif' => $motif]);
 ```
 
-Sans ligne correspondante, la requête ne renvoie rien et la méthode rend `null`.
-Le contrôleur ne compare pas lui-même de `user_id`. Seul le bureau d'admin
-appelle la méthode sans `$userId`, ce qui lève le contrôle de propriété.
+`\` est le caractère d'échappement par défaut de `LIKE` en PostgreSQL.
 
-### K : Erreurs
+### M : Erreurs
 
 Avec `ERRMODE_EXCEPTION`, une violation de contrainte lève une `PDOException`.
-Elle ne sert pas de message utilisateur : les contraintes courantes (unicité
-d'un pseudo, longueur) sont validées en PHP avant l'écriture, et l'exception
-couvre ce qui a échappé à la validation. `display_errors` est à
+Les contraintes courantes (unicité d'un pseudo, longueur) sont validées en PHP
+avant l'écriture, pour produire un message lisible ; l'exception couvre ce qui a
+échappé à la validation. `display_errors` est à
 `Off` côté conteneur, la trace part dans le log Apache.
 
-### L : Trajet complet
+### N : Ajouter une méthode de modèle
 
-```
-GalleryController::gallery()
-    Image::count()            total des montages
-    Image::page()             une tranche, triée, avec compteurs et drapeaux
-    Comment::forImages()      les commentaires des identifiants de la page
-    $this->view('gallery', [...])
-        la vue lit $images, $commentaires, $page, $pages
-        et échappe chaque valeur affichée
-```
-
-Aucune requête n'est émise depuis la vue : tout ce qu'elle affiche a été
-préparé par le contrôleur.
+1. Choisir le modèle de la table principale de la requête dans
+   `app/Models/`, ou créer une classe `final` qui hérite de `Core\Model`.
+2. Écrire une méthode publique typée, nommée d'après ce qu'elle fait.
+3. Préparer la requête avec des marqueurs nommés ; lier par `bindValue()` les
+   entiers de `LIMIT` et `OFFSET` et les valeurs qui peuvent être `null`.
+4. Rendre un résultat normalisé : `fetch() ?: null`, `fetchAll()`,
+   `(int) fetchColumn()`, ou un booléen tiré de `rowCount()`.
+5. Appeler la méthode depuis le contrôleur.

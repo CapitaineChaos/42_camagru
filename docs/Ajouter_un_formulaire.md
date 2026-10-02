@@ -1,206 +1,196 @@
 # Ajouter un formulaire
 
-Un formulaire ajoute deux routes, une validation et une réponse.
+Un formulaire demande deux routes, l'une pour afficher la page qui le contient,
+l'autre pour traiter l'envoi, ainsi qu'une méthode de traitement qui lit,
+valide, agit et répond.
 
-## 1 : Les deux routes
+Dans ce document, `xxx` désigne la page et `XxxController` le contrôleur.
 
-Une pour afficher, une pour traiter. Chemin identique ou distinct, méthodes HTTP
-différentes :
+## 1 : Routes
 
 ```php
 // config/routes.php
-$router->get('/preferences', [PrefsController::class, 'prefs'], Router::AUTH);
-$router->post('/preferences/account', [PrefsController::class, 'account'], Router::AUTH);
+$router->get('/xxx', [XxxController::class, 'xxx'], Router::AUTH);
+$router->post('/xxx/action', [XxxController::class, 'action'], Router::AUTH);
 ```
 
-`Router::AUTH` se déclare sur les deux : protéger l'affichage ne protège pas
-l'envoi.
+Le chemin du `POST` peut être identique à celui du `GET` ou distinct ; une page
+qui porte plusieurs formulaires utilise un chemin par formulaire. Le niveau
+d'accès se déclare sur les deux routes : protéger l'affichage ne protège pas le
+traitement.
 
-## 2 : Le balisage
+## 2 : Balisage
 
 ```php
-<form class="form-block flex-vt" method="post" action="/register">
+<form class="form-block flex-vt" method="post" action="/xxx/action">
     <?= \App\Core\Csrf::field() ?>
     <p class="field flex-vt tight">
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username"
-               value="<?= htmlspecialchars($old['username'] ?? '') ?>"
-               autocomplete="username" required>
+        <label for="nom">Nom</label>
+        <input type="text" id="nom" name="nom"
+               value="<?= htmlspecialchars($old['nom'] ?? '') ?>"
+               maxlength="<?= (int) \App\Core\Settings::get('xxx.max_length') ?>"
+               required>
     </p>
-    <p class="field flex-vt tight">
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password"
-               autocomplete="new-password" required
-               minlength="<?= (int) \App\Core\Settings::get('auth.password_min_length') ?>">
-    </p>
-    <p class="flex-hz"><button type="submit">Sign up</button></p>
+    <p class="flex-hz"><button type="submit">Enregistrer</button></p>
 </form>
 ```
 
-Règles :
+| Élément | Règle |
+|---------|-------|
+| `method="post"` | Le routeur ne vérifie le jeton que sur les requêtes POST. |
+| `Csrf::field()` | Placé à l'intérieur du `<form>` ; sans lui, la requête reçoit un 403. |
+| `name` | Clé sous laquelle la valeur arrive dans `$_POST`. |
+| `id` et `for` | Associent le libellé au champ. |
+| `value` | Valeur réaffichée après une erreur, échappée par `htmlspecialchars()`. |
+| `pattern` | Expression que la valeur entière doit vérifier. Les navigateurs la compilent avec le drapeau `v` : un `-` littéral dans une classe s'écrit `\-`, et une expression invalide est ignorée, avec un avertissement dans la console. |
+| `autocomplete` | Indique au navigateur le type de donnée (`username`, `email`, `current-password`, `new-password`). |
 
-- `method="post"` : un GET n'est pas vérifié par le routeur.
-- `Csrf::field()` à l'intérieur du `<form>`, sinon 403.
-- `name` : c'est la clé lue dans `$_POST`.
-- `id` sur le champ et `for` correspondant sur le `<label>`.
-- `value` réaffiché depuis `$old`, échappé.
-- Les contraintes HTML (`required`, `minlength`, `type="email"`) sont du confort
-  d'affichage. Elles ne dispensent pas de la validation serveur : un POST peut
-  arriver sans passer par la page.
-- Les bornes viennent de `config/settings.php`, pas d'un littéral, pour rester
-  alignées avec la validation serveur.
+Les contraintes HTML (`required`, `maxlength`, `minlength`, `type="email"`)
+servent à l'affichage. Le serveur valide les mêmes règles : un POST peut être
+envoyé sans passer par la page. Les bornes se lisent dans `config/settings.php`,
+du côté de la vue comme du côté du contrôleur, pour que les deux appliquent la
+même valeur.
 
-Classes disponibles dans `components.css` et `utilities.css` : `form-block`,
-`field`, `form-inline`, `flex-vt`, `flex-hz`, `tight`.
+Les classes de mise en forme sont définies dans `components.css` et
+`utilities.css` : `form-block`, `form-inline`, `field`, `flex-vt`, `flex-hz`,
+`tight`.
 
-## 3 : La méthode de traitement
+## 3 : Méthode de traitement
 
-Lecture, validation, action, réponse :
+La méthode suit quatre étapes : lecture, validation, action, réponse.
 
 ```php
-public function account(): void
+public function action(): void
 {
-    $username = trim((string) ($_POST['username'] ?? ''));
-    $email    = trim((string) ($_POST['email'] ?? ''));
+    $nom = trim((string) ($_POST['nom'] ?? ''));
 
     $errors = [];
-    if ($username === '' || $email === '') {
-        $errors[] = 'Username and email address are required.';
+    if ($nom === '') {
+        $errors[] = 'Name is required.';
     }
-    if (mb_strlen($username) > 50) {
-        $errors[] = 'Username is limited to 50 characters.';
-    }
-    if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errors[] = 'Invalid email address.';
+    if (mb_strlen($nom) > (int) Settings::get('xxx.max_length')) {
+        $errors[] = 'Name is too long.';
     }
 
     if ($errors !== []) {
         Flash::errors($errors);
-        $this->redirect('/preferences');
+        $this->redirect('/xxx');
     }
 
-    (new User())->updateIdentity($this->viewerId(), $username, $email);
-    Flash::notice('Account updated.');
-    $this->redirect('/preferences');
+    (new Xxx())->update($this->viewerId(), $nom);
+    Flash::notice('Saved.');
+    $this->redirect('/xxx');
 }
 ```
 
-Chaque champ est lu avec `?? ''` puis `trim()` : un champ peut ne pas être
-envoyé, et lire une clé absente de `$_POST` sans `??` produit un avertissement
-PHP.
+Chaque champ se lit avec `?? ''` : un champ peut manquer dans la requête, et la
+lecture d'une clé absente de `$_POST` produit un avertissement PHP. Le
+transtypage `(string)` couvre le cas d'un champ envoyé sous forme de tableau
+(`nom[]=...`).
 
-Les messages sont accumulés dans `$errors` et affichés d'un bloc, plutôt que de
-sortir à la première erreur.
+Les erreurs s'accumulent dans `$errors` et s'affichent ensemble.
 
-Une contrainte de base (longueur, unicité) est validée en PHP même si la colonne
-la porte aussi : l'erreur SQL n'est pas un message utilisateur.
+Une contrainte portée par la base (longueur de colonne, unicité) se valide aussi
+en PHP avant l'écriture. Sinon, la violation lève une `PDOException`, qui
+produit une erreur 500.
+
+`redirect()` termine le script : aucun `return` n'est nécessaire après lui.
 
 ## 4 : Réponse
 
-Le projet emploie deux motifs.
+Deux réponses sont possibles.
 
-Redirection + Flash, quand le formulaire est sur une page qui affiche autre
-chose (préférences, galerie) :
+### Redirection et `Flash`
+
+La méthode dépose les messages par `Flash::notice()` ou `Flash::errors()`, puis
+redirige vers la page. La méthode `GET` de la page les récupère et les transmet
+à la vue :
 
 ```php
-Flash::errors($errors);
-$this->redirect('/preferences');
+$this->view('xxx', ['title' => 'Xxx'] + Flash::pull());
 ```
 
-La méthode GET récupère les messages et les passe à la vue :
+`Flash::pull()` renvoie les messages et les retire de la session : ils
+s'affichent une seule fois. Après la redirection, la page affichée est la
+réponse à un `GET`, et un rafraîchissement ne renvoie pas le formulaire
+(Post/Redirect/Get). Les valeurs saisies sont perdues.
+
+### Rendu direct
+
+En cas d'erreur, la méthode rend la vue elle-même, avec les erreurs et les
+valeurs saisies :
 
 ```php
-$this->view('preferences', ['title' => 'Preferences'] + Flash::pull());
-```
-
-Rendu direct, quand la page n'est que le formulaire (inscription,
-connexion) :
-
-```php
-$this->view('auth/register', [
-    'title'  => 'Sign up',
+$this->view('xxx', [
+    'title'  => 'Xxx',
     'errors' => $errors,
-    'old'    => ['username' => $username, 'email' => $email],
+    'old'    => ['nom' => $nom],
 ]);
 return;
 ```
 
-Différence : le rendu direct conserve les valeurs saisies (`$old`) sans les
-stocker en session, mais laisse le navigateur sur une réponse à un POST : un
-rafraîchissement propose de renvoyer le formulaire. La redirection l'évite
-(Post/Redirect/Get) au prix de la perte des champs saisis.
+Les champs sont réaffichés à partir de `$old`. Le navigateur reste sur la
+réponse à un POST : un rafraîchissement propose de renvoyer le formulaire. Ce
+rendu convient à une page qui ne contient que le formulaire.
 
-Une action réussie se termine toujours par une redirection.
+Dans les deux cas, une action réussie se termine par une redirection.
 
-## 5 : Afficher les messages
+## 5 : Affichage des messages
 
-Dans la vue, avant le formulaire :
+Le partiel commun s'inclut dans la vue, avant le formulaire :
 
 ```php
 <?php require BASE_PATH . '/app/Views/partials/messages.php'; ?>
 ```
 
-Le partiel lit `$notice` et `$errors`, les échappe, et les rend en `.notice` /
-`.error`.
+Il lit `$notice` et `$errors`, échappe leur contenu et les rend avec les classes
+`.notice` et `.error`.
 
 ## 6 : Envoi de fichier
 
 ```php
-<form method="post" action="/photobooth/capture" enctype="multipart/form-data">
+<form method="post" action="/xxx/action" enctype="multipart/form-data">
     <?= \App\Core\Csrf::field() ?>
-    <input type="file" id="file" name="file" accept="image/jpeg,image/png,image/gif">
+    <input type="file" id="file" name="file" accept="image/jpeg,image/png">
 </form>
 ```
 
-`enctype="multipart/form-data"` est obligatoire, sinon seul le nom du fichier est
-transmis. Les champs texte continuent d'alimenter `$_POST`, le jeton CSRF
-fonctionne donc tel quel.
+`enctype="multipart/form-data"` est obligatoire : sans lui, seul le nom du
+fichier est transmis. Les champs texte, dont le jeton, continuent d'alimenter
+`$_POST`.
 
-Côté contrôleur, le fichier arrive dans `$_FILES`, jamais dans `$_POST` :
+Le fichier arrive dans `$_FILES['file']`, tableau qui contient `name`, `type`,
+`tmp_name`, `error` et `size`. Contrôles à effectuer avant tout traitement :
 
-```php
-$fichier = $_FILES['file'] ?? null;
-if (is_array($fichier) && (int) $fichier['error'] !== UPLOAD_ERR_NO_FILE) {
-    return $montage->fromUpload($fichier);
-}
-```
+| Contrôle | Raison |
+|----------|--------|
+| `error === UPLOAD_ERR_OK` | Distingue l'absence de fichier (`UPLOAD_ERR_NO_FILE`), le dépassement de taille (`UPLOAD_ERR_INI_SIZE`) et l'échec. |
+| `is_uploaded_file($fichier['tmp_name'])` | Confirme que le chemin provient d'un envoi HTTP. |
+| type réel | `type` est déclaré par le client. Le type se détermine en lisant les octets, par `getimagesize()` ou `finfo`. |
+| taille | Borne lue dans `config/settings.php`, en plus des limites de PHP. |
+| nom de destination | Généré côté serveur (`bin2hex(random_bytes(16))`) ; `name` n'est jamais réutilisé. |
 
-À vérifier avant tout traitement :
+Les limites `upload_max_filesize` et `post_max_size` sont fixées dans
+`docker/web/uploads.ini`. Un envoi qui dépasse `post_max_size` arrive avec un
+`$_POST` vide, donc sans jeton : la réponse est le 403 du contrôle CSRF.
 
-| Contrôle | Pourquoi |
-|----------|----------|
-| `error === UPLOAD_ERR_OK` | Distinguer absence, dépassement de taille et échec. |
-| Type réel du contenu | `type` vient du client. Le type se détermine à la lecture du fichier, pas sur cette valeur. |
-| Taille | `photobooth.max_source` dans `settings.php`, en plus des limites de `uploads.ini`. |
-| Nom de destination | Généré côté serveur. Le nom d'origine n'est jamais réutilisé tel quel. |
+## 7 : Envoi par JavaScript
 
-Les limites PHP (`upload_max_filesize`, `post_max_size`) sont dans
-`docker/web/uploads.ini`. Un envoi qui les dépasse arrive avec un `$_POST` vide,
-donc sans jeton CSRF : la réponse est un 403, pas un message de taille.
-
-## 7 : Envoi en JavaScript
-
-Le routeur lit `$_POST` : le corps doit être au format formulaire, pas en JSON.
-
-```js
-const data = new FormData(form); // embarque le champ caché csrf_token
-const reponse = await fetch('/mon-action', {
-    method: 'POST',
-    body: data,
-    credentials: 'same-origin',
-});
-```
-
-Un corps JSON laisse `$_POST['csrf_token']` vide et la requête est rejetée en
-403.
+Un formulaire peut être envoyé par `fetch()` sans changement de page. Le corps
+reste au format formulaire (`new FormData(form)`), qui transporte le jeton.
+`fetch()` suit la redirection de fin d'action et reçoit la page HTML de la
+cible : une méthode dont le script doit connaître le résultat répond par
+`$this->json([...])`. Les refus du routeur (403, redirection vers `/login`)
+arrivent en HTML.
 
 ## Récapitulatif
 
 | Étape | Fichier |
 |-------|---------|
-| Routes GET + POST, `Router::AUTH` | `config/routes.php` |
+| Routes `GET` et `POST`, niveau d'accès | `config/routes.php` |
 | Balisage, `Csrf::field()`, `$old` | `app/Views/xxx.php` |
-| Partiel de messages | `app/Views/partials/messages.php` |
-| Lecture, validation, action | `app/Controllers/XxxController.php` |
-| Écriture | `app/Models/Xxx.php` |
-| Bornes (longueurs, tailles, MIME) | `config/settings.php` |
+| Messages | `app/Views/partials/messages.php` |
+| Lecture, validation, réponse | `app/Controllers/XxxController.php` |
+| Écriture en base | `app/Models/Xxx.php` |
+| Bornes (longueurs, tailles, types) | `config/settings.php` |
+| Limites d'envoi de PHP | `docker/web/uploads.ini` |

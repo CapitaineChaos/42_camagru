@@ -40,7 +40,7 @@ final class PrefsController extends Controller
     {
         $user     = $this->user();
         $username = trim((string) ($_POST['username'] ?? ''));
-        $email    = trim((string) ($_POST['email'] ?? ''));
+        $email    = Email::normalize((string) ($_POST['email'] ?? ''));
         $nouveau  = (string) ($_POST['password'] ?? '');
 
         $users  = new User();

@@ -11,7 +11,7 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 WITH compte AS (
     INSERT INTO users (username, email, password, avatar, modele, verified)
-    VALUES (:'nom', :'adresse', crypt(:'motdepasse', gen_salt('bf', 10)), 'generique.png', TRUE, TRUE)
+    VALUES (:'nom', lower(:'adresse'), crypt(:'motdepasse', gen_salt('bf', 10)), 'generique.png', TRUE, TRUE)
     RETURNING id
 )
 INSERT INTO admins (user_id) SELECT id FROM compte;

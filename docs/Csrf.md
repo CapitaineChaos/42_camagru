@@ -71,7 +71,7 @@ le jeton.
 
 ## Comparaison à temps constant (`hash_equals`)
 
-`check()` compare le jeton reçu avec `hash_equals`, pas avec `==`/`===`.
+`check()` compare le jeton reçu avec `hash_equals`.
 
 `==` s'arrête au premier octet qui diffère :
 
@@ -100,7 +100,7 @@ L'attaque temporelle est peu réaliste ici, le jeton étant en session et régé
 Placer `Csrf::field()` à l'intérieur du `<form>` :
 
 ```php
-<form method="post" action="/mon-action">
+<form method="post" action="/xxx/action">
     <?= \App\Core\Csrf::field() ?>
     <p class="field flex-vt tight">
         <label for="titre">Titre</label>
@@ -118,7 +118,7 @@ Placer `Csrf::field()` à l'intérieur du `<form>` :
 Dans `config/routes.php` :
 
 ```php
-$router->post('/mon-action', [MonController::class, 'traiter']);
+$router->post('/xxx/action', [XxxController::class, 'action']);
 ```
 
 Le routeur vérifie le jeton pour cette route comme pour les autres.
@@ -128,13 +128,8 @@ Le routeur vérifie le jeton pour cette route comme pour les autres.
 - Uniquement POST. Une requête GET n'est pas vérifiée ; une action modifiant
   l'état (création, suppression, like) ne passe pas en GET.
 - Le routeur lit `$_POST`. Un envoi `fetch`/AJAX transmet le jeton dans le corps
-  au format formulaire (`FormData` ou `application/x-www-form-urlencoded`), pas
-  en JSON : sinon `$_POST['csrf_token']` est vide et la requête est rejetée.
-
-  ```js
-  const data = new FormData(form); // récupère aussi le champ caché csrf_token
-  fetch('/mon-action', { method: 'POST', body: data });
-  ```
+  au format formulaire (`FormData` ou `application/x-www-form-urlencoded`). Avec
+  un corps JSON, `$_POST['csrf_token']` est vide et la requête est rejetée.
 
 - Upload de fichier : `enctype="multipart/form-data"` remplit `$_POST` pour les
   champs non-fichiers, le champ caché fonctionne tel quel.

@@ -36,7 +36,7 @@
 | XSS (Cross-Site Scripting) | Injection de code (souvent JavaScript) dans une page, exécuté par le navigateur des autres visiteurs. |
 | XSS stocké | Charge enregistrée en base (commentaire, pseudo) puis rejouée à chaque affichage. |
 | XSS réfléchi | Charge renvoyée immédiatement dans la réponse, typiquement depuis un paramètre d'URL. |
-| Échappement | Conversion des caractères spéciaux en entités pour qu'ils s'affichent au lieu d'être interprétés. |
+| Échappement | Conversion des caractères spéciaux en entités pour qu'ils s'affichent comme texte. |
 | `htmlspecialchars` | Fonction PHP d'échappement HTML (`<`, `>`, `&`, guillemets). |
 | Contexte d'échappement | Endroit où la donnée est insérée (texte HTML, attribut, JavaScript, URL) ; chaque contexte demande un échappement différent. |
 | Injection SQL | Attaque insérant du SQL malveillant via une entrée utilisateur non isolée. |
@@ -48,7 +48,8 @@
 | Terme | Définition |
 |-------|------------|
 | Hachage | Transformation à sens unique d'une donnée ; un mot de passe haché n'est pas réversible. |
-| Sel (salt) | Valeur aléatoire ajoutée avant hachage pour que deux mots de passe identiques produisent des empreintes différentes. |
+| Sel (salt) | Valeur aléatoire propre à chaque hash, ajoutée avant hachage pour que deux mots de passe identiques produisent des empreintes différentes ; stockée en clair dans la chaîne du hash. |
+| Poivre (pepper) | Valeur secrète commune à tous les mots de passe, gardée hors de la base et ajoutée avant hachage. |
 | bcrypt | Algorithme de hachage de mots de passe lent et paramétrable, utilisé par `PASSWORD_DEFAULT`. |
 | Coût (cost) | Paramètre réglant la lenteur de bcrypt ; plus il est élevé, plus une attaque par force brute coûte cher. |
 | `password_hash` / `PASSWORD_DEFAULT` | Hachage de mot de passe avec bcrypt et sel automatique. |
@@ -67,8 +68,8 @@
 |-------|------------|
 | PDO (PHP Data Objects) | Couche d'accès aux bases de données de PHP. |
 | DSN (Data Source Name) | Chaîne de connexion décrivant la base à joindre (hôte, port, nom). |
-| `EMULATE_PREPARES` | Option PDO : à `false`, la préparation est réellement effectuée par le serveur de base de données et non simulée par PHP. |
-| `ERRMODE_EXCEPTION` | Option PDO faisant lever une exception sur erreur SQL au lieu d'un code silencieux. |
+| `EMULATE_PREPARES` | Option PDO : à `false`, la préparation est effectuée par le serveur de base de données. |
+| `ERRMODE_EXCEPTION` | Option PDO qui lève une exception à chaque erreur SQL. |
 | Marqueur nommé | Emplacement `:nom` dans une requête préparée, rempli à l'exécution. |
 | Transaction | Groupe de requêtes validé d'un bloc (`COMMIT`) ou annulé entièrement (`ROLLBACK`). |
 | Contrainte `UNIQUE` | Interdit deux lignes portant la même valeur (email, pseudo). |
@@ -93,7 +94,7 @@
 | `Cache-Control` | En-tête réglant la mise en cache d'une réponse et sa durée. |
 | `DocumentRoot` | Dossier exposé par le serveur web ; ici `public/`, pour que le code applicatif reste hors de portée des URL. |
 | Same-origin policy | Règle du navigateur interdisant à une page de lire la réponse d'une autre origine. |
-| CORS (Cross-Origin Resource Sharing) | En-têtes par lesquels un serveur autorise certaines origines à lire ses réponses ; un assouplissement de la same-origin policy, pas une protection. |
+| CORS (Cross-Origin Resource Sharing) | En-têtes par lesquels un serveur autorise certaines origines à lire ses réponses ; assouplissement de la same-origin policy. |
 | Preflight | Requête `OPTIONS` envoyée par le navigateur pour demander l'autorisation avant une requête cross-origin non simple. |
 | `Content-Security-Policy` | En-tête listant les sources de scripts et styles autorisées ; défense complémentaire contre le XSS. |
 | Clickjacking | Attaque affichant le site dans une iframe invisible pour détourner les clics de la victime. |

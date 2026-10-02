@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS users (
     id          SERIAL PRIMARY KEY,
-    username    VARCHAR(50)  UNIQUE NOT NULL,
+    username    VARCHAR(50)  NOT NULL,
     email       VARCHAR(255) UNIQUE NOT NULL,
     password    VARCHAR(255) NOT NULL,
     avatar      VARCHAR(255),
@@ -15,6 +15,9 @@ CREATE TABLE IF NOT EXISTS users (
     suspended   BOOLEAN      NOT NULL DEFAULT FALSE,
     created_at  TIMESTAMPTZ  NOT NULL DEFAULT now()
 );
+
+-- Alice and alice are one name: unique and looked up whatever the case
+CREATE UNIQUE INDEX IF NOT EXISTS users_username_lower_idx ON users (lower(username));
 
 CREATE TABLE IF NOT EXISTS password_resets (
     id          SERIAL PRIMARY KEY,

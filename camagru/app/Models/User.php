@@ -54,7 +54,7 @@ final class User extends Model
     /** @return array<string, mixed>|null */
     public function findByUsername(string $username): ?array
     {
-        $stmt = $this->db->prepare('SELECT * FROM users WHERE username = :username');
+        $stmt = $this->db->prepare('SELECT * FROM users WHERE lower(username) = lower(:username)');
         $stmt->execute(['username' => $username]);
 
         return $stmt->fetch() ?: null;
