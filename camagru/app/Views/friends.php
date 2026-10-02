@@ -26,12 +26,7 @@ $bouton = static function (string $action, int $id, string $libelle, string $cla
         . '</form>';
 };
 ?>
-<?php if (!empty($notice)): ?>
-<p class="notice"><?= htmlspecialchars($notice) ?></p>
-<?php endif; ?>
-<?php foreach ($errors ?? [] as $erreur): ?>
-<p class="error"><?= htmlspecialchars($erreur) ?></p>
-<?php endforeach; ?>
+<?php require BASE_PATH . '/app/Views/partials/messages.php'; ?>
 
 <section class="card">
     <h2>Add</h2>

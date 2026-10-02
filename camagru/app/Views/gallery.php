@@ -10,13 +10,10 @@
 
 $quand = static fn (string $horodatage): string
     => date('j M Y, H:i', (int) strtotime($horodatage));
+$iso = static fn (string $horodatage): string
+    => date('c', (int) strtotime($horodatage));
 ?>
-<?php if (!empty($notice)): ?>
-<p class="notice"><?= htmlspecialchars($notice) ?></p>
-<?php endif; ?>
-<?php foreach ($errors ?? [] as $erreur): ?>
-<p class="error"><?= htmlspecialchars($erreur) ?></p>
-<?php endforeach; ?>
+<?php require BASE_PATH . '/app/Views/partials/messages.php'; ?>
 
 <?php if ($images === []): ?>
 <section class="card">
@@ -40,7 +37,7 @@ $sien = $viewerId !== null && $viewerId === (int) $image['user_id'];
 ?>
 <article class="card montage-card" id="montage-<?= $id ?>">
     <h2 class="flex-hz"><?= htmlspecialchars((string) $image['username']) ?>
-        <span class="when"><?= htmlspecialchars($quand((string) $image['created_at'])) ?></span></h2>
+        <time class="when" datetime="<?= $iso((string) $image['created_at']) ?>"><?= htmlspecialchars($quand((string) $image['created_at'])) ?></time></h2>
 
     <div class="montage-body flex-hz">
     <img class="montage-view media" src="<?= htmlspecialchars(\App\Services\Montage::url($image)) ?>" loading="lazy"
@@ -48,7 +45,7 @@ $sien = $viewerId !== null && $viewerId === (int) $image['user_id'];
 
     <div class="montage-side">
     <div class="montage-actions flex-hz">
-        <?php if ($viewerId !== null && !$sien): ?>
+        <?php if ($viewerId !== null): ?>
         <form method="post" action="/gallery/like">
             <?= \App\Core\Csrf::field() ?>
             <input type="hidden" name="id" value="<?= $id ?>">
@@ -86,14 +83,14 @@ $sien = $viewerId !== null && $viewerId === (int) $image['user_id'];
         <li class="tile">
             <span class="author<?= $commentaire['username'] === null ? ' author-gone' : '' ?>"><?=
                 htmlspecialchars((string) ($commentaire['username'] ?? 'Deleted account')) ?></span>
-            <span class="when"><?= htmlspecialchars($quand((string) $commentaire['created_at'])) ?></span>
+            <time class="when" datetime="<?= $iso((string) $commentaire['created_at']) ?>"><?= htmlspecialchars($quand((string) $commentaire['created_at'])) ?></time>
             <p><?= nl2br(htmlspecialchars((string) $commentaire['comment'])) ?></p>
         </li>
         <?php endforeach; ?>
     </ul>
     <?php endif; ?>
 
-    <?php if ($viewerId !== null && !$sien): ?>
+    <?php if ($viewerId !== null): ?>
     <form class="form-block flex-vt" method="post" action="/gallery/comment">
         <?= \App\Core\Csrf::field() ?>
         <input type="hidden" name="id" value="<?= $id ?>">
@@ -105,7 +102,7 @@ $sien = $viewerId !== null && $viewerId === (int) $image['user_id'];
         </p>
         <p class="flex-hz"><button type="submit">Post</button></p>
     </form>
-    <?php elseif ($viewerId === null): ?>
+    <?php else: ?>
     <p class="note"><a href="/login">Log in</a> to like and comment.</p>
     <?php endif; ?>
     </div>
@@ -115,7 +112,7 @@ $sien = $viewerId !== null && $viewerId === (int) $image['user_id'];
 </div>
 
 <?php if ($pages > 1): ?>
-<nav class="pagination">
+<nav class="pagination" aria-label="Pagination">
     <?php if ($page > 1): ?>
     <a href="/gallery?page=<?= $page - 1 ?>">Previous</a>
     <?php endif; ?>

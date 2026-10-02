@@ -6,12 +6,7 @@
 /** @var string|null $notice */
 /** @var list<string>|null $errors */
 ?>
-<?php if (!empty($notice)): ?>
-<p class="notice"><?= htmlspecialchars($notice) ?></p>
-<?php endif; ?>
-<?php foreach ($errors ?? [] as $erreur): ?>
-<p class="error"><?= htmlspecialchars($erreur) ?></p>
-<?php endforeach; ?>
+<?php require BASE_PATH . '/app/Views/partials/messages.php'; ?>
 
 <div class="booth-grid">
 <div class="booth-main">
@@ -27,7 +22,7 @@
                 <video id="stream" playsinline muted></video>
                 <img id="preview" alt="Montage in progress" hidden>
                 <div class="pieces" id="pieces"></div>
-                <p class="scene-status" id="status" hidden></p>
+                <p class="scene-status" id="status" aria-live="polite" hidden></p>
             </div>
             <p class="flex-hz">
                 <button type="button" id="shoot" disabled>Take the shot</button>

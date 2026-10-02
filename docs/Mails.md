@@ -89,7 +89,7 @@ compte créé reste créé si le mail de confirmation n'est pas parti.
 | confirmation du compte | message de bienvenue, liens vers la connexion et les préférences | toujours |
 | demande de réinitialisation | lien `/reset-password?token=…`, durée de validité | seulement si l'adresse correspond à un compte |
 | suppression du compte | confirmation, nombre de montages supprimés | toujours |
-| commentaire sur un montage | auteur du commentaire, lien vers le montage | préférence `notify_comment` du propriétaire |
+| commentaire sur un montage | auteur du commentaire, lien vers le montage | préférence `notify_comment` du propriétaire ; aucun mail quand le propriétaire commente son propre montage |
 | demande d'ami reçue | auteur, lien vers la page des amis | préférence `notify_friend_request` |
 | demande d'ami acceptée | auteur, lien vers la page des amis | préférence `notify_friend_accepted` |
 | retrait d'un ami | auteur | préférence `notify_friend_removed` |

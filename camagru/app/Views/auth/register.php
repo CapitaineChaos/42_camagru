@@ -10,12 +10,12 @@
         <p class="field flex-vt tight">
             <label for="username">Username</label>
             <input type="text" id="username" name="username" value="<?= htmlspecialchars($old['username'] ?? '') ?>"
-                   autocomplete="username" required
+                   autocomplete="username" required aria-describedby="username-state"
                    minlength="<?= \App\Core\Username::MINIMUM ?>"
                    maxlength="<?= \App\Core\Username::MAXIMUM ?>"
                    pattern="<?= htmlspecialchars(\App\Core\Username::pattern()) ?>"
                    title="<?= htmlspecialchars(\App\Core\Username::hint()) ?>">
-            <span class="hint" id="username-state"><?= htmlspecialchars(\App\Core\Username::hint()) ?></span>
+            <span class="hint" id="username-state" aria-live="polite"><?= htmlspecialchars(\App\Core\Username::hint()) ?></span>
         </p>
         <p class="field flex-vt tight">
             <label for="email">Email</label>
@@ -27,10 +27,11 @@
         <p class="field flex-vt tight">
             <label for="password">Password</label>
             <input type="password" id="password" name="password" autocomplete="new-password" required
+                   aria-describedby="password-hint"
                    minlength="<?= \App\Core\Password::minimum() ?>"
                    pattern="<?= htmlspecialchars(\App\Core\Password::pattern()) ?>"
                    title="<?= htmlspecialchars(\App\Core\Password::hint()) ?>">
-            <span class="hint"><?= htmlspecialchars(\App\Core\Password::hint()) ?></span>
+            <span class="hint" id="password-hint"><?= htmlspecialchars(\App\Core\Password::hint()) ?></span>
         </p>
         <p class="flex-hz"><button type="submit">Sign up</button></p>
     </form>

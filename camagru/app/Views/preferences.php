@@ -29,10 +29,11 @@ $minimum = (int) \App\Core\Settings::get('auth.password_min_length');
         <p class="field flex-vt tight">
             <label for="motdepasse">New password</label>
             <input type="password" id="motdepasse" name="password" autocomplete="new-password"
+                   aria-describedby="password-hint"
                    minlength="<?= $minimum ?>"
                    pattern="<?= htmlspecialchars(\App\Core\Password::pattern()) ?>"
                    title="<?= htmlspecialchars(\App\Core\Password::hint()) ?>">
-            <span class="hint">Leave empty to keep the current one. At least <?= $minimum ?> characters, with one letter and one digit.</span>
+            <span class="hint" id="password-hint">Leave empty to keep the current one. At least <?= $minimum ?> characters, with one letter and one digit.</span>
         </p>
         <p class="field flex-vt tight">
             <label for="actuel">Current password</label>

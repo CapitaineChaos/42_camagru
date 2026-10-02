@@ -11,10 +11,11 @@
         <p class="field flex-vt tight">
             <label for="password">New password</label>
             <input type="password" id="password" name="password" autocomplete="new-password" required
+                   aria-describedby="password-hint"
                    minlength="<?= \App\Core\Password::minimum() ?>"
                    pattern="<?= htmlspecialchars(\App\Core\Password::pattern()) ?>"
                    title="<?= htmlspecialchars(\App\Core\Password::hint()) ?>">
-            <span class="hint"><?= htmlspecialchars(\App\Core\Password::hint()) ?></span>
+            <span class="hint" id="password-hint"><?= htmlspecialchars(\App\Core\Password::hint()) ?></span>
         </p>
         <p class="field flex-vt tight">
             <label for="password_confirmation">Confirm password</label>

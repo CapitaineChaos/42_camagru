@@ -53,7 +53,7 @@ final class GalleryController extends Controller
     {
         $id = (int) ($_POST['id'] ?? 0);
 
-        if ($this->cible($id) !== null) {
+        if ($this->cible($id, true) !== null) {
             if ((new Report())->create($id, $this->viewerId())) {
                 Flash::notice('Montage reported. An admin will look at it.');
             } else {
@@ -81,22 +81,25 @@ final class GalleryController extends Controller
             Flash::errors(['Comment too long: ' . $maximum . ' characters at most.']);
         } else {
             (new Comment())->create($id, $this->viewerId(), $texte);
-            (new Notifications())->comment(
-                (int) $image['user_id'],
-                (string) $_SESSION['user']['username'],
-                $id
-            );
+            if ((int) $image['user_id'] !== $this->viewerId()) {
+                (new Notifications())->comment(
+                    (int) $image['user_id'],
+                    (string) $_SESSION['user']['username'],
+                    $id
+                );
+            }
         }
 
         $this->redirect($this->retour($id));
     }
 
     /**
-     * The montage a reader may act on: someone else's, and still there.
+     * The montage a reader may act on: still there, and someone else's when
+     * $autrui is set (a report on one's own montage makes no sense).
      *
      * @return array<string, mixed>|null null once the refusal is flashed
      */
-    private function cible(int $id): ?array
+    private function cible(int $id, bool $autrui = false): ?array
     {
         $image = $id > 0 ? (new Image())->findById($id) : null;
 
@@ -105,8 +108,8 @@ final class GalleryController extends Controller
             return null;
         }
 
-        if ((int) $image['user_id'] === $this->viewerId()) {
-            Flash::errors(['You cannot like, comment or report your own montage.']);
+        if ($autrui && (int) $image['user_id'] === $this->viewerId()) {
+            Flash::errors(['You cannot report your own montage.']);
             return null;
         }
 

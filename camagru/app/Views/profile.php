@@ -11,12 +11,7 @@
 $since = static fn (string $horodatage): string
     => date('j M Y', (int) strtotime($horodatage));
 ?>
-<?php if (!empty($notice)): ?>
-<p class="notice"><?= htmlspecialchars($notice) ?></p>
-<?php endif; ?>
-<?php foreach ($errors ?? [] as $erreur): ?>
-<p class="error"><?= htmlspecialchars($erreur) ?></p>
-<?php endforeach; ?>
+<?php require BASE_PATH . '/app/Views/partials/messages.php'; ?>
 
 <section class="card">
     <h2>Account</h2>
@@ -26,7 +21,7 @@ $since = static fn (string $horodatage): string
         <dl class="details">
             <dt>Username</dt><dd><?= htmlspecialchars((string) $currentUser['username']) ?></dd>
             <dt>Email address</dt><dd><?= htmlspecialchars((string) $currentUser['email']) ?></dd>
-            <dt>Member since</dt><dd><?= htmlspecialchars($since((string) $currentUser['created_at'])) ?></dd>
+            <dt>Member since</dt><dd><time datetime="<?= date('Y-m-d', (int) strtotime((string) $currentUser['created_at'])) ?>"><?= htmlspecialchars($since((string) $currentUser['created_at'])) ?></time></dd>
         </dl>
     </div>
 </section>

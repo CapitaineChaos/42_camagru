@@ -89,7 +89,7 @@ $pastille = static function (int $nombre): string {
 <body class="<?= $accueil ? 'home' : 'inner' ?>">
     <header class="site-header">
     <nav class="<?= $accueil ? 'home-menu' : 'side-menu' ?>" aria-label="Main">
-        <input type="checkbox" id="burger" class="hamburger">
+        <input type="checkbox" id="burger" class="hamburger" aria-label="Menu">
         <label for="burger"<?= $attente > 0 ? ' data-pip="' . $attente . '"' : '' ?>><span></span></label>
         <div class="menu-panel">
             <ul>
@@ -104,7 +104,7 @@ $pastille = static function (int $nombre): string {
     <div class="account">
         <span class="badge">
             <?php if (!empty($currentUserAvatarUrl)): ?>
-            <img src="<?= htmlspecialchars($currentUserAvatarUrl) ?>" alt="Avatar de <?= htmlspecialchars($currentUser['username']) ?>" class="avatar">
+            <img src="<?= htmlspecialchars($currentUserAvatarUrl) ?>" alt="Avatar of <?= htmlspecialchars($currentUser['username']) ?>" class="avatar">
             <?php endif; ?>
             <span class="initial"><?= htmlspecialchars(mb_strtoupper(mb_substr($currentUser['username'], 0, 1))) ?></span>
         </span>

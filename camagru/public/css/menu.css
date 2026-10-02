@@ -109,6 +109,24 @@
 }
 
 @media screen and (max-width: 767.98px) {
+    /* invisible but focusable: display: none would keep the menu out of reach
+       of the keyboard and of screen readers */
+    .hamburger {
+        display: block;
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+        width: 1px;
+        height: 1px;
+        margin: 0;
+        opacity: 0;
+    }
+
+    .hamburger:focus-visible + label {
+        outline: 2px solid var(--violet);
+        outline-offset: 3px;
+    }
+
     .hamburger + label {
         cursor: pointer;
         width: 56px;

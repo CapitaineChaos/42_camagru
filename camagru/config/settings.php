@@ -9,7 +9,7 @@ return [
     ],
 
     'assets' => [
-        'version' => 78,                // ?v= on css, js and svg
+        'version' => 79,                // ?v= on css, js and svg
     ],
 
     'session' => [

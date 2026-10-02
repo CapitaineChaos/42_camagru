@@ -54,7 +54,7 @@ $quand = static fn (string $horodatage): string
         <li class="tile flex-hz<?= $suspendu ? ' suspended' : '' ?>">
             <span class="uname"><?= htmlspecialchars((string) $compte['username']) ?></span>
             <span><?= htmlspecialchars((string) $compte['email']) ?></span>
-            <span><?= htmlspecialchars($quand((string) $compte['created_at'])) ?></span>
+            <span><time datetime="<?= date('Y-m-d', (int) strtotime((string) $compte['created_at'])) ?>"><?= htmlspecialchars($quand((string) $compte['created_at'])) ?></time></span>
             <span><?= (int) $compte['montages'] ?> montages</span>
             <span><?= $admin ? 'Admin' : 'Member' ?><?= $suspendu ? ', suspended' : '' ?></span>
             <?php if (!$admin && $id !== $moi): ?>
